@@ -52,7 +52,14 @@ class GameEngine:
     def _register_default_states(self) -> None:
         """Register the primary states into the state machine."""
         from src.ui.menu_state import MainMenuState
+        from src.ui.character_builder_state import CharacterBuilderState
+        from src.ui.dungeon_run_state import DungeonRunState
+        from src.ui.scoreboard_state import ScoreboardState
+
         self.state_machine.register(GameStateId.MAIN_MENU, MainMenuState(self.state_machine))
+        self.state_machine.register(GameStateId.CHARACTER_BUILDER, CharacterBuilderState(self.state_machine))
+        self.state_machine.register(GameStateId.DUNGEON_RUN, DungeonRunState(self.state_machine))
+        self.state_machine.register(GameStateId.SCOREBOARD, ScoreboardState(self.state_machine))
         self.state_machine.change_state(GameStateId.MAIN_MENU)
 
     def run(self) -> None:

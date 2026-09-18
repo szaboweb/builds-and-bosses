@@ -41,8 +41,9 @@ from src.entities.character import Character
 class Boss:
     """Prototype boss entity."""
 
-    def __init__(self, name: str, max_hp: int, speed: float, damage: int, color):
+    def __init__(self, name: str, max_hp: int, speed: float, damage: int, color, icon: str = "\U0001F480"):
         self.name = name
+        self.icon = icon
         self.max_hp = max_hp
         self.current_hp = max_hp
         self.speed = speed           # pixels / second
@@ -101,9 +102,33 @@ PLAYER_RADIUS = 18
 PLAYER_COLOR = (80, 180, 255)
 
 BOSS_ROSTER = [
-    {"name": "Gravekeeper Malakar", "hp": 180, "speed": 70, "damage": 12, "color": (140, 60, 200)},
+    {"name": "Gravekeeper Malakar", "hp": 180, "speed": 70, "damage": 12, "color": (140, 60, 200), "icon": "\U0001F480"},  # skull
     # TODO: add remaining 11 bosses
+    # {"name": "Ignis the Flamboyant",   "icon": "\U0001F525"},  # fire
+    # {"name": "Gorgon Queen Serytha",    "icon": "\U0001F40D"},  # snake
+    # {"name": "Shadowstalker Vane",      "icon": "\U0001F5A4"},  # dark heart
+    # {"name": "Iron Colossus",           "icon": "\U00002699"},  # gear
+    # {"name": "Broodmother Xilith",      "icon": "\U0001F577"},  # spider
+    # {"name": "Archmage Thundercall",    "icon": "\U000026A1"},  # lightning
+    # {"name": "Bloodlord Draven",        "icon": "\U0001F9DB"},  # vampire
+    # {"name": "Dune Tyrant Skar",        "icon": "\U0001F40E"},  # horse (placeholder)
+    # {"name": "Frost Lich Kel'Vara",     "icon": "\U0001F9CA"},  # ice
+    # {"name": "Demonforged Behemoth",    "icon": "\U0001F47F"},  # imp
+    # {"name": "The Eldritch Sovereign",  "icon": "\U0001F30C"},  # void
 ]
+
+# Weapon icon per primary class
+CLASS_WEAPON_ICON: dict[str, str] = {
+    "fighter":  "\U00002694",   # crossed swords
+    "paladin":  "\U0001F531",   # trident / holy symbol
+    "rogue":    "\U0001F462",   # boot (thief)
+    "wizard":   "\U0001FA84",   # magic wand
+    "cleric":   "\U0001F6F0",   # staff / satellite (placeholder)
+    "ranger":   "\U0001F3F9",   # bow
+    "barbarian":"\U0001FA93",   # axe
+    "bard":     "\U0001F3B5",   # music note
+}
+DEFAULT_WEAPON_ICON = "\U00002694"  # crossed swords fallback
 
 
 class DungeonRunState(State):
@@ -135,6 +160,9 @@ class DungeonRunState(State):
         self.font_hud: Optional[pygame.font.Font] = None
         self.font_big: Optional[pygame.font.Font] = None
         self.font_small: Optional[pygame.font.Font] = None
+        self.font_icon_large: Optional[pygame.font.Font] = None
+        self.font_icon_small: Optional[pygame.font.Font] = None
+        self._weapon_icon: str = DEFAULT_WEAPON_ICON
 
         # Attack flash effect
         self.hit_flash: float = 0.0
@@ -165,7 +193,7 @@ class DungeonRunState(State):
 
         # Spawn boss
         b = BOSS_ROSTER[0]
-        self.boss = Boss(b["name"], b["hp"], b["speed"], b["damage"], b["color"])
+        self.boss = Boss(b["name"], b["hp"], b["speed"], b["damage"], b["color"], b.get("icon", "\U0001F480"))
 
         self.run_start = time.monotonic()
         self.run_time = 0.0
@@ -173,13 +201,24 @@ class DungeonRunState(State):
         self.result_timer = 3.0
         self.attack_cooldown = 0.0
         self.hit_flash = 0.0
+        self._weapon_icon: str = self._resolve_weapon_icon()
         self._init_fonts()
+
+    def _resolve_weapon_icon(self) -> str:
+        """Pick weapon icon based on the highest-level class."""
+        if not self.character or not self.character.class_levels:
+            return DEFAULT_WEAPON_ICON
+        primary = max(self.character.class_levels, key=lambda c: self.character.class_levels[c])
+        return CLASS_WEAPON_ICON.get(primary, DEFAULT_WEAPON_ICON)
 
     def _init_fonts(self) -> None:
         if self.font_hud is None and pygame.font.get_init():
             self.font_hud = pygame.font.SysFont("consolas,monospace", 22, bold=True)
             self.font_big = pygame.font.SysFont("consolas,monospace", 48, bold=True)
             self.font_small = pygame.font.SysFont("consolas,monospace", 18)
+            # Emoji font for boss/player icons
+            self.font_icon_large = pygame.font.SysFont("segoeuiemoji,notocoloremoji,unifont", 52)
+            self.font_icon_small = pygame.font.SysFont("segoeuiemoji,notocoloremoji,unifont", 26)
 
     # ------------------------------------------------------------------
     # Events
@@ -276,17 +315,21 @@ class DungeonRunState(State):
 
         # Boss
         if self.boss and self.boss.alive:
-            pygame.draw.circle(surface, self.boss.color,
-                               (int(self.boss.x), int(self.boss.y)), self.boss.radius)
+            self._draw_entity_icon(
+                surface, self.boss.icon, int(self.boss.x), int(self.boss.y),
+                self.boss.radius, self.boss.color, large=True
+            )
             self._draw_hp_bar(surface, self.boss.x - 40, self.boss.y - self.boss.radius - 14,
                               80, 8, self.boss.hp_ratio, COLOR_ACCENT_RED)
             name_surf = self.font_small.render(self.boss.name, True, COLOR_TEXT_MUTED)
             surface.blit(name_surf, (int(self.boss.x) - name_surf.get_width() // 2,
                                      int(self.boss.y) - self.boss.radius - 30))
 
-        # Player
+        # Player body
         p_color = (255, 80, 80) if self.hit_flash > 0 else PLAYER_COLOR
         pygame.draw.circle(surface, p_color, (int(self.px), int(self.py)), PLAYER_RADIUS)
+        # Weapon icon next to player
+        self._draw_weapon_icon(surface, int(self.px), int(self.py))
 
         # Attack range indicator (faint)
         if self.attack_cooldown <= 0 and self.state == "running":
@@ -295,6 +338,32 @@ class DungeonRunState(State):
 
         self._draw_hud(surface)
         self._draw_overlay(surface)
+
+    def _draw_entity_icon(
+        self, surface: pygame.Surface, icon: str,
+        cx: int, cy: int, radius: int, glow_color, large: bool = True
+    ) -> None:
+        """Render a Unicode emoji icon centered at (cx, cy) with a coloured glow circle."""
+        # Glow/background circle
+        pygame.draw.circle(surface, glow_color, (cx, cy), radius)
+        font = self.font_icon_large if large else self.font_icon_small
+        if font:
+            try:
+                icon_surf = font.render(icon, True, (255, 255, 255))
+                surface.blit(icon_surf, (cx - icon_surf.get_width() // 2,
+                                         cy - icon_surf.get_height() // 2))
+            except Exception:
+                pass  # font doesn't support this glyph — glow circle is enough
+
+    def _draw_weapon_icon(self, surface: pygame.Surface, px: int, py: int) -> None:
+        """Draw the weapon icon to the right of the player token."""
+        if not self.font_icon_small:
+            return
+        try:
+            w_surf = self.font_icon_small.render(self._weapon_icon, True, COLOR_ACCENT_GOLD)
+            surface.blit(w_surf, (px + PLAYER_RADIUS + 4, py - w_surf.get_height() // 2))
+        except Exception:
+            pass
 
     def _draw_hp_bar(self, surface, x, y, w, h, ratio, color) -> None:
         pygame.draw.rect(surface, (50, 50, 50), (x, y, w, h))

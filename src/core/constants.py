@@ -7,7 +7,7 @@ from enum import Enum, auto
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 FPS = 60
-TITLE = "Crucible of Builds — D&D Multiclass Action RPG"
+TITLE = "Builds & Bosses — D&D Multiclass Action RPG"
 
 # Colors (Tailored modern dark fantasy palette)
 COLOR_BG_DARK = (15, 17, 26)         # Deep slate/black

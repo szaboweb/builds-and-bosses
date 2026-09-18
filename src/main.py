@@ -1,4 +1,4 @@
-"""Entry point for Crucible of Builds."""
+"""Entry point for Builds & Bosses."""
 
 import sys
 import argparse
@@ -13,7 +13,7 @@ from src.core.engine import GameEngine
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Crucible of Builds — D&D Action RPG")
+    parser = argparse.ArgumentParser(description="Builds & Bosses — D&D Multiclass Action RPG")
     parser.add_argument(
         "--headless",
         action="store_true",
@@ -39,7 +39,7 @@ def main():
     headless = args.headless or args.test
     max_frames = 30 if args.test else args.frames
 
-    print(f"Indítás: Crucible of Builds (Headless={headless}, MaxFrames={max_frames})")
+    print(f"Indítás: Builds & Bosses (Headless={headless}, MaxFrames={max_frames})")
     engine = GameEngine(headless=headless, max_frames=max_frames)
     engine.initialize()
     engine.run()

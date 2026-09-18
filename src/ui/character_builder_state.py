@@ -339,7 +339,7 @@ class CharacterBuilderState(State):
         self._draw_controls(surface)
         if self.status_msg:
             s = self.font_small.render(self.status_msg, True, COLOR_ACCENT_GREEN)
-            surface.blit(s, (SCREEN_WIDTH // 2 - s.get_width() // 2, SCREEN_HEIGHT - 76))
+            surface.blit(s, (SCREEN_WIDTH // 2 - s.get_width() // 2, SCREEN_HEIGHT - 90))
         if self.error_msg:
             self._draw_error(surface)
         if self.show_load_panel:
@@ -417,13 +417,12 @@ class CharacterBuilderState(State):
         ROW_H = 36
         # Fixed pixel columns inside Col B (420..820 = 400px wide)
         # Consolas 18px ~= 10.8px/char, 24px ~= 14.4px/char
-        # Longest label: "Constitution" = 12 chars @ 18px = ~130px
-        LBL_X   = x          # label start
-        SCORE_X = x + 200    # 2-digit score (24px font, ~29px wide)
-        MOD_X   = x + 240    # modifier "(+2)" ~46px
-        COST_X  = x + 295    # "9p" badge ~28px
-        BAR_X   = x + 330    # bar, 70px wide — stays within col
-        BAR_W   = 70
+        LBL_X   = x          # short label ~150px
+        SCORE_X = x + 200    # 2-digit score
+        MOD_X   = x + 240    # modifier "(+2)"
+        COST_X  = x + 295    # "9p" cost badge
+        BAR_X   = x + 330    # mini bar
+        BAR_W   = 60         # 330+60=390 → ends at x+390=810, well inside col
 
         spent = _pb_spent(self.attr_values)
         remaining = POINT_BUY_BUDGET - spent
@@ -487,14 +486,15 @@ class CharacterBuilderState(State):
             pygame.draw.rect(surface, COLOR_PANEL_BORDER, bar_rect, width=1, border_radius=3)
 
             if selected and next_cost is not None:
-                surface.blit(self.font_small.render(f"+{next_cost}p next", True, COLOR_TEXT_MUTED),
-                             (BAR_X + BAR_W + 6, y + 7))
+                surface.blit(self.font_small.render(f"+{next_cost}p", True, COLOR_TEXT_MUTED),
+                             (BAR_X + BAR_W + 4, y + 7))
 
             y += ROW_H
 
         y += 4
-        ref = "8=0  9=1  10=2  11=3  12=4  13=5  14=7  15=9pt"
-        surface.blit(self.font_small.render(ref, True, COLOR_TEXT_MUTED), (x, y))
+        # Two short reference lines, each ~200px wide — stay within Col B
+        surface.blit(self.font_small.render("8=0  9=1  10=2  11=3", True, COLOR_TEXT_MUTED), (x, y))
+        surface.blit(self.font_small.render("12=4  13=5  14=7  15=9pt", True, COLOR_TEXT_MUTED), (x + 210, y))
 
     def _draw_derived_stats(self, surface: pygame.Surface) -> None:
         x = self._COL_C

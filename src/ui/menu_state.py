@@ -109,11 +109,11 @@ class MainMenuState(State):
 
         # Title banner
         if self.font_title:
-            title_surf = self.font_title.render("CRUCIBLE OF BUILDS", True, COLOR_ACCENT_GOLD)
+            title_surf = self.font_title.render("BUILDS & BOSSES", True, COLOR_ACCENT_GOLD)
             title_rect = title_surf.get_rect(center=(center_x, 150))
             
             # Subtle title shadow
-            shadow_surf = self.font_title.render("CRUCIBLE OF BUILDS", True, (40, 30, 10))
+            shadow_surf = self.font_title.render("BUILDS & BOSSES", True, (40, 30, 10))
             surface.blit(shadow_surf, (title_rect.x + 3, title_rect.y + 3))
             surface.blit(title_surf, title_rect)
 

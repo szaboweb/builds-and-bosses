@@ -127,6 +127,7 @@ class Character:
         # Armor Class: 10 + DEX mod, upgraded by best armor proficiency
         best_armor = max(
             (CLASSES[cid].armor_proficiency for cid in self.class_levels),
+            key=lambda a: a.value,
             default=ArmorType.NONE
         )
         dex_mod = modifier(attrs.DEX)

@@ -12,7 +12,7 @@ from src.core.constants import (
     COLOR_BG_DARK, COLOR_BG_PANEL, COLOR_PANEL_BORDER,
     COLOR_TEXT_LIGHT, COLOR_TEXT_MUTED,
     COLOR_ACCENT_GOLD, COLOR_ACCENT_RED, COLOR_ACCENT_GREEN,
-    COLOR_ACCENT_BLUE, GameStateId,
+    COLOR_ACCENT_BLUE, COLOR_ACCENT_PURPLE, GameStateId,
 )
 from src.entities.character import Character
 from src.entities.attributes import Attribute
@@ -331,13 +331,10 @@ class CharacterBuilderState(State):
             self._init_fonts()
         surface.fill(COLOR_BG_DARK)
 
-        self._draw_title(surface)
-        self._draw_tabs(surface)
-        if self.active_tab == "classes":
-            self._draw_class_list(surface)
-        else:
-            self._draw_attr_editor(surface)
-        self._draw_build_summary(surface)
+        self._draw_header(surface)
+        self._draw_class_list(surface)
+        self._draw_attr_editor(surface)
+        self._draw_derived_stats(surface)
         self._draw_name_row(surface)
         self._draw_controls(surface)
         if self.status_msg:
@@ -348,191 +345,198 @@ class CharacterBuilderState(State):
         if self.show_load_panel:
             self._draw_load_panel(surface)
 
-    def _draw_title(self, surface: pygame.Surface) -> None:
-        title = self.font_title.render("KARAKTER EPITES", True, COLOR_ACCENT_GOLD)
-        surface.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, 28))
+    # ------------------------------------------------------------------
+    # Layout constants
+    # ------------------------------------------------------------------
+    # Screen: 1280 x 720
+    # Col A (classes):     x=30..390
+    # Col B (attributes):  x=420..810
+    # Col C (derived):     x=840..1250
+    # Content rows: y=90..590  (500px)
+    # Bottom bar:   y=600..720
+    _COL_A = 30
+    _COL_B = 420
+    _COL_C = 840
+    _COL_TOP = 90
 
-    def _draw_tabs(self, surface: pygame.Surface) -> None:
-        tabs = [("classes", "[1] Osztályok"), ("attributes", "[2] Attribútumok")]
-        x = 120
-        y = 74
-        for tid, label in tabs:
+    def _draw_header(self, surface: pygame.Surface) -> None:
+        title = self.font_title.render("KARAKTER EPITES", True, COLOR_ACCENT_GOLD)
+        surface.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, 22))
+
+        # Section headers with focus highlight
+        sections = [
+            (self._COL_A, "OSZTALYOK  [ ← → ]" , "classes"),
+            (self._COL_B, "ATTRIBU\u0301TUMOK  [ + - ]" , "attributes"),
+            (self._COL_C, "DERIVED STATS",         None),
+        ]
+        for sx, label, tid in sections:
             active = (tid == self.active_tab)
-            bg = COLOR_BG_PANEL if active else COLOR_BG_DARK
-            border = COLOR_ACCENT_GOLD if active else COLOR_PANEL_BORDER
-            text_color = COLOR_ACCENT_GOLD if active else COLOR_TEXT_MUTED
-            rect = pygame.Rect(x, y, 220, 30)
-            pygame.draw.rect(surface, bg, rect, border_radius=4)
-            pygame.draw.rect(surface, border, rect, width=1, border_radius=4)
-            surf = self.font_small.render(label, True, text_color)
-            surface.blit(surf, (x + 10, y + 6))
-            x += 230
-        hint = self.font_small.render("TAB — váltás", True, COLOR_TEXT_MUTED)
-        surface.blit(hint, (x + 10, y + 6))
+            color = COLOR_ACCENT_GOLD if active else COLOR_TEXT_MUTED
+            surf = self.font_small.render(label, True, color)
+            surface.blit(surf, (sx, 68))
+            if active:
+                pygame.draw.line(surface, COLOR_ACCENT_GOLD,
+                                 (sx, 84), (sx + surf.get_width(), 84), 1)
+
+        tab_hint = self.font_small.render("TAB — fókusz váltás", True, COLOR_TEXT_MUTED)
+        surface.blit(tab_hint, (SCREEN_WIDTH // 2 - tab_hint.get_width() // 2, 68))
+
+    def _draw_class_list(self, surface: pygame.Surface) -> None:
+        x = self._COL_A
+        y = self._COL_TOP
+        ROW_H = 36
+
+        for i, cid in enumerate(AVAILABLE_CLASSES):
+            cls = CLASSES[cid]
+            lvl = self.class_levels.get(cid, 0)
+            selected = (i == self.selected_class_idx) and (self.active_tab == "classes")
+            color = COLOR_ACCENT_GOLD if selected else COLOR_TEXT_LIGHT
+            prefix = "> " if selected else "  "
+
+            if selected:
+                row_rect = pygame.Rect(x - 6, y - 2, 360, ROW_H - 2)
+                pygame.draw.rect(surface, COLOR_BG_PANEL, row_rect, border_radius=5)
+                pygame.draw.rect(surface, COLOR_PANEL_BORDER, row_rect, width=1, border_radius=5)
+
+            bar = "[" + "#" * lvl + "." * (TOTAL_LEVELS - lvl) + "]"
+            line = f"{prefix}{cls.name:<10} {bar}  Lv {lvl}"
+            surf = self.font_normal.render(line, True, color)
+            surface.blit(surf, (x, y + 4))
+            y += ROW_H
+
+        y += 8
+        remaining_surf = self.font_normal.render(
+            f"Szabad: {self.levels_remaining} / {TOTAL_LEVELS}",
+            True, COLOR_ACCENT_GREEN if self.levels_remaining > 0 else COLOR_ACCENT_RED
+        )
+        surface.blit(remaining_surf, (x, y))
 
     def _draw_attr_editor(self, surface: pygame.Surface) -> None:
-        x, y = 120, 116
-        ROW_H = 40
-        BAR_X, BAR_W = 460, 200
+        x = self._COL_B
+        y = self._COL_TOP
+        ROW_H = 34
+        BAR_W = 120
 
         spent = _pb_spent(self.attr_values)
         remaining = POINT_BUY_BUDGET - spent
-
-        # Budget header
-        budget_color = COLOR_ACCENT_GREEN if remaining > 0 else (
-            COLOR_ACCENT_GOLD if remaining == 0 else COLOR_ACCENT_RED
+        budget_color = (
+            COLOR_ACCENT_GREEN if remaining > 0 else
+            COLOR_ACCENT_GOLD  if remaining == 0 else
+            COLOR_ACCENT_RED
         )
-        budget_surf = self.font_normal.render(
-            f"Point Buy:  {spent} / {POINT_BUY_BUDGET} pont elköltve  "
-            f"({'még ' + str(remaining) + ' szabad' if remaining > 0 else 'KÉSZ' if remaining == 0 else 'TÚLLÉPÉS'})",
-            True, budget_color
-        )
-        surface.blit(budget_surf, (x, y))
-        y += 38
+        label_text = f"{remaining} pt szabad  ({spent}/{POINT_BUY_BUDGET})"
+        surface.blit(self.font_small.render(label_text, True, budget_color), (x, y))
+        y += 26
 
-        # Collect primary stats for current class combo
         primary_stats: set[str] = set()
         for cid in self.class_levels:
             ps = CLASS_PRIMARY_STAT.get(cid)
             if ps:
                 primary_stats.add(ps)
 
+        SCORE_X  = x + 178
+        MOD_X    = x + 218
+        COST_X   = x + 258
+        BAR_X    = x + 295
+
         for i, (attr_name, label, amin, amax) in enumerate(ATTR_FIELDS):
-            selected = (i == self.attr_cursor)
+            selected = (i == self.attr_cursor) and (self.active_tab == "attributes")
             val = self.attr_values.get(attr_name, POINT_BUY_DEFAULT)
             mod = (val - 10) // 2
             is_primary = attr_name in primary_stats
             cost = _pb_cost(val)
             next_cost = _pb_cost(val + 1) - cost if val < amax else None
 
-            # Row bg
-            row_rect = pygame.Rect(x - 8, y - 4, BAR_X + BAR_W - x + 70, ROW_H - 4)
             if selected:
-                pygame.draw.rect(surface, COLOR_BG_PANEL, row_rect, border_radius=6)
-                pygame.draw.rect(surface, COLOR_PANEL_BORDER, row_rect, width=1, border_radius=6)
+                row_rect = pygame.Rect(x - 6, y - 2, 360, ROW_H - 2)
+                pygame.draw.rect(surface, COLOR_BG_PANEL, row_rect, border_radius=5)
+                pygame.draw.rect(surface, COLOR_PANEL_BORDER, row_rect, width=1, border_radius=5)
 
-            # Label
             lc = COLOR_ACCENT_GOLD if is_primary else (COLOR_TEXT_LIGHT if selected else COLOR_TEXT_MUTED)
-            surface.blit(self.font_normal.render(label, True, lc), (x, y + 4))
+            surface.blit(self.font_normal.render(label, True, lc), (x, y + 3))
 
-            # Score + modifier
             mod_str = f"+{mod}" if mod >= 0 else str(mod)
-            surface.blit(self.font_normal.render(f"{val:2d}  ({mod_str})", True, COLOR_TEXT_LIGHT),
-                         (BAR_X - 110, y + 4))
+            surface.blit(self.font_normal.render(str(val), True, COLOR_TEXT_LIGHT), (SCORE_X, y + 3))
+            surface.blit(self.font_small.render(f"({mod_str})", True, COLOR_TEXT_MUTED), (MOD_X, y + 6))
 
-            # Point cost badge
-            cost_str = f"{cost}pt"
             cost_color = COLOR_ACCENT_RED if cost >= 7 else (COLOR_ACCENT_GOLD if cost >= 4 else COLOR_TEXT_MUTED)
-            surface.blit(self.font_small.render(cost_str, True, cost_color), (BAR_X - 46, y + 8))
+            surface.blit(self.font_small.render(f"{cost}p", True, cost_color), (COST_X, y + 6))
 
-            # Bar (score 8-15, colour by cost tier)
+            # Mini bar
             ratio = (val - amin) / max(amax - amin, 1)
-            bar_rect = pygame.Rect(BAR_X, y + 8, BAR_W, 14)
-            pygame.draw.rect(surface, COLOR_BG_DARK, bar_rect, border_radius=4)
+            bar_rect = pygame.Rect(BAR_X, y + 8, BAR_W, 12)
+            pygame.draw.rect(surface, COLOR_BG_DARK, bar_rect, border_radius=3)
             fill_w = int(BAR_W * ratio)
             if fill_w > 0:
-                bar_color = (
-                    COLOR_ACCENT_RED   if val >= 14 else
-                    COLOR_ACCENT_GOLD  if val >= 12 else
-                    COLOR_ACCENT_GREEN if is_primary else
-                    COLOR_ACCENT_BLUE
-                )
-                pygame.draw.rect(surface, bar_color,
-                                 pygame.Rect(BAR_X, y + 8, fill_w, 14), border_radius=4)
-            pygame.draw.rect(surface, COLOR_PANEL_BORDER, bar_rect, width=1, border_radius=4)
+                bc = (COLOR_ACCENT_RED if val >= 14 else
+                      COLOR_ACCENT_GOLD if val >= 12 else
+                      COLOR_ACCENT_GREEN if is_primary else COLOR_ACCENT_BLUE)
+                pygame.draw.rect(surface, bc, pygame.Rect(BAR_X, y + 8, fill_w, 12), border_radius=3)
+            pygame.draw.rect(surface, COLOR_PANEL_BORDER, bar_rect, width=1, border_radius=3)
 
-            # Next cost hint + PRIMARY badge
-            info_x = BAR_X + BAR_W + 8
-            if is_primary:
-                surface.blit(self.font_small.render("PRIMARY", True, COLOR_ACCENT_GOLD), (info_x, y + 2))
-                info_x += 70
-            if next_cost is not None and selected:
-                hint = f"+{next_cost}pt"
-                surface.blit(self.font_small.render(hint, True, COLOR_TEXT_MUTED), (info_x, y + 6))
+            if selected and next_cost is not None:
+                surface.blit(self.font_small.render(f"+{next_cost}p", True, COLOR_TEXT_MUTED),
+                             (BAR_X + BAR_W + 4, y + 6))
 
             y += ROW_H
 
-        # Cost reference table (compact)
-        y += 6
-        ref = "Pontköltség: 8=0  9=1  10=2  11=3  12=4  13=5  14=7  15=9"
+        y += 4
+        ref = "8=0 9=1 10=2 11=3 12=4 13=5 14=7 15=9pt"
         surface.blit(self.font_small.render(ref, True, COLOR_TEXT_MUTED), (x, y))
 
-    def _draw_class_list(self, surface: pygame.Surface) -> None:
-        x, y = 120, 116
-        header = self.font_normal.render("Osztályok  (← / → szintek)", True, COLOR_TEXT_MUTED)
-        surface.blit(header, (x, y))
-        y += 36
-
-        for i, cid in enumerate(AVAILABLE_CLASSES):
-            cls = CLASSES[cid]
-            lvl = self.class_levels.get(cid, 0)
-            selected = (i == self.selected_class_idx)
-            color = COLOR_ACCENT_GOLD if selected else COLOR_TEXT_LIGHT
-            prefix = "> " if selected else "  "
-            bar = "[" + "#" * lvl + "." * (TOTAL_LEVELS - lvl) + "]"
-            line = f"{prefix}{cls.name:<12} {bar}  Lv {lvl}"
-            surf = self.font_normal.render(line, True, color)
-            surface.blit(surf, (x, y))
-            y += 34
-
-        remaining = self.font_normal.render(
-            f"Szabad szintek: {self.levels_remaining} / {TOTAL_LEVELS}",
-            True, COLOR_ACCENT_GREEN if self.levels_remaining > 0 else COLOR_ACCENT_RED
-        )
-        surface.blit(remaining, (x, y + 10))
-
-    def _draw_build_summary(self, surface: pygame.Surface) -> None:
-        x = SCREEN_WIDTH // 2 + 60
-        y = 110
-        header = self.font_normal.render("Build összesítő", True, COLOR_TEXT_MUTED)
-        surface.blit(header, (x, y))
-        y += 36
+    def _draw_derived_stats(self, surface: pygame.Surface) -> None:
+        x = self._COL_C
+        y = self._COL_TOP
 
         if not self.active_classes:
-            msg = self.font_small.render("(még nincs osztály kiválasztva)", True, COLOR_TEXT_MUTED)
-            surface.blit(msg, (x, y))
+            surface.blit(
+                self.font_small.render("(válassz osztályt)", True, COLOR_TEXT_MUTED), (x, y)
+            )
             return
 
+        char = Character("preview")
         for cid, lvl in self.active_classes:
-            cls = CLASSES[cid]
-            primary = CLASS_PRIMARY_STAT.get(cid, "STR")
-            line = f"{cls.name}  Lv {lvl}  |  d{cls.hit_die}  [{primary}]"
-            surf = self.font_small.render(line, True, COLOR_TEXT_LIGHT)
-            surface.blit(surf, (x, y))
-            y += 26
+            char.add_class(cid, lvl)
+        for attr_name, *_ in ATTR_FIELDS:
+            setattr(char.attributes, attr_name, self.attr_values.get(attr_name, 10))
+        char.build()
 
-        # Live stat preview using current attr_values
-        if self.levels_used > 0:
-            char = Character("preview")
-            for cid, lvl in self.active_classes:
-                char.add_class(cid, lvl)
-            for attr_name, *_ in ATTR_FIELDS:
-                setattr(char.attributes, attr_name, self.attr_values.get(attr_name, 10))
-            char.build()
-            y += 10
-            preview_rows = [
-                ("Max HP",      char.stats.max_hp,              COLOR_ACCENT_RED),
-                ("Max Mana",    char.stats.max_mana,            COLOR_ACCENT_BLUE),
-                ("Armor Class", char.stats.armor_class,         COLOR_ACCENT_GREEN),
-                ("Melee Atk",   f"+{char.stats.melee_attack_bonus}", COLOR_ACCENT_GOLD),
-                ("Dmg Bonus",   f"+{char.stats.melee_damage_bonus}", COLOR_ACCENT_GOLD),
-                ("Initiative",  f"+{char.stats.initiative}",    COLOR_TEXT_LIGHT),
-                ("Speed",       int(char.stats.move_speed),     COLOR_TEXT_MUTED),
-            ]
-            for label, val, color in preview_rows:
-                surf = self.font_small.render(f"{label:<13} {val}", True, color)
-                surface.blit(surf, (x, y))
-                y += 22
+        rows = [
+            ("Osztályok",  ", ".join(f"{CLASSES[c].name} {l}" for c, l in self.active_classes), COLOR_TEXT_LIGHT),
+            ("Prof. Bonus", f"+{char.proficiency_bonus}",           COLOR_TEXT_MUTED),
+            (None, None, None),
+            ("Max HP",      str(char.stats.max_hp),                  COLOR_ACCENT_RED),
+            ("Max Mana",    str(char.stats.max_mana),                COLOR_ACCENT_BLUE),
+            ("Armor Class", str(char.stats.armor_class),             COLOR_ACCENT_GREEN),
+            (None, None, None),
+            ("Melee Atk",   f"+{char.stats.melee_attack_bonus}",     COLOR_ACCENT_GOLD),
+            ("Melee Dmg",   f"+{char.stats.melee_damage_bonus}",     COLOR_ACCENT_GOLD),
+            ("Spell Atk",   f"+{char.stats.spell_attack_bonus}",     COLOR_ACCENT_PURPLE),
+            ("Initiative",  f"+{char.stats.initiative}",             COLOR_TEXT_LIGHT),
+            ("Speed",       f"{int(char.stats.move_speed)} px/s",    COLOR_TEXT_MUTED),
+        ]
+
+        for label, val, color in rows:
+            if label is None:
+                y += 8
+                pygame.draw.line(surface, COLOR_PANEL_BORDER, (x, y), (x + 370, y), 1)
+                y += 8
+                continue
+            lbl_surf = self.font_small.render(f"{label:<13}", True, COLOR_TEXT_MUTED)
+            val_surf = self.font_normal.render(str(val), True, color)
+            surface.blit(lbl_surf, (x, y + 3))
+            surface.blit(val_surf, (x + 160, y))
+            y += 28
 
     def _draw_name_row(self, surface: pygame.Surface) -> None:
-        y = SCREEN_HEIGHT - 160
+        y = SCREEN_HEIGHT - 98
         cursor = "|" if self.name_editing else ""
         color = COLOR_ACCENT_GOLD if self.name_editing else COLOR_TEXT_LIGHT
         label = self.font_normal.render(
-            f"Hős neve:  {self.char_name}{cursor}  {'(gépelés...)' if self.name_editing else '(N = szerkeszt)'}",
+            f"Hős neve:  {self.char_name}{cursor}  {'(gépelés...)' if self.name_editing else '(N = szerkeszt)'}" ,
             True, color
         )
-        surface.blit(label, (120, y))
+        surface.blit(label, (self._COL_A, y))
 
     def _draw_load_panel(self, surface: pygame.Surface) -> None:
         pw, ph = 420, min(60 + len(self.save_list) * 30, 380)
@@ -550,20 +554,11 @@ class CharacterBuilderState(State):
 
     def _draw_controls(self, surface: pygame.Surface) -> None:
         if self.active_tab == "classes":
-            lines = [
-                "FEL/LE — osztály    BAL/JOBB — szint -/+    TAB — Attribútumok",
-                "N — név    F5 — mentés    F9 — betölt    ENTER — indulás    ESC — vissza",
-            ]
+            line = "FEL/LE osztály  BAL/JOBB szint   TAB → Attr   N név   F5 ment   F9 betölt   ENTER indul   ESC vissza"
         else:
-            lines = [
-                "FEL/LE — attribútum    BAL/JOBB (vagy +/-) — érték    TAB — Osztályok",
-                "N — név    F5 — mentés    F9 — betölt    ENTER — indulás    ESC — vissza",
-            ]
-        y = SCREEN_HEIGHT - 110
-        for line in lines:
-            surf = self.font_small.render(line, True, COLOR_TEXT_MUTED)
-            surface.blit(surf, (SCREEN_WIDTH // 2 - surf.get_width() // 2, y))
-            y += 24
+            line = "FEL/LE attr  BAL/JOBB/+/- érték   TAB → Osztály   N név   F5 ment   F9 betölt   ENTER indul   ESC vissza"
+        surf = self.font_small.render(line, True, COLOR_TEXT_MUTED)
+        surface.blit(surf, (SCREEN_WIDTH // 2 - surf.get_width() // 2, SCREEN_HEIGHT - 68))
 
     def _draw_error(self, surface: pygame.Surface) -> None:
         surf = self.font_small.render(self.error_msg, True, COLOR_ACCENT_RED)

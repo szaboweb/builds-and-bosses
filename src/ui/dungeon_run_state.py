@@ -233,9 +233,12 @@ class DungeonRunState(State):
             self.font_hud = pygame.font.SysFont("consolas,monospace", 22, bold=True)
             self.font_big = pygame.font.SysFont("consolas,monospace", 48, bold=True)
             self.font_small = pygame.font.SysFont("consolas,monospace", 18)
-            # Emoji font for boss/player icons
-            self.font_icon_large = pygame.font.SysFont("segoeuiemoji,notocoloremoji,unifont", 52)
-            self.font_icon_small = pygame.font.SysFont("segoeuiemoji,notocoloremoji,unifont", 26)
+            # Emoji font — optional; None is safe (sprite PNG used instead)
+            import warnings
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", UserWarning)
+                self.font_icon_large = pygame.font.SysFont("segoeuiemoji,notocoloremoji,unifont", 52)
+                self.font_icon_small = pygame.font.SysFont("segoeuiemoji,notocoloremoji,unifont", 26)
 
     # ------------------------------------------------------------------
     # Events

@@ -1,0 +1,17 @@
+{
+  "_comment": "Example saved hero — schema hero_save/v1",
+  "_schema": "hero_save/v1",
+  "name": "Zalazar",
+  "class_levels": {
+    "paladin": 4,
+    "wizard": 2
+  },
+  "attributes": {
+    "STR": 14,
+    "DEX": 12,
+    "CON": 14,
+    "INT": 14,
+    "WIS": 10,
+    "CHA": 12
+  }
+}

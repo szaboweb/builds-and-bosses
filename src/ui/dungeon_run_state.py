@@ -32,31 +32,52 @@ from src.core.constants import (
     GameStateId,
 )
 from src.core.data_loader import DataLoader
+from src.core.sprite_loader import SpriteLoader
 from src.combat.combat_resolver import resolve_player_attack, resolve_boss_attack, AttackResult
 from src.entities.character import Character
 
 
 # ---------------------------------------------------------------------------
-# Simple Boss definition (prototype — no sprite, just a coloured rectangle)
+# Boss entity — fully data-driven from data/bosses/*.json
 # ---------------------------------------------------------------------------
 
 class Boss:
-    """Prototype boss entity."""
+    """Boss entity built from a JSON stat-block (schema boss/v1)."""
 
-    def __init__(self, name: str, max_hp: int, speed: float, damage: int, color, icon: str = "\U0001F480"):
-        self.name = name
-        self.icon = icon
-        self.max_hp = max_hp
-        self.current_hp = max_hp
-        self.speed = speed           # pixels / second
-        self.damage = damage         # damage per hit
-        self.color = color
-        self.x: float = SCREEN_WIDTH / 2
-        self.y: float = 130.0
-        self.radius: int = 32
-        self.attack_cooldown: float = 0.0
-        self.attack_rate: float = 1.5    # seconds between attacks
-        self.alive: bool = True
+    @classmethod
+    def from_data(cls, data: dict) -> "Boss":
+        boss = cls.__new__(cls)
+        s = data["stats"]
+        spawn = data.get("spawn", {})
+
+        boss.id               = data["id"]
+        boss.name             = data["name"]
+        boss.icon             = data.get("icon", "\U0001F480")
+        boss.color            = tuple(data.get("color", [140, 60, 200]))
+        boss.radius           = data.get("radius", 32)
+
+        boss.max_hp           = s["max_hp"]
+        boss.current_hp       = s["max_hp"]
+        boss.armor_class      = s["armor_class"]
+        boss.base_speed       = s["speed"]
+        boss.speed            = s["speed"]
+        boss.base_attack_rate = s["attack_rate"]
+        boss.attack_rate      = s["attack_rate"]
+        boss.attack_bonus     = s["attack_bonus"]
+        boss.damage_die       = s["damage_die"]
+        boss.damage_count     = s["damage_count"]
+
+        boss.phases = sorted(
+            data.get("phases", []),
+            key=lambda p: p["hp_threshold_pct"]
+        )
+
+        boss.x = SCREEN_WIDTH * spawn.get("x_pct", 0.5)
+        boss.y = float(spawn.get("y_px", 130))
+
+        boss.attack_cooldown = 0.0
+        boss.alive = True
+        return boss
 
     @property
     def hp_ratio(self) -> float:
@@ -66,28 +87,27 @@ class Boss:
         self.current_hp = max(0, self.current_hp - amount)
         if self.current_hp == 0:
             self.alive = False
+        self._update_phase()
 
-    def update(self, dt: float, px: float, py: float) -> Optional[int]:
-        """
-        Move toward player and attack if close enough.
-        Returns damage dealt this frame, or None.
-        """
+    def _update_phase(self) -> None:
+        for phase in self.phases:
+            if self.hp_ratio <= phase["hp_threshold_pct"]:
+                self.speed = self.base_speed * phase.get("speed_multiplier", 1.0)
+                self.attack_rate = self.base_attack_rate * phase.get("attack_rate_multiplier", 1.0)
+
+    def update(self, dt: float, px: float, py: float) -> Optional[str]:
+        """Move toward player; return 'pending' when an attack is due."""
         if not self.alive:
             return None
-
-        # Move toward player
         dx, dy = px - self.x, py - self.y
         dist = math.hypot(dx, dy)
         if dist > self.radius + 28:
-            speed = self.speed * dt
-            self.x += dx / dist * speed
-            self.y += dy / dist * speed
-
-        # Attack
+            self.x += dx / dist * self.speed * dt
+            self.y += dy / dist * self.speed * dt
         self.attack_cooldown -= dt
         if dist < self.radius + 28 + 10 and self.attack_cooldown <= 0:
             self.attack_cooldown = self.attack_rate
-            return self.damage
+            return "pending"
         return None
 
 
@@ -322,9 +342,10 @@ class DungeonRunState(State):
 
         # Boss
         if self.boss and self.boss.alive:
+            boss_sprite = SpriteLoader.boss(self.boss.id, size=self.boss.radius * 2)
             self._draw_entity_icon(
                 surface, self.boss.icon, int(self.boss.x), int(self.boss.y),
-                self.boss.radius, self.boss.color, large=True
+                self.boss.radius, self.boss.color, large=True, sprite=boss_sprite,
             )
             self._draw_hp_bar(surface, self.boss.x - 40, self.boss.y - self.boss.radius - 14,
                               80, 8, self.boss.hp_ratio, COLOR_ACCENT_RED)
@@ -333,10 +354,24 @@ class DungeonRunState(State):
                                      int(self.boss.y) - self.boss.radius - 30))
 
         # Player body
+        primary = max(self.character.class_levels,
+                      key=lambda c: self.character.class_levels[c]) \
+            if self.character.class_levels else "fighter"
+        player_sprite = SpriteLoader.character(primary, size=PLAYER_RADIUS * 2)
         p_color = (255, 80, 80) if self.hit_flash > 0 else PLAYER_COLOR
-        pygame.draw.circle(surface, p_color, (int(self.px), int(self.py)), PLAYER_RADIUS)
-        # Weapon icon next to player
-        self._draw_weapon_icon(surface, int(self.px), int(self.py))
+        if player_sprite is not None:
+            if self.hit_flash > 0:
+                # Red tint on hit
+                tinted = player_sprite.copy()
+                tinted.fill((255, 80, 80, 100), special_flags=pygame.BLEND_RGBA_MULT)
+                surface.blit(tinted, (int(self.px) - PLAYER_RADIUS,
+                                      int(self.py) - PLAYER_RADIUS))
+            else:
+                surface.blit(player_sprite, (int(self.px) - PLAYER_RADIUS,
+                                             int(self.py) - PLAYER_RADIUS))
+        else:
+            pygame.draw.circle(surface, p_color, (int(self.px), int(self.py)), PLAYER_RADIUS)
+            self._draw_weapon_icon(surface, int(self.px), int(self.py))
 
         # Attack range indicator (faint)
         if self.attack_cooldown <= 0 and self.state == "running":
@@ -348,10 +383,17 @@ class DungeonRunState(State):
 
     def _draw_entity_icon(
         self, surface: pygame.Surface, icon: str,
-        cx: int, cy: int, radius: int, glow_color, large: bool = True
+        cx: int, cy: int, radius: int, glow_color, large: bool = True,
+        sprite: Optional[pygame.Surface] = None,
     ) -> None:
-        """Render a Unicode emoji icon centered at (cx, cy) with a coloured glow circle."""
-        # Glow/background circle
+        """Render entity: sprite PNG if available, else glow circle + emoji fallback."""
+        if sprite is not None:
+            # Draw sprite centered, no glow needed
+            surface.blit(sprite, (cx - sprite.get_width() // 2,
+                                   cy - sprite.get_height() // 2))
+            return
+
+        # Fallback: glow circle + emoji
         pygame.draw.circle(surface, glow_color, (cx, cy), radius)
         font = self.font_icon_large if large else self.font_icon_small
         if font:
@@ -360,10 +402,18 @@ class DungeonRunState(State):
                 surface.blit(icon_surf, (cx - icon_surf.get_width() // 2,
                                          cy - icon_surf.get_height() // 2))
             except Exception:
-                pass  # font doesn't support this glyph — glow circle is enough
+                pass
 
     def _draw_weapon_icon(self, surface: pygame.Surface, px: int, py: int) -> None:
-        """Draw the weapon icon to the right of the player token."""
+        """Draw weapon icon or sprite to the right of the player token."""
+        # Try sprite first
+        primary = max(self.character.class_levels,
+                      key=lambda c: self.character.class_levels[c]) \
+            if self.character.class_levels else "fighter"
+        weapon_sprite = SpriteLoader.character(primary, size=int(PLAYER_RADIUS * 2))
+        if weapon_sprite is not None:
+            return  # player sprite already drawn in _draw_entity_icon
+        # Emoji fallback
         if not self.font_icon_small:
             return
         try:

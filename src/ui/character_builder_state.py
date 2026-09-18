@@ -414,8 +414,16 @@ class CharacterBuilderState(State):
     def _draw_attr_editor(self, surface: pygame.Surface) -> None:
         x = self._COL_B
         y = self._COL_TOP
-        ROW_H = 34
-        BAR_W = 120
+        ROW_H = 36
+        # Fixed pixel columns inside Col B (420..820 = 400px wide)
+        # Consolas 18px ~= 10.8px/char, 24px ~= 14.4px/char
+        # Longest label: "Constitution" = 12 chars @ 18px = ~130px
+        LBL_X   = x          # label start
+        SCORE_X = x + 200    # 2-digit score (24px font, ~29px wide)
+        MOD_X   = x + 240    # modifier "(+2)" ~46px
+        COST_X  = x + 295    # "9p" badge ~28px
+        BAR_X   = x + 330    # bar, 70px wide — stays within col
+        BAR_W   = 70
 
         spent = _pb_spent(self.attr_values)
         remaining = POINT_BUY_BUDGET - spent
@@ -434,12 +442,17 @@ class CharacterBuilderState(State):
             if ps:
                 primary_stats.add(ps)
 
-        SCORE_X  = x + 178
-        MOD_X    = x + 218
-        COST_X   = x + 258
-        BAR_X    = x + 295
+        # Short labels to fit in ~190px at font_small (18px)
+        SHORT_LABELS = {
+            "STR": "Strength   STR",
+            "DEX": "Dexterity  DEX",
+            "CON": "Constitut. CON",
+            "INT": "Intellect. INT",
+            "WIS": "Wisdom     WIS",
+            "CHA": "Charisma   CHA",
+        }
 
-        for i, (attr_name, label, amin, amax) in enumerate(ATTR_FIELDS):
+        for i, (attr_name, _, amin, amax) in enumerate(ATTR_FIELDS):
             selected = (i == self.attr_cursor) and (self.active_tab == "attributes")
             val = self.attr_values.get(attr_name, POINT_BUY_DEFAULT)
             mod = (val - 10) // 2
@@ -448,40 +461,39 @@ class CharacterBuilderState(State):
             next_cost = _pb_cost(val + 1) - cost if val < amax else None
 
             if selected:
-                row_rect = pygame.Rect(x - 6, y - 2, 360, ROW_H - 2)
+                row_rect = pygame.Rect(LBL_X - 6, y - 2, 400, ROW_H - 2)
                 pygame.draw.rect(surface, COLOR_BG_PANEL, row_rect, border_radius=5)
                 pygame.draw.rect(surface, COLOR_PANEL_BORDER, row_rect, width=1, border_radius=5)
 
             lc = COLOR_ACCENT_GOLD if is_primary else (COLOR_TEXT_LIGHT if selected else COLOR_TEXT_MUTED)
-            surface.blit(self.font_normal.render(label, True, lc), (x, y + 3))
+            surface.blit(self.font_small.render(SHORT_LABELS[attr_name], True, lc), (LBL_X, y + 6))
 
             mod_str = f"+{mod}" if mod >= 0 else str(mod)
             surface.blit(self.font_normal.render(str(val), True, COLOR_TEXT_LIGHT), (SCORE_X, y + 3))
-            surface.blit(self.font_small.render(f"({mod_str})", True, COLOR_TEXT_MUTED), (MOD_X, y + 6))
+            surface.blit(self.font_small.render(f"({mod_str})", True, COLOR_TEXT_MUTED), (MOD_X, y + 7))
 
             cost_color = COLOR_ACCENT_RED if cost >= 7 else (COLOR_ACCENT_GOLD if cost >= 4 else COLOR_TEXT_MUTED)
-            surface.blit(self.font_small.render(f"{cost}p", True, cost_color), (COST_X, y + 6))
+            surface.blit(self.font_small.render(f"{cost}p", True, cost_color), (COST_X, y + 7))
 
-            # Mini bar
             ratio = (val - amin) / max(amax - amin, 1)
-            bar_rect = pygame.Rect(BAR_X, y + 8, BAR_W, 12)
+            bar_rect = pygame.Rect(BAR_X, y + 10, BAR_W, 12)
             pygame.draw.rect(surface, COLOR_BG_DARK, bar_rect, border_radius=3)
             fill_w = int(BAR_W * ratio)
             if fill_w > 0:
                 bc = (COLOR_ACCENT_RED if val >= 14 else
                       COLOR_ACCENT_GOLD if val >= 12 else
                       COLOR_ACCENT_GREEN if is_primary else COLOR_ACCENT_BLUE)
-                pygame.draw.rect(surface, bc, pygame.Rect(BAR_X, y + 8, fill_w, 12), border_radius=3)
+                pygame.draw.rect(surface, bc, pygame.Rect(BAR_X, y + 10, fill_w, 12), border_radius=3)
             pygame.draw.rect(surface, COLOR_PANEL_BORDER, bar_rect, width=1, border_radius=3)
 
             if selected and next_cost is not None:
-                surface.blit(self.font_small.render(f"+{next_cost}p", True, COLOR_TEXT_MUTED),
-                             (BAR_X + BAR_W + 4, y + 6))
+                surface.blit(self.font_small.render(f"+{next_cost}p next", True, COLOR_TEXT_MUTED),
+                             (BAR_X + BAR_W + 6, y + 7))
 
             y += ROW_H
 
         y += 4
-        ref = "8=0 9=1 10=2 11=3 12=4 13=5 14=7 15=9pt"
+        ref = "8=0  9=1  10=2  11=3  12=4  13=5  14=7  15=9pt"
         surface.blit(self.font_small.render(ref, True, COLOR_TEXT_MUTED), (x, y))
 
     def _draw_derived_stats(self, surface: pygame.Surface) -> None:

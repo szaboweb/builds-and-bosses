@@ -33,8 +33,11 @@ class GameEngine:
 
     def initialize(self) -> None:
         """Initialize Pygame modules, display surface, and fonts."""
+        import os
+        # Suppress ALSA "no soundcard" spam on Linux/WSL
+        os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
+
         if self.headless:
-            import os
             os.environ["SDL_VIDEODRIVER"] = "dummy"
 
         pygame.init()
@@ -55,11 +58,13 @@ class GameEngine:
         from src.ui.character_builder_state import CharacterBuilderState
         from src.ui.dungeon_run_state import DungeonRunState
         from src.ui.scoreboard_state import ScoreboardState
+        from src.ui.boss_editor_state import BossEditorState
 
         self.state_machine.register(GameStateId.MAIN_MENU, MainMenuState(self.state_machine))
         self.state_machine.register(GameStateId.CHARACTER_BUILDER, CharacterBuilderState(self.state_machine))
         self.state_machine.register(GameStateId.DUNGEON_RUN, DungeonRunState(self.state_machine))
         self.state_machine.register(GameStateId.SCOREBOARD, ScoreboardState(self.state_machine))
+        self.state_machine.register(GameStateId.BOSS_EDITOR, BossEditorState(self.state_machine))
         self.state_machine.change_state(GameStateId.MAIN_MENU)
 
     def run(self) -> None:

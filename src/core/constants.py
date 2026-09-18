@@ -34,6 +34,7 @@ class GameStateId(Enum):
     CHARACTER_BUILDER = auto()
     DUNGEON_RUN = auto()
     SCOREBOARD = auto()
+    BOSS_EDITOR = auto()
     SETTINGS = auto()
 
 

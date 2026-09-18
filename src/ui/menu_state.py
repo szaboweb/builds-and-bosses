@@ -28,6 +28,7 @@ class MainMenuState(State):
         self.menu_items: List[str] = [
             "Új Játék / Karakter Készítés",
             "12 Boss Ranglista (Scoreboard)",
+            "Boss Editor",
             "Kilépés"
         ]
         self.selected_index: int = 0
@@ -89,6 +90,10 @@ class MainMenuState(State):
             else:
                 print("Mérföldkő 6: Scoreboard még fejlesztés alatt.")
         elif self.selected_index == 2:
+            # Boss Editor
+            if GameStateId.BOSS_EDITOR in self.state_machine._states:
+                self.state_machine.change_state(GameStateId.BOSS_EDITOR)
+        elif self.selected_index == 3:
             # Exit
             self.engine.stop()
 

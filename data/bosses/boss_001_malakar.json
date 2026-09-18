@@ -1,0 +1,41 @@
+{
+  "_comment": "Boss stat-block — Gravekeeper Malakar (Boss #1)",
+  "_schema": "boss/v1",
+
+  "id": "boss_001_malakar",
+  "name": "Gravekeeper Malakar",
+  "lore": "An ancient necromancer who guards the crypts beneath the Ashen Keep.",
+  "icon": "\ud83d\udc80",
+  "color": [140, 60, 200],
+  "radius": 32,
+
+  "stats": {
+    "max_hp": 180,
+    "armor_class": 13,
+    "speed": 70,
+    "attack_rate": 1.5,
+    "attack_bonus": 5,
+    "damage_die": 8,
+    "damage_count": 2
+  },
+
+  "spawn": {
+    "x_pct": 0.5,
+    "y_px": 130
+  },
+
+  "phases": [
+    {
+      "hp_threshold_pct": 1.0,
+      "speed_multiplier": 1.0,
+      "attack_rate_multiplier": 1.0,
+      "note": "Normal phase"
+    },
+    {
+      "hp_threshold_pct": 0.4,
+      "speed_multiplier": 1.3,
+      "attack_rate_multiplier": 0.8,
+      "note": "Enrage below 40% HP — faster and more aggressive"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "_comment": "Default hero starting attributes — loaded by CharacterBuilderState",
+  "_schema": "hero_defaults/v1",
+
+  "attributes": {
+    "STR": 14,
+    "DEX": 12,
+    "CON": 14,
+    "INT": 12,
+    "WIS": 10,
+    "CHA": 10
+  },
+
+  "attribute_points_to_distribute": 0,
+
+  "_note": "These are the starting values pre-filled in the builder. The player can override them once attribute allocation is implemented (TODO)."
+}

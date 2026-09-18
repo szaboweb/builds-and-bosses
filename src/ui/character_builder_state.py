@@ -4,6 +4,7 @@ import pygame
 from typing import Optional, Dict, Any, List, Tuple
 
 from src.core.state_machine import State, StateMachine
+from src.core.data_loader import DataLoader
 from src.core.constants import (
     SCREEN_WIDTH, SCREEN_HEIGHT,
     COLOR_BG_DARK, COLOR_BG_PANEL, COLOR_PANEL_BORDER,
@@ -145,13 +146,14 @@ class CharacterBuilderState(State):
         char = Character(self.char_name.strip())
         for cid, lvl in self.class_levels.items():
             char.add_class(cid, lvl)
-        # Default attributes — slightly above baseline for a fun prototype
-        char.attributes.STR = 14
-        char.attributes.DEX = 12
-        char.attributes.CON = 14
-        char.attributes.INT = 12
-        char.attributes.WIS = 10
-        char.attributes.CHA = 10
+        # Load default attributes from data/heroes/default_hero.json
+        defaults = DataLoader.hero_defaults()["attributes"]
+        char.attributes.STR = defaults["STR"]
+        char.attributes.DEX = defaults["DEX"]
+        char.attributes.CON = defaults["CON"]
+        char.attributes.INT = defaults["INT"]
+        char.attributes.WIS = defaults["WIS"]
+        char.attributes.CHA = defaults["CHA"]
         char.build()
 
         self.state_machine.change_state(GameStateId.DUNGEON_RUN, {"character": char})

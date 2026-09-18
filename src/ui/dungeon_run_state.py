@@ -31,6 +31,8 @@ from src.core.constants import (
     COLOR_TEXT_LIGHT, COLOR_TEXT_MUTED, COLOR_PANEL_BORDER,
     GameStateId,
 )
+from src.core.data_loader import DataLoader
+from src.combat.combat_resolver import resolve_player_attack, resolve_boss_attack, AttackResult
 from src.entities.character import Character
 
 
@@ -101,20 +103,12 @@ ARENA_BOTTOM = SCREEN_HEIGHT - 120
 PLAYER_RADIUS = 18
 PLAYER_COLOR = (80, 180, 255)
 
-BOSS_ROSTER = [
-    {"name": "Gravekeeper Malakar", "hp": 180, "speed": 70, "damage": 12, "color": (140, 60, 200), "icon": "\U0001F480"},  # skull
-    # TODO: add remaining 11 bosses
-    # {"name": "Ignis the Flamboyant",   "icon": "\U0001F525"},  # fire
-    # {"name": "Gorgon Queen Serytha",    "icon": "\U0001F40D"},  # snake
-    # {"name": "Shadowstalker Vane",      "icon": "\U0001F5A4"},  # dark heart
-    # {"name": "Iron Colossus",           "icon": "\U00002699"},  # gear
-    # {"name": "Broodmother Xilith",      "icon": "\U0001F577"},  # spider
-    # {"name": "Archmage Thundercall",    "icon": "\U000026A1"},  # lightning
-    # {"name": "Bloodlord Draven",        "icon": "\U0001F9DB"},  # vampire
-    # {"name": "Dune Tyrant Skar",        "icon": "\U0001F40E"},  # horse (placeholder)
-    # {"name": "Frost Lich Kel'Vara",     "icon": "\U0001F9CA"},  # ice
-    # {"name": "Demonforged Behemoth",    "icon": "\U0001F47F"},  # imp
-    # {"name": "The Eldritch Sovereign",  "icon": "\U0001F30C"},  # void
+# Boss roster is loaded at runtime from data/bosses/*.json via DataLoader
+# To add a boss: create data/bosses/boss_00N_name.json — no code change needed.
+BOSS_ORDER = [
+    "boss_001_malakar",
+    # "boss_002_ignis",     # TODO
+    # "boss_003_serytha",   # TODO
 ]
 
 # Weapon icon per primary class
@@ -185,15 +179,16 @@ class DungeonRunState(State):
 
         self.current_hp = self.character.stats.max_hp
         self.current_mana = self.character.stats.max_mana
-        self.attack_damage = max(4, self.character.stats.melee_damage_bonus + self.character.proficiency_bonus * 3)
+        # attack_damage is now derived per-roll in combat_resolver; keep as fallback min
+        self.attack_damage = 1  # unused directly — resolver handles it
 
         # Spawn player
         self.px = SCREEN_WIDTH / 2
         self.py = ARENA_BOTTOM - 40
 
-        # Spawn boss
-        b = BOSS_ROSTER[0]
-        self.boss = Boss(b["name"], b["hp"], b["speed"], b["damage"], b["color"], b.get("icon", "\U0001F480"))
+        # Spawn boss from JSON
+        boss_data = DataLoader.boss(BOSS_ORDER[0])
+        self.boss = Boss.from_data(boss_data)
 
         self.run_start = time.monotonic()
         self.run_time = 0.0
@@ -201,6 +196,8 @@ class DungeonRunState(State):
         self.result_timer = 3.0
         self.attack_cooldown = 0.0
         self.hit_flash = 0.0
+        self._last_player_attack: Optional[AttackResult] = None
+        self._last_boss_attack: Optional[AttackResult] = None
         self._weapon_icon: str = self._resolve_weapon_icon()
         self._init_fonts()
 
@@ -256,14 +253,22 @@ class DungeonRunState(State):
         self._move_player(dt)
 
         if self.boss and self.boss.alive:
-            dmg = self.boss.update(dt, self.px, self.py)
-            if dmg:
-                self.current_hp -= dmg
-                self.hit_flash = 0.3
-                if self.current_hp <= 0:
-                    self.current_hp = 0
-                    self.state = "dead"
-                    self.result_timer = 3.5
+            signal = self.boss.update(dt, self.px, self.py)
+            if signal == "pending":
+                result = resolve_boss_attack(
+                    self.boss.attack_bonus,
+                    self.boss.damage_die,
+                    self.boss.damage_count,
+                    self.character.stats.armor_class,
+                )
+                self._last_boss_attack = result
+                if result.hit:
+                    self.current_hp -= result.damage
+                    self.hit_flash = 0.3
+                    if self.current_hp <= 0:
+                        self.current_hp = 0
+                        self.state = "dead"
+                        self.result_timer = 3.5
 
         if self.boss and not self.boss.alive and self.state == "running":
             self.state = "victory"
@@ -293,9 +298,11 @@ class DungeonRunState(State):
             return
         dist = math.hypot(self.boss.x - self.px, self.boss.y - self.py)
         if dist <= self.attack_range:
-            self.boss.take_damage(self.attack_damage)
-            self.attack_cooldown = 0.6     # seconds between attacks
-            # TODO: trigger ability animations
+            result = resolve_player_attack(self.character, self.boss.armor_class)
+            self._last_player_attack = result
+            if result.hit:
+                self.boss.take_damage(result.damage)
+            self.attack_cooldown = 0.6
 
     # ------------------------------------------------------------------
     # Render

@@ -18,6 +18,7 @@ from src.core.constants import (
     COLOR_ACCENT_BLUE,
     GameStateId
 )
+from src.core.campaign import CampaignProgression
 
 
 class MainMenuState(State):
@@ -78,6 +79,7 @@ class MainMenuState(State):
     def _activate_selected(self) -> None:
         if self.selected_index == 0:
             # Start run / Character Builder
+            self.engine.campaign = CampaignProgression()
             # If state exists, switch; otherwise log/display
             if GameStateId.CHARACTER_BUILDER in self.state_machine._states:
                 self.state_machine.change_state(GameStateId.CHARACTER_BUILDER)

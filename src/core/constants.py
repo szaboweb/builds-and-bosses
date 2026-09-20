@@ -9,6 +9,10 @@ SCREEN_HEIGHT = 720
 FPS = 60
 TITLE = "Builds & Bosses — D&D Multiclass Action RPG"
 
+# Graphics grid: world tiles and default character sprites use 48 pixels.
+PIXEL_TILE_SIZE = 48
+CHARACTER_SPRITE_SIZE = PIXEL_TILE_SIZE
+
 # Colors (Tailored modern dark fantasy palette)
 COLOR_BG_DARK = (15, 17, 26)         # Deep slate/black
 COLOR_BG_PANEL = (25, 28, 42)        # Dark stone panel

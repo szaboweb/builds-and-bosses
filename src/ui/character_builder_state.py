@@ -17,33 +17,35 @@ from src.core.constants import (
 from src.entities.character import Character
 from src.entities.attributes import Attribute
 from src.entities.classes import CLASSES
+from src.core.campaign import CharacterBlueprint, HeroLevelMode
 
 
-# Classes available in this prototype
+# Classes available in this prototype. Campaign blueprints allow at most 3.
 AVAILABLE_CLASSES = ["fighter", "rogue", "wizard", "paladin"]
+MAX_BLUEPRINT_CLASSES = 3
 
-# Total multiclass levels the player can distribute
-TOTAL_LEVELS = 6
-
-# Attribute editing: (attr_name, label, min, max)
+# DDO-style base ability scores: 8-18 before level-ups and tomes.
 ATTR_FIELDS = [
-    ("STR", "Strength   (STR)",  8, 15),
-    ("DEX", "Dexterity  (DEX)",  8, 15),
-    ("CON", "Constitution (CON)", 8, 15),
-    ("INT", "Intelligence (INT)", 8, 15),
-    ("WIS", "Wisdom     (WIS)",  8, 15),
-    ("CHA", "Charisma   (CHA)",  8, 15),
+    ("STR", "Strength   (STR)",  8, 18),
+    ("DEX", "Dexterity  (DEX)",  8, 18),
+    ("CON", "Constitution (CON)", 8, 18),
+    ("INT", "Intelligence (INT)", 8, 18),
+    ("WIS", "Wisdom     (WIS)", 8, 18),
+    ("CHA", "Charisma   (CHA)", 8, 18),
 ]
 
-# D&D 5e Point Buy cost table (score -> points spent)
-POINT_BUY_COST: dict[int, int] = {8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9}
-POINT_BUY_BUDGET = 27
+# DDO 28-point build cost table (score -> points spent).
+POINT_BUY_COST: dict[int, int] = {
+    8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5,
+    14: 6, 15: 8, 16: 10, 17: 13, 18: 16,
+}
+POINT_BUY_BUDGET = 28
 POINT_BUY_DEFAULT = 8    # all stats start at 8
 
 
 def _pb_cost(score: int) -> int:
-    """Points spent to reach this score (D&D 5e Point Buy table)."""
-    return POINT_BUY_COST.get(max(8, min(15, score)), 9)
+    """Points spent to reach this score using the DDO 28-point table."""
+    return POINT_BUY_COST.get(max(8, min(18, score)), 16)
 
 
 def _pb_spent(attr_values: dict[str, int]) -> int:
@@ -65,11 +67,10 @@ CLASS_PRIMARY_STAT: dict[str, str] = {
 class CharacterBuilderState(State):
     """
     Minimal character builder:
-      - Choose up to 2 classes and split 6 levels between them
+    - Choose up to 3 classes and split the campaign level between them
       - Enter a name
       - Confirm -> launch DungeonRun
 
-    TODO: add attribute point allocation
     TODO: add ability preview panel
     TODO: add more classes once content is ready
     """
@@ -87,6 +88,7 @@ class CharacterBuilderState(State):
         self.name_editing: bool = False
         self.error_msg: str = ""
         self.status_msg: str = ""
+        self.level_mode: HeroLevelMode = HeroLevelMode.LEVEL_UP
 
         # Attribute values (raw scores, overridden by player)
         self.attr_values: dict[str, int] = {k: 10 for k, *_ in ATTR_FIELDS}
@@ -116,12 +118,13 @@ class CharacterBuilderState(State):
         self.save_cursor = 0
         self.active_tab = "classes"
         self.attr_cursor = 0
+        self.level_mode = HeroLevelMode.LEVEL_UP
         # Load defaults from JSON
         try:
             defaults = DataLoader.hero_defaults()["attributes"]
             raw = {k: defaults.get(k, POINT_BUY_DEFAULT) for k, *_ in ATTR_FIELDS}
-            # Clamp to Point Buy range and reset if over budget
-            clamped = {k: max(8, min(15, v)) for k, v in raw.items()}
+            # Clamp to DDO Point Buy range and reset if over budget
+            clamped = {k: max(8, min(18, v)) for k, v in raw.items()}
             if _pb_spent(clamped) <= POINT_BUY_BUDGET:
                 self.attr_values = clamped
             else:
@@ -146,7 +149,14 @@ class CharacterBuilderState(State):
 
     @property
     def levels_remaining(self) -> int:
-        return TOTAL_LEVELS - self.levels_used
+        return self.target_level - self.levels_used
+
+    @property
+    def target_level(self) -> int:
+        scaling = self.engine.campaign.scaling
+        if self.level_mode is HeroLevelMode.LEVEL_DOWN:
+            return scaling.hero_level_down
+        return scaling.hero_level_up
 
     @property
     def active_classes(self) -> List[Tuple[str, int]]:
@@ -171,6 +181,14 @@ class CharacterBuilderState(State):
                 self.state_machine.change_state(GameStateId.MAIN_MENU)
             elif key == pygame.K_TAB:
                 self.active_tab = "attributes" if self.active_tab == "classes" else "classes"
+                self.error_msg = ""
+            elif key == pygame.K_q:
+                self.level_mode = (
+                    HeroLevelMode.LEVEL_DOWN
+                    if self.level_mode is HeroLevelMode.LEVEL_UP
+                    else HeroLevelMode.LEVEL_UP
+                )
+                self.class_levels = {}
                 self.error_msg = ""
             elif self.active_tab == "classes":
                 if key in (pygame.K_UP, pygame.K_w):
@@ -223,6 +241,9 @@ class CharacterBuilderState(State):
             self.error_msg = "Max szintek elosztva! Vedd el mástól."
             return
         cid = AVAILABLE_CLASSES[self.selected_class_idx]
+        if cid not in self.class_levels and len(self.class_levels) >= MAX_BLUEPRINT_CLASSES:
+            self.error_msg = f"Legfeljebb {MAX_BLUEPRINT_CLASSES} kaszt választható."
+            return
         self.class_levels[cid] = self.class_levels.get(cid, 0) + 1
         self.error_msg = ""
 
@@ -316,8 +337,22 @@ class CharacterBuilderState(State):
             self.error_msg = "Add meg a hős nevét (N gomb)!"
             return
 
-        char = self._build_character()
-        self.state_machine.change_state(GameStateId.DUNGEON_RUN, {"character": char})
+        blueprint = CharacterBlueprint(
+            name=self.char_name.strip() or "Hero",
+            class_levels=dict(self.class_levels),
+        )
+        for attr_name, *_ in ATTR_FIELDS:
+            setattr(blueprint.attributes, attr_name, self.attr_values.get(attr_name, 8))
+        try:
+            self.engine.campaign.select_blueprint(blueprint, self.level_mode)
+            char = blueprint.build_character(self.target_level)
+        except ValueError as exc:
+            self.error_msg = str(exc)
+            return
+        self.state_machine.change_state(
+            GameStateId.DUNGEON_RUN,
+            {"character": char, "campaign": self.engine.campaign},
+        )
 
     # ------------------------------------------------------------------
     # Update / Render
@@ -356,11 +391,16 @@ class CharacterBuilderState(State):
     # Bottom bar:   y=600..720
     _COL_A = 30
     _COL_B = 420
-    _COL_C = 840
+    _COL_C = 880
     _COL_TOP = 90
 
     def _draw_header(self, surface: pygame.Surface) -> None:
-        title = self.font_title.render("KARAKTER EPITES", True, COLOR_ACCENT_GOLD)
+        mode_label = "LEVEL DOWN" if self.level_mode is HeroLevelMode.LEVEL_DOWN else "LEVEL UP"
+        title = self.font_title.render(
+            f"TERVEZŐASZTAL  |  BOSS {self.engine.campaign.boss_number}  |  {mode_label}",
+            True,
+            COLOR_ACCENT_GOLD,
+        )
         surface.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, 22))
 
         # Section headers with focus highlight
@@ -398,7 +438,7 @@ class CharacterBuilderState(State):
                 pygame.draw.rect(surface, COLOR_BG_PANEL, row_rect, border_radius=5)
                 pygame.draw.rect(surface, COLOR_PANEL_BORDER, row_rect, width=1, border_radius=5)
 
-            bar = "[" + "#" * lvl + "." * (TOTAL_LEVELS - lvl) + "]"
+            bar = "[" + "#" * lvl + "." * max(self.target_level - lvl, 0) + "]"
             line = f"{prefix}{cls.name:<10} {bar}  Lv {lvl}"
             surf = self.font_normal.render(line, True, color)
             surface.blit(surf, (x, y + 4))
@@ -406,7 +446,7 @@ class CharacterBuilderState(State):
 
         y += 8
         remaining_surf = self.font_normal.render(
-            f"Szabad: {self.levels_remaining} / {TOTAL_LEVELS}",
+            f"Szabad: {self.levels_remaining} / {self.target_level}",
             True, COLOR_ACCENT_GREEN if self.levels_remaining > 0 else COLOR_ACCENT_RED
         )
         surface.blit(remaining_surf, (x, y))
@@ -492,9 +532,9 @@ class CharacterBuilderState(State):
             y += ROW_H
 
         y += 4
-        # Two short reference lines, each ~200px wide — stay within Col B
-        surface.blit(self.font_small.render("8=0  9=1  10=2  11=3", True, COLOR_TEXT_MUTED), (x, y))
-        surface.blit(self.font_small.render("12=4  13=5  14=7  15=9pt", True, COLOR_TEXT_MUTED), (x + 210, y))
+        # DDO cost reference, split into short lines to avoid crossing columns.
+        surface.blit(self.font_small.render("8=0  9=1  10=2  11=3  12=4  13=5", True, COLOR_TEXT_MUTED), (x, y))
+        surface.blit(self.font_small.render("14=6  15=8  16=10  17=13  18=16", True, COLOR_TEXT_MUTED), (x, y + 22))
 
     def _draw_derived_stats(self, surface: pygame.Surface) -> None:
         x = self._COL_C
@@ -566,9 +606,9 @@ class CharacterBuilderState(State):
 
     def _draw_controls(self, surface: pygame.Surface) -> None:
         if self.active_tab == "classes":
-            line = "FEL/LE osztály  BAL/JOBB szint   TAB → Attr   N név   F5 ment   F9 betölt   ENTER indul   ESC vissza"
+            line = "Q szintmód  FEL/LE osztály  BAL/JOBB szint   TAB Attr   N név   ENTER indul   ESC vissza"
         else:
-            line = "FEL/LE attr  BAL/JOBB/+/- érték   TAB → Osztály   N név   F5 ment   F9 betölt   ENTER indul   ESC vissza"
+            line = "Q szintmód  FEL/LE attr  BAL/JOBB/+/- érték   TAB Osztály   ENTER indul   ESC vissza"
         surf = self.font_small.render(line, True, COLOR_TEXT_MUTED)
         surface.blit(surf, (SCREEN_WIDTH // 2 - surf.get_width() // 2, SCREEN_HEIGHT - 68))
 

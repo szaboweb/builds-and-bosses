@@ -13,6 +13,7 @@ from src.core.constants import (
     GameStateId
 )
 from src.core.state_machine import StateMachine
+from src.core.campaign import CampaignProgression
 
 
 class GameEngine:
@@ -29,6 +30,7 @@ class GameEngine:
         self.is_running = False
         self.clock = None
         self.screen = None
+        self.campaign = CampaignProgression()
         self.state_machine = StateMachine(self)
 
     def initialize(self) -> None:

@@ -1,7 +1,7 @@
 """
 Character attribute and statistics model.
 
-Implements the D&D 5e-inspired six-attribute system (STR, DEX, CON, INT, WIS, CHA)
+Implements the DDO-compatible six-attribute system (STR, DEX, CON, INT, WIS, CHA)
 with derived statistics (max HP, max Mana, AC, initiative, attack/spell modifiers).
 """
 

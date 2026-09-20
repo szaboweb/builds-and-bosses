@@ -8,6 +8,14 @@
   "icon": "\ud83d\udc80",
   "color": [140, 60, 200],
   "radius": 32,
+  "projectile": {
+    "kind": "necrotic_bolt",
+    "color": [170, 80, 230],
+    "speed": 240,
+    "radius": 10,
+    "damage_die": 6,
+    "damage_count": 1
+  },
 
   "stats": {
     "max_hp": 180,

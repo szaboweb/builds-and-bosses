@@ -24,6 +24,8 @@ import os
 import pygame
 from typing import Optional
 
+from src.core.constants import CHARACTER_SPRITE_SIZE, PIXEL_TILE_SIZE
+
 _PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 _ASSETS_DIR = os.path.join(_PROJECT_ROOT, "assets")
 
@@ -44,7 +46,8 @@ def _load(rel_path: str, size: int) -> Optional[pygame.Surface]:
 
     try:
         surf = pygame.image.load(full_path).convert_alpha()
-        surf = pygame.transform.smoothscale(surf, (size, size))
+        # Keep hard pixel edges; smoothscale would blur the 48 px art style.
+        surf = pygame.transform.scale(surf, (size, size))
         _CACHE[key] = surf
         return surf
     except pygame.error:
@@ -55,9 +58,33 @@ def _load(rel_path: str, size: int) -> Optional[pygame.Surface]:
 class SpriteLoader:
 
     @staticmethod
-    def character(class_id: str, size: int = 64) -> Optional[pygame.Surface]:
+    def character(class_id: str, size: int = CHARACTER_SPRITE_SIZE) -> Optional[pygame.Surface]:
         """Load character sprite for a class. Returns None if not found."""
         return _load(f"characters/{class_id}.png", size)
+
+    @staticmethod
+    def animation_frames(
+        rel_path: str,
+        frame_size: int = CHARACTER_SPRITE_SIZE,
+        frame_count: int = 1,
+        row: int = 0,
+    ) -> list[pygame.Surface]:
+        """Load one row of square frames from a PNG spritesheet."""
+        full_path = os.path.join(_ASSETS_DIR, rel_path)
+        if not os.path.isfile(full_path) or frame_count < 1:
+            return []
+        try:
+            sheet = pygame.image.load(full_path).convert_alpha()
+            frames = []
+            y = row * frame_size
+            for index in range(frame_count):
+                x = index * frame_size
+                if x + frame_size > sheet.get_width() or y + frame_size > sheet.get_height():
+                    break
+                frames.append(sheet.subsurface((x, y, frame_size, frame_size)).copy())
+            return frames
+        except pygame.error:
+            return []
 
     @staticmethod
     def boss(boss_id: str, size: int = 80) -> Optional[pygame.Surface]:
@@ -65,7 +92,7 @@ class SpriteLoader:
         return _load(f"bosses/{boss_id}.png", size)
 
     @staticmethod
-    def ui(key: str, size: int = 32) -> Optional[pygame.Surface]:
+    def ui(key: str, size: int = PIXEL_TILE_SIZE) -> Optional[pygame.Surface]:
         """Load a UI element sprite."""
         return _load(f"ui/{key}.png", size)
 

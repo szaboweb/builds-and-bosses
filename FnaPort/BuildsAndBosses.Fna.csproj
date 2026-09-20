@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>BuildsAndBosses</RootNamespace>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="*.cs" />
+    <Reference Include="FNA" Condition="'$(FNA_PATH)' != ''">
+      <HintPath>$(FNA_PATH)\FNA.dll</HintPath>
+    </Reference>
+    <Content Include="..\data\**\*" LinkBase="data" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\assets\**\*" LinkBase="assets" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

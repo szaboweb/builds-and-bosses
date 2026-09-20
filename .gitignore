@@ -5,3 +5,5 @@ __pycache__/
 *.pyo
 FnaPort/bin/
 FnaPort/obj/
+data/heroes/saves/*.json
+!data/heroes/saves/Fighter.json

@@ -12,6 +12,7 @@ legacy_python/**/__pycache__/
 # Godot / C# generated files
 GodotProject/.godot/
 GodotProject/.import/
+GodotProject/*.import
 GodotProject/export_presets.cfg
 GodotProject/.vs/
 GodotProject/bin/

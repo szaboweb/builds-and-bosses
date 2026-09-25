@@ -83,6 +83,7 @@ class WeaponRangeConfig {
   final String id;
   final double meleeReach;
   final double stagger;
+  final double staggerStrengthScaling;
   final double rangedNormalRange;
   final double rangedLongRange;
   final double rangedKnockback;
@@ -93,6 +94,7 @@ class WeaponRangeConfig {
     required this.id,
     required this.meleeReach,
     this.stagger = 0,
+    this.staggerStrengthScaling = 0,
     this.rangedNormalRange = 0,
     this.rangedLongRange = 0,
     this.rangedKnockback = 0,
@@ -104,6 +106,7 @@ class WeaponRangeConfig {
     'id': id,
     'meleeReach': meleeReach,
     'stagger': stagger,
+    'staggerStrengthScaling': staggerStrengthScaling,
     'rangedNormalRange': rangedNormalRange,
     'rangedLongRange': rangedLongRange,
     'rangedKnockback': rangedKnockback,
@@ -116,6 +119,8 @@ class WeaponRangeConfig {
       id: json['id'] as String,
       meleeReach: (json['meleeReach'] as num).toDouble(),
         stagger: (json['stagger'] as num?)?.toDouble() ?? 0,
+          staggerStrengthScaling:
+            (json['staggerStrengthScaling'] as num?)?.toDouble() ?? 0,
         rangedNormalRange:
           (json['rangedNormalRange'] as num?)?.toDouble() ?? 0,
         rangedLongRange: (json['rangedLongRange'] as num?)?.toDouble() ?? 0,
@@ -233,11 +238,13 @@ class CombatConfig {
         id: 'longsword',
         meleeReach: 110.0,
         stagger: 12.0,
+        staggerStrengthScaling: 2.0,
       ),
       'greatsword': WeaponRangeConfig(
         id: 'greatsword',
         meleeReach: 110.0,
         stagger: 24.0,
+        staggerStrengthScaling: 4.0,
       ),
       'shortbow': WeaponRangeConfig(
         id: 'shortbow',

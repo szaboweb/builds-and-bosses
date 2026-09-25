@@ -63,7 +63,11 @@ class CharacterStats {
 
   WeaponRangeConfig get weaponRange => config.combat.weaponRangeFor(weaponId);
   double get meleeRange => weaponRange.meleeReach;
-  double get meleeStagger => weaponRange.stagger;
+  double get meleeStagger => max(
+    0,
+    weaponRange.stagger +
+        strengthMod * weaponRange.staggerStrengthScaling,
+  );
   WeaponRangeConfig get rangedWeaponRange =>
       config.combat.weaponRangeFor(rangedWeaponId);
   double get rangedNormalRange => rangedWeaponRange.rangedNormalRange;

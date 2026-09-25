@@ -2,7 +2,15 @@ import 'dart:math';
 
 /// D&D dice rolling system.
 class Dice {
-  static final Random _rng = Random();
+  static Random _rng = Random();
+  static int? _seed;
+
+  static int? get seed => _seed;
+
+  static void configureSeed(int seed) {
+    _seed = seed;
+    _rng = Random(seed);
+  }
 
   /// Rolls a single die with [sides].
   static int roll(int sides) {

@@ -65,3 +65,13 @@ pwsh -NoProfile -File tooling/validate_data.ps1
 - The game is strictly single-player and offline-first: gameplay must never require internet access.
 - Combat statistics are written to a local cache first. A future Steam adapter may sync the same immutable run record to the community Hall of Fame, but sync failure must never block gameplay.
 - Every new rule or config value requires a headless test.
+
+## Debug Replay
+
+Combat runs use a configurable Dice seed and can be represented by a JSON
+`DebugReplaySnapshot` containing the ruleset, hero, boss, action pipeline, and
+outcome. A failing run can therefore be reproduced from the same seed instead
+of relying on a live browser session.
+
+The replay model lives in `app/lib/core/debug/`; it must remain independent of
+Flutter rendering and Flame components.

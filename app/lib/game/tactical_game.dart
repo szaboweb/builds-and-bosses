@@ -10,6 +10,8 @@ import '../core/actions/game_action.dart';
 import '../core/campaign/campaign_blueprint.dart';
 import '../core/combat/combat_logger.dart';
 import '../core/dnd/character_stats.dart';
+import '../core/dnd/dice.dart';
+import '../core/debug/debug_replay.dart';
 import '../core/platform/platform_services.dart';
 import '../platform/local_platform_services.dart';
 import 'components/arena_map_component.dart';
@@ -28,9 +30,11 @@ enum CombatOutcome { victory, defeat }
 /// gravity physics, player jumping, enemy dummy, and Tactical Mode planning loop.
 class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
   final PlatformServices platformServices;
+  final int debugSeed;
 
-  TacticalModeGame({PlatformServices? platformServices})
-    : platformServices = platformServices ?? LocalPlatformServices();
+  TacticalModeGame({PlatformServices? platformServices, int? debugSeed})
+    : platformServices = platformServices ?? LocalPlatformServices(),
+      debugSeed = debugSeed ?? DateTime.now().millisecondsSinceEpoch;
 
   late ArenaMapComponent arena;
   late PlayerComponent player;
@@ -40,6 +44,7 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
   late LightingController lightingController;
   late DeveloperModeController developerModeController;
   late DateTime combatStartedAt;
+  late DebugReplayRecorder replayRecorder;
 
   final ActionQueue actionQueue = ActionQueue(maxAP: 100);
   final ActionCooldowns actionCooldowns = ActionCooldowns();
@@ -65,6 +70,7 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
   Future<void> onLoad() async {
     super.onLoad();
     combatStartedAt = DateTime.now();
+    Dice.configureSeed(debugSeed);
 
     // 1. Arena Map (Side-view gothic dungeon with elevated platforms & torches)
     arena = ArenaMapComponent(arenaWidth: 2400, arenaHeight: 900);
@@ -76,6 +82,12 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
       movementBounds: arena.playableBounds,
     );
     world.add(player);
+    replayRecorder = DebugReplayRecorder(
+      seed: debugSeed,
+      ruleset: 'dnd2024',
+      heroName: player.stats.name,
+      bossId: 'training_golem',
+    );
 
     // 3. Enemy Dummy / Vanguard (Placed on right lower platform)
     enemy = DummyEnemyComponent(
@@ -150,6 +162,9 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
     if (outcome == CombatOutcome.victory) {
       platformServices.unlockAchievement('training_golem_defeated');
     }
+    replayRecorder.complete(
+      outcome == CombatOutcome.victory ? 'victory' : 'defeat',
+    );
     platformServices.syncCombatStatistics(
       CombatStatistics(
         runId: DateTime.now().microsecondsSinceEpoch.toString(),
@@ -165,6 +180,13 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
   void restartCombat() {
     combatOutcomeNotifier.value = null;
     combatStartedAt = DateTime.now();
+    Dice.configureSeed(debugSeed);
+    replayRecorder = DebugReplayRecorder(
+      seed: debugSeed,
+      ruleset: 'dnd2024',
+      heroName: player.stats.name,
+      bossId: 'training_golem',
+    );
     phaseNotifier.value = GamePhase.realtime;
     actionQueue.clear();
     player.stats.currentHp = player.stats.maxHp;
@@ -226,6 +248,9 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
         toPhase: 'REALTIME',
       );
     });
+    for (final action in actionQueue.actions) {
+      replayRecorder.recordAction(action);
+    }
   }
 
   /// Runs a fixed, non-reactive combat pipeline and plays it through the game.
@@ -255,6 +280,9 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
       pipeline,
       () => phaseNotifier.value = GamePhase.realtime,
     );
+    for (final action in pipeline) {
+      replayRecorder.recordAction(action);
+    }
   }
 
   // --- Character Builder (Tervezőasztal) Controls ---
@@ -317,6 +345,7 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
 
     actionCooldowns.start(slash, player.stats.config.cooldowns.slashCooldown);
     phaseNotifier.value = GamePhase.executing;
+    replayRecorder.recordAction(slash);
     player.executePlan([slash], () => phaseNotifier.value = GamePhase.realtime);
   }
 
@@ -334,6 +363,7 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
     }
     actionCooldowns.start(spell, player.stats.config.cooldowns.actionCooldown);
     phaseNotifier.value = GamePhase.executing;
+    replayRecorder.recordAction(spell);
     player.executePlan([spell], () => phaseNotifier.value = GamePhase.realtime);
   }
 

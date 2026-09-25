@@ -1,0 +1,19 @@
+{
+  "_schema": "equipment_database/v1",
+  "items": [
+    {"id": "iron_breastplate", "name": "Iron Breastplate", "role": "frontline", "modifiers": {"armor_class": 2, "melee_damage": 1}},
+    {"id": "tower_shield", "name": "Tower Shield", "role": "frontline", "modifiers": {"armor_class": 2}},
+    {"id": "duelist_blade", "name": "Duelist Blade", "role": "ranged", "modifiers": {"dexterity": 1, "ranged_damage": 1}},
+    {"id": "shadow_cloak", "name": "Shadow Cloak", "role": "ranged", "modifiers": {"dexterity": 1, "darkvision": 120}},
+    {"id": "sun_amulet", "name": "Sun Amulet", "role": "divineCaster", "modifiers": {"wisdom": 1, "spell_damage": 1}},
+    {"id": "prayer_ward", "name": "Prayer Ward", "role": "divineCaster", "modifiers": {"spell_save_dc": 1, "healing": 2}},
+    {"id": "arcane_focus", "name": "Arcane Focus", "role": "arcaneCaster", "modifiers": {"intelligence": 1, "spell_damage": 2}},
+    {"id": "mageweave_robe", "name": "Mageweave Robe", "role": "arcaneCaster", "modifiers": {"spell_range": 90, "spell_save_dc": 1}}
+  ],
+  "sets": [
+    {"id": "frontline_guard_set", "name": "Frontline Guard", "role": "frontline", "item_ids": ["iron_breastplate", "tower_shield"], "modifiers": {"strength": 1, "armor_class": 2}},
+    {"id": "shadow_ranger_set", "name": "Shadow Ranger", "role": "ranged", "item_ids": ["duelist_blade", "shadow_cloak"], "modifiers": {"dexterity": 2, "ranged_range": 60}},
+    {"id": "divine_light_set", "name": "Divine Light", "role": "divineCaster", "item_ids": ["sun_amulet", "prayer_ward"], "modifiers": {"wisdom": 2, "spell_range": 60}},
+    {"id": "arcane_stars_set", "name": "Arcane Stars", "role": "arcaneCaster", "item_ids": ["arcane_focus", "mageweave_robe"], "modifiers": {"intelligence": 2, "spell_range": 90}}
+  ]
+}

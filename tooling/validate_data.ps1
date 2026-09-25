@@ -28,6 +28,7 @@ Get-ChildItem $dataRoot -Recurse -Filter '*.json' | ForEach-Object {
     'hero_defaults/v1' { 'hero_defaults.v1.schema.json' }
     'hero_save/v1' { 'hero_save.v1.schema.json' }
     'boss/v1' { 'boss.v1.schema.json' }
+    'equipment_database/v1' { 'equipment_database.v1.schema.json' }
     default { $null }
   }
   if ($null -eq $schemaFile -or !(Test-Path (Join-Path $schemaRoot $schemaFile))) {
@@ -49,6 +50,16 @@ Get-ChildItem $dataRoot -Recurse -Filter '*.json' | ForEach-Object {
     }
     Test-Range $data.stats.max_hp 1 100000 "$($file.Name) stats.max_hp"
     Test-Range $data.stats.armor_class 1 40 "$($file.Name) stats.armor_class"
+  }
+  if ($schema -eq 'equipment_database/v1') {
+    if ($data.sets.Count -ne 4) {
+      Add-Violation "Equipment database must define exactly four class-role sets: $($file.FullName)"
+    }
+    foreach ($set in $data.sets) {
+      if ([string]$set.role -notin @('frontline', 'ranged', 'divineCaster', 'arcaneCaster')) {
+        Add-Violation "Unknown equipment role '$($set.role)': $($file.FullName)"
+      }
+    }
   }
 }
 

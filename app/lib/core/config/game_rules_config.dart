@@ -152,6 +152,30 @@ class VisionConfig {
   );
 }
 
+class InventoryConfig {
+  final int maxInventorySlots;
+  final int maxArmorySlots;
+  final int maxItemsPerEquipmentSet;
+
+  const InventoryConfig({
+    this.maxInventorySlots = 20,
+    this.maxArmorySlots = 3,
+    this.maxItemsPerEquipmentSet = 6,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'maxInventorySlots': maxInventorySlots,
+    'maxArmorySlots': maxArmorySlots,
+    'maxItemsPerEquipmentSet': maxItemsPerEquipmentSet,
+  };
+
+  factory InventoryConfig.fromJson(Map<String, dynamic> json) => InventoryConfig(
+    maxInventorySlots: json['maxInventorySlots'] as int? ?? 20,
+    maxArmorySlots: json['maxArmorySlots'] as int? ?? 3,
+    maxItemsPerEquipmentSet: json['maxItemsPerEquipmentSet'] as int? ?? 6,
+  );
+}
+
 class CombatConfig {
   /// Maximum distance for a melee attack in world pixels.
   final double meleeRange;
@@ -356,6 +380,7 @@ class GameRulesConfig {
   final CombatConfig combat;
   final CooldownConfig cooldowns;
   final VisionConfig vision;
+  final InventoryConfig inventory;
   final PointBuyConfig pointBuy;
 
   const GameRulesConfig({
@@ -363,6 +388,7 @@ class GameRulesConfig {
     this.combat = const CombatConfig(),
     this.cooldowns = const CooldownConfig(),
     this.vision = const VisionConfig(),
+    this.inventory = const InventoryConfig(),
     this.pointBuy = const PointBuyConfig(),
   });
 
@@ -371,6 +397,7 @@ class GameRulesConfig {
     'combat': combat.toJson(),
     'cooldowns': cooldowns.toJson(),
     'vision': vision.toJson(),
+    'inventory': inventory.toJson(),
   };
 
   factory GameRulesConfig.fromJson(Map<String, dynamic> json) {
@@ -387,6 +414,11 @@ class GameRulesConfig {
           vision: json['vision'] != null
             ? VisionConfig.fromJson(json['vision'] as Map<String, dynamic>)
             : const VisionConfig(),
+        inventory: json['inventory'] != null
+            ? InventoryConfig.fromJson(
+                json['inventory'] as Map<String, dynamic>,
+              )
+            : const InventoryConfig(),
     );
   }
 }

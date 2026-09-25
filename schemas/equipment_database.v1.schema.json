@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "equipment_database/v1",
+  "type": "object",
+  "required": ["_schema", "items", "sets"],
+  "properties": {
+    "_schema": { "const": "equipment_database/v1" },
+    "items": { "type": "array", "minItems": 4 },
+    "sets": { "type": "array", "minItems": 4, "maxItems": 4 }
+  },
+  "additionalProperties": true
+}

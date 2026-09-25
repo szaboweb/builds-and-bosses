@@ -350,7 +350,10 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
 
   void triggerSpellHotkey() {
     if (currentPhase != GamePhase.realtime) return;
-    final spell = SpellAction(targetPosition: enemy.position.clone());
+    final spell = SpellAction(
+      targetPosition: enemy.position.clone(),
+      knockback: player.stats.config.combat.spellKnockback,
+    );
     if (!actionCooldowns.canUse(spell)) return;
     if (player.position.distanceTo(enemy.position) >
         player.stats.config.combat.spellRange) {
@@ -393,7 +396,10 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
         action = SlashAction(targetPosition: tapPosition);
         break;
       case ActionType.spell:
-        action = SpellAction(targetPosition: tapPosition);
+        action = SpellAction(
+          targetPosition: tapPosition,
+          knockback: player.stats.config.combat.spellKnockback,
+        );
         break;
       case ActionType.ranged:
         action = RangedAction(targetPosition: tapPosition);

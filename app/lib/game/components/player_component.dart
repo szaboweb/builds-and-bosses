@@ -144,7 +144,7 @@ class PlayerComponent extends PositionComponent with HasGameReference {
       _slashTargetPos = action.targetPosition.clone();
       isFacingLeft = _slashTargetPos!.x < position.x;
       _slashVfxTimer = 0.35;
-      _resolveSpell(action.targetPosition);
+      _resolveSpell(action.targetPosition, action.knockback);
     } else if (action is RangedAction) {
       _slashTargetPos = action.targetPosition.clone();
       isFacingLeft = _slashTargetPos!.x < position.x;
@@ -265,7 +265,7 @@ class PlayerComponent extends PositionComponent with HasGameReference {
     return delta.x.abs() <= stats.meleeRange && delta.y.abs() <= verticalRange;
   }
 
-  void _resolveSpell(Vector2 targetPos) {
+  void _resolveSpell(Vector2 targetPos, double knockback) {
     final spellDistance = position.distanceTo(targetPos);
     if (spellDistance > stats.config.combat.spellRange) {
       _showCombatRangeMessage('SPELL OUT OF RANGE');
@@ -287,7 +287,13 @@ class PlayerComponent extends PositionComponent with HasGameReference {
       attacker: stats,
       defender: targetEnemy.stats,
     );
-    if (result.isHit) targetEnemy.triggerHitReaction();
+    if (result.isHit) {
+      targetEnemy.triggerHitReaction();
+      if (knockback > 0) {
+        final direction = (targetEnemy.position - position).normalized();
+        targetEnemy.position += direction * knockback;
+      }
+    }
   }
 
   void _resolveRanged(Vector2 targetPos) {

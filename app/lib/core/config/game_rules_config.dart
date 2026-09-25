@@ -183,6 +183,7 @@ class CombatConfig {
   final double rangedNormalRange;
   final double rangedLongRange;
   final double spellRange;
+  final double spellKnockback;
   final Map<String, WeaponRangeConfig> weaponRanges;
 
   /// Base HP for a level 1 Fighter without CON mod.
@@ -200,6 +201,7 @@ class CombatConfig {
     this.rangedNormalRange = 420.0,
     this.rangedLongRange = 900.0,
     this.spellRange = 600.0,
+    this.spellKnockback = 0.0,
     this.weaponRanges = const {
       'dagger': WeaponRangeConfig(
         id: 'dagger',
@@ -232,6 +234,7 @@ class CombatConfig {
     'rangedNormalRange': rangedNormalRange,
     'rangedLongRange': rangedLongRange,
     'spellRange': spellRange,
+    'spellKnockback': spellKnockback,
     'weaponRanges': weaponRanges.map(
       (id, range) => MapEntry(id, range.toJson()),
     ),
@@ -260,6 +263,7 @@ class CombatConfig {
       rangedLongRange:
           (json['rangedLongRange'] as num?)?.toDouble() ?? 900.0,
       spellRange: (json['spellRange'] as num?)?.toDouble() ?? 600.0,
+      spellKnockback: (json['spellKnockback'] as num?)?.toDouble() ?? 0.0,
       weaponRanges: weaponRanges,
       baseFighterHp: json['baseFighterHp'] as int? ?? 10,
       fighterHpPerLevel: json['fighterHpPerLevel'] as int? ?? 6,

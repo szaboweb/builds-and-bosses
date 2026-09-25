@@ -51,8 +51,9 @@ class SlashAction extends GameAction {
 
 class SpellAction extends GameAction {
   final Vector2 targetPosition;
+  final double knockback;
 
-  SpellAction({required this.targetPosition})
+  SpellAction({required this.targetPosition, this.knockback = 0})
     : super(
         type: ActionType.spell,
         name: 'Spell',

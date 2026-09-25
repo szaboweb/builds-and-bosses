@@ -6,8 +6,8 @@
     {"id": "duelist_blade", "name": "Duelist Blade", "role": "ranged", "modifiers": {"dexterity": 1, "ranged_damage": 1}},
     {"id": "shadow_cloak", "name": "Shadow Cloak", "role": "ranged", "modifiers": {"dexterity": 1, "darkvision": 120}},
     {"id": "sun_amulet", "name": "Sun Amulet", "role": "divineCaster", "modifiers": {"wisdom": 1, "spell_damage": 1}},
-    {"id": "prayer_ward", "name": "Prayer Ward", "role": "divineCaster", "modifiers": {"spell_save_dc": 1, "healing": 2}},
-    {"id": "arcane_focus", "name": "Arcane Focus", "role": "arcaneCaster", "modifiers": {"intelligence": 1, "spell_damage": 2}},
+    {"id": "prayer_ward", "name": "Prayer Ward", "role": "divineCaster", "modifiers": {"spell_save_dc": 1, "healing": 2, "spell_knockback": 15}},
+    {"id": "arcane_focus", "name": "Arcane Focus", "role": "arcaneCaster", "modifiers": {"intelligence": 1, "spell_damage": 2, "spell_knockback": 30}},
     {"id": "mageweave_robe", "name": "Mageweave Robe", "role": "arcaneCaster", "modifiers": {"spell_range": 90, "spell_save_dc": 1}}
   ],
   "sets": [

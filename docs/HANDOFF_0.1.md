@@ -270,3 +270,22 @@ Futtasd az architecture validator, data validator, flutter analyze, flutter test
 4. Boss AI és dungeon attrition/curse rendszer.
 5. Steam Hall of Fame adapter a lokális pending statistics queue-ra.
 6. Golden/integration tesztek kamera, lighting, projectile és outcome overlay állapotokra.
+
+## 12. TacticalModeGame refactor target
+
+The coordinator should be split into five services:
+
+1. `GameInputController`: keyboard/tap input and intent dispatch.
+2. `CombatCoordinator`: action execution, target selection, cooldown and CombatEngine orchestration.
+3. `GamePhaseController`: realtime, planning, executing, cooldown, victory and defeat transitions.
+4. `CombatTimerController`: combat elapsed time, Tactical Mode pause/resume, restart and final duration.
+5. `BuildCombatController`: hero and boss builds, stat-derived combat effects, active/passive abilities, weapon/equipment modifiers, and build changes.
+
+`BuildCombatController` is the single contract for questions such as:
+
+- How do STR/DEX/CON/INT/WIS/CHA affect combat?
+- Which class ability is active or passive?
+- Which weapon and equipment-set modifiers are active?
+- What is the boss phase/build modifier?
+
+Flame components consume the resulting domain values; they do not recalculate them.

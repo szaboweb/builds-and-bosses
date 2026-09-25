@@ -31,6 +31,18 @@ Input -> TacticalModeGame -> core action/combat service -> domain result
 
 The same domain service must be usable from realtime combat, Tactical Mode, auto-combat, and tests.
 
+## TacticalModeGame Coordinator Boundaries
+
+The current coordinator is planned to split into five focused services:
+
+- `GameInputController`: keyboard/tap input to game intent.
+- `CombatCoordinator`: action execution, target selection, cooldown checks, and combat-engine calls.
+- `GamePhaseController`: realtime/planning/executing/cooldown/victory/defeat transitions.
+- `CombatTimerController`: elapsed combat time, Tactical Mode pause/resume, and completed-run duration.
+- `BuildCombatController`: hero/boss build state, stat-derived combat modifiers, active/passive ability effects, and equipment-set effects.
+
+The controllers communicate through domain models and events. No controller owns Canvas rendering or Flutter widgets.
+
 ## Enforcement
 
 Run the architecture validator before committing:

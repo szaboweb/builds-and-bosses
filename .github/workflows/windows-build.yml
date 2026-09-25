@@ -1,0 +1,94 @@
+name: Windows build
+
+on:
+  workflow_dispatch:
+    inputs:
+      upload_to_steam:
+        description: Upload the generated build to the Steam internal branch
+        required: true
+        default: false
+        type: boolean
+  push:
+    branches: [main]
+
+jobs:
+  windows-build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate architecture boundaries
+        shell: pwsh
+        working-directory: .
+        run: pwsh -NoProfile -File tooling/validate_architecture.ps1
+
+      - name: Validate data schemas and naming
+        shell: pwsh
+        working-directory: .
+        run: pwsh -NoProfile -File tooling/validate_data.ps1
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.47.5'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      - name: Build Windows release
+        run: flutter build windows --release
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: builds-and-bosses-windows
+          path: app/build/windows/x64/runner/Release
+
+      - name: Download SteamCMD
+        if: ${{ inputs.upload_to_steam == true }}
+        shell: pwsh
+        working-directory: .
+        run: |
+          Invoke-WebRequest `
+            -Uri https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip `
+            -OutFile steamcmd.zip
+          Expand-Archive steamcmd.zip -DestinationPath steamcmd -Force
+
+      - name: Generate SteamPipe manifests
+        if: ${{ inputs.upload_to_steam == true }}
+        shell: pwsh
+        working-directory: .
+        env:
+          STEAM_APP_ID: ${{ secrets.STEAM_APP_ID }}
+          STEAM_DEPOT_ID: ${{ secrets.STEAM_DEPOT_ID }}
+        run: |
+          (Get-Content steam/app_build.example.vdf) `
+            -replace 'YOUR_STEAM_APP_ID', $env:STEAM_APP_ID `
+            -replace 'YOUR_STEAM_DEPOT_ID', $env:STEAM_DEPOT_ID `
+            | Set-Content steam/app_build.generated.vdf
+          (Get-Content steam/depot_build.example.vdf) `
+            -replace 'YOUR_STEAM_DEPOT_ID', $env:STEAM_DEPOT_ID `
+            | Set-Content steam/depot_build.generated.vdf
+
+      - name: Upload to Steam internal branch
+        if: ${{ inputs.upload_to_steam == true }}
+        shell: pwsh
+        working-directory: .
+        env:
+          STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
+          STEAM_PASSWORD: ${{ secrets.STEAM_PASSWORD }}
+        run: |
+          .\steamcmd\steamcmd.exe `
+            +login $env:STEAM_USERNAME $env:STEAM_PASSWORD `
+            +run_app_build "$PWD\steam\app_build.generated.vdf" `
+            +quit

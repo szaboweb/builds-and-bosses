@@ -1,0 +1,11 @@
+"DepotBuild"
+{
+  "DepotID" "YOUR_STEAM_DEPOT_ID"
+  "ContentRoot" "app\\build\\windows\\x64\\runner\\Release"
+  "FileMapping"
+  {
+    "LocalPath" "*"
+    "DepotPath" "."
+    "recursive" "1"
+  }
+}

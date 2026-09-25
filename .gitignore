@@ -4,20 +4,6 @@ __pycache__/
 *.pyc
 *.pyo
 
-# Legacy projects
-legacy_fna/bin/
-legacy_fna/obj/
-legacy_python/**/__pycache__/
-
-# Godot / C# generated files
-GodotProject/.godot/
-GodotProject/.import/
-GodotProject/*.import
-GodotProject/export_presets.cfg
-GodotProject/.vs/
-GodotProject/bin/
-GodotProject/obj/
-
 # Runtime data
 data/heroes/saves/*.json
-!data/heroes/saves/Fighter.json
+!data/heroes/saves/fighter.json

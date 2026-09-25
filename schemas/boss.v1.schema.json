@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "boss/v1",
+  "type": "object",
+  "required": ["_schema", "id", "name", "stats", "spawn", "phases"],
+  "properties": {
+    "_schema": { "const": "boss/v1" },
+    "id": { "type": "string", "pattern": "^boss_[0-9]{3}_[a-z0-9_]+$" },
+    "name": { "type": "string", "minLength": 1 },
+    "stats": {
+      "type": "object",
+      "required": ["max_hp", "armor_class", "speed", "attack_rate", "attack_bonus", "damage_die", "damage_count"],
+      "properties": {
+        "max_hp": { "type": "integer", "minimum": 1 },
+        "armor_class": { "type": "integer", "minimum": 1, "maximum": 40 },
+        "speed": { "type": "number", "minimum": 0 },
+        "attack_rate": { "type": "number", "exclusiveMinimum": 0 },
+        "attack_bonus": { "type": "integer", "minimum": -20, "maximum": 30 },
+        "damage_die": { "type": "integer", "enum": [4, 6, 8, 10, 12, 20] },
+        "damage_count": { "type": "integer", "minimum": 1, "maximum": 20 }
+      },
+      "additionalProperties": true
+    },
+    "spawn": { "type": "object", "required": ["x_pct", "y_px"] },
+    "phases": { "type": "array", "minItems": 1 }
+  },
+  "additionalProperties": true
+}

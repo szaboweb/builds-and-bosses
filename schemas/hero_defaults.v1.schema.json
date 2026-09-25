@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "hero_defaults/v1",
+  "type": "object",
+  "required": ["_schema", "attributes", "attribute_points_to_distribute"],
+  "properties": {
+    "_schema": { "const": "hero_defaults/v1" },
+    "attributes": { "$ref": "#/$defs/attributes" },
+    "attribute_points_to_distribute": { "type": "integer", "minimum": 0 }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "attributes": {
+      "type": "object",
+      "required": ["STR", "DEX", "CON", "INT", "WIS", "CHA"],
+      "properties": {
+        "STR": { "type": "integer", "minimum": 1, "maximum": 30 },
+        "DEX": { "type": "integer", "minimum": 1, "maximum": 30 },
+        "CON": { "type": "integer", "minimum": 1, "maximum": 30 },
+        "INT": { "type": "integer", "minimum": 1, "maximum": 30 },
+        "WIS": { "type": "integer", "minimum": 1, "maximum": 30 },
+        "CHA": { "type": "integer", "minimum": 1, "maximum": 30 }
+      },
+      "additionalProperties": false
+    }
+  }
+}

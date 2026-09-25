@@ -8,10 +8,10 @@
 
 ## 1. Könyvtárstruktúra és Hatáskörök (Mit hova szabad implementálni?)
 
-A `builds_and_bosses_flame` Flutter/Flame projekt 4 szigorúan elválasztott rétegre tagolódik:
+A `app` Flutter/Flame projekt 4 szigorúan elválasztott rétegre tagolódik:
 
 ```
-builds_and_bosses_flame/
+app/
 ├── lib/
 │   ├── core/         <-- [RÉTEG 1] Tiszta Üzleti Logika & Konfiguráció (Headless)
 │   │   ├── config/   <-- Központi konfigurációs modellek (GameRulesConfig, PhysicsConfig, stb.)

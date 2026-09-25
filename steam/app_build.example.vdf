@@ -1,0 +1,12 @@
+"AppBuild"
+{
+  "AppID" "YOUR_STEAM_APP_ID"
+  "Desc" "Builds & Bosses Windows build"
+  "ContentRoot" "app\\build\\windows\\x64\\runner\\Release"
+  "BuildOutput" "steam\\output"
+  "Depots"
+  {
+    "YOUR_STEAM_DEPOT_ID" "depot_build.example.vdf"
+  }
+  "SetLive" "internal"
+}

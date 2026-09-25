@@ -95,6 +95,7 @@ void main() {
     final restored = CombatConfig.fromJson(config.toJson());
 
     expect(restored.meleeRange, equals(100));
+    expect(restored.meleeVerticalTolerance, equals(1.5));
     expect(restored.rangedNormalRange, equals(400));
     expect(restored.rangedLongRange, equals(800));
     expect(restored.spellRange, equals(600));

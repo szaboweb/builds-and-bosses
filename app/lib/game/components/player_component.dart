@@ -180,7 +180,7 @@ class PlayerComponent extends PositionComponent with HasGameReference {
   }
 
   void _resolveSlash(Vector2 targetPos) {
-    if (position.distanceTo(targetPos) > stats.meleeRange) {
+    if (!canReachMelee(targetPos)) {
       CombatLogger.instance.logWarning(
         'COMBAT',
         '${stats.name} attempted a melee attack out of range.',
@@ -197,7 +197,7 @@ class PlayerComponent extends PositionComponent with HasGameReference {
 
     final enemies = game.world.children.whereType<DummyEnemyComponent>();
     DummyEnemyComponent? targetEnemy;
-    double closestDist = 110.0;
+    double closestDist = stats.meleeRange;
 
     for (final e in enemies) {
       final d = e.position.distanceTo(targetPos);
@@ -256,6 +256,13 @@ class PlayerComponent extends PositionComponent with HasGameReference {
         ),
       );
     }
+  }
+
+  bool canReachMelee(Vector2 targetPosition) {
+    final delta = targetPosition - position;
+    final verticalRange =
+        stats.meleeRange * stats.config.combat.meleeVerticalTolerance;
+    return delta.x.abs() <= stats.meleeRange && delta.y.abs() <= verticalRange;
   }
 
   void _resolveSpell(Vector2 targetPos) {

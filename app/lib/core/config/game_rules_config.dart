@@ -179,6 +179,7 @@ class InventoryConfig {
 class CombatConfig {
   /// Maximum distance for a melee attack in world pixels.
   final double meleeRange;
+  final double meleeVerticalTolerance;
   final double rangedNormalRange;
   final double rangedLongRange;
   final double spellRange;
@@ -195,6 +196,7 @@ class CombatConfig {
 
   const CombatConfig({
     this.meleeRange = 110.0,
+    this.meleeVerticalTolerance = 1.5,
     this.rangedNormalRange = 420.0,
     this.rangedLongRange = 900.0,
     this.spellRange = 600.0,
@@ -226,6 +228,7 @@ class CombatConfig {
 
   Map<String, dynamic> toJson() => {
     'meleeRange': meleeRange,
+    'meleeVerticalTolerance': meleeVerticalTolerance,
     'rangedNormalRange': rangedNormalRange,
     'rangedLongRange': rangedLongRange,
     'spellRange': spellRange,
@@ -250,6 +253,8 @@ class CombatConfig {
         const CombatConfig().weaponRanges;
     return CombatConfig(
       meleeRange: (json['meleeRange'] as num?)?.toDouble() ?? 110.0,
+        meleeVerticalTolerance:
+          (json['meleeVerticalTolerance'] as num?)?.toDouble() ?? 1.5,
       rangedNormalRange:
           (json['rangedNormalRange'] as num?)?.toDouble() ?? 420.0,
       rangedLongRange:

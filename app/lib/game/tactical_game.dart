@@ -334,8 +334,7 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
     final slash = SlashAction(targetPosition: enemy.position.clone());
     if (!actionCooldowns.canUse(slash)) return;
 
-    if (player.position.distanceTo(enemy.position) >
-        player.stats.meleeRange) {
+    if (!player.canReachMelee(enemy.position)) {
       CombatLogger.instance.logWarning(
         'COMBAT',
         'Slash hotkey pressed while the training golem is out of range.',

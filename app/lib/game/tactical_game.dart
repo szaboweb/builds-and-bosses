@@ -9,6 +9,7 @@ import '../core/actions/action_cooldowns.dart';
 import '../core/actions/game_action.dart';
 import '../core/campaign/campaign_blueprint.dart';
 import '../core/combat/combat_logger.dart';
+import '../core/combat/combat_timer_controller.dart';
 import '../core/dnd/character_stats.dart';
 import '../core/dnd/dice.dart';
 import '../core/debug/debug_replay.dart';
@@ -43,14 +44,14 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
   late CameraFollowController cameraFollowController;
   late LightingController lightingController;
   late DeveloperModeController developerModeController;
-  late DateTime combatStartedAt;
-  double _combatElapsedSeconds = 0;
   late DebugReplayRecorder replayRecorder;
 
   final ActionQueue actionQueue = ActionQueue(maxAP: 100);
   final ActionCooldowns actionCooldowns = ActionCooldowns();
+  final CombatTimerController combatTimerController = CombatTimerController();
   final ValueNotifier<int> debugTickNotifier = ValueNotifier<int>(0);
-  final ValueNotifier<Duration> combatTimerNotifier = ValueNotifier(Duration.zero);
+  ValueNotifier<Duration> get combatTimerNotifier =>
+      combatTimerController.elapsedNotifier;
   bool get debugHudEnabled => developerModeController.enabled.value;
 
   // Observable state for Flutter UI widgets
@@ -71,7 +72,6 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
   @override
   Future<void> onLoad() async {
     super.onLoad();
-    combatStartedAt = DateTime.now();
     Dice.configureSeed(debugSeed);
 
     // 1. Arena Map (Side-view gothic dungeon with elevated platforms & torches)
@@ -136,12 +136,8 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
   @override
   void update(double dt) {
     super.update(dt);
-    if (currentPhase != GamePhase.planning &&
-        combatOutcomeNotifier.value == null) {
-      _combatElapsedSeconds += dt;
-      combatTimerNotifier.value = Duration(
-        milliseconds: (_combatElapsedSeconds * 1000).round(),
-      );
+    if (currentPhase != GamePhase.planning && combatOutcomeNotifier.value == null) {
+      combatTimerController.update(dt);
     }
     if (debugHudEnabled) debugTickNotifier.value++;
     actionCooldowns.update(dt);
@@ -161,6 +157,7 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
 
     combatOutcomeNotifier.value = outcome;
     phaseNotifier.value = GamePhase.cooldown;
+    combatTimerController.stop();
     player.velocity = Vector2.zero();
     overlays.remove('actionBar');
     overlays.add('combatOutcome');
@@ -181,16 +178,14 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
         heroName: player.stats.name,
         bossId: 'training_golem',
         outcome: outcome == CombatOutcome.victory ? 'victory' : 'defeat',
-        durationMs: combatTimerNotifier.value.inMilliseconds,
+        durationMs: combatTimerController.elapsed.inMilliseconds,
       ),
     );
   }
 
   void restartCombat() {
     combatOutcomeNotifier.value = null;
-    combatStartedAt = DateTime.now();
-    _combatElapsedSeconds = 0;
-    combatTimerNotifier.value = Duration.zero;
+    combatTimerController.reset();
     Dice.configureSeed(debugSeed);
     replayRecorder = DebugReplayRecorder(
       seed: debugSeed,
@@ -215,6 +210,7 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
 
   void startPlanning() {
     if (currentPhase != GamePhase.realtime) return;
+    combatTimerController.pause();
     phaseNotifier.value = GamePhase.planning;
     player.velocity = Vector2.zero();
     actionQueue.clear();
@@ -230,6 +226,7 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
     if (currentPhase != GamePhase.planning) return;
     actionQueue.clear();
     phaseNotifier.value = GamePhase.realtime;
+    combatTimerController.resume();
     overlays.remove('actionBar');
     CombatLogger.instance.logPhaseChange(
       fromPhase: 'PLANNING',
@@ -245,6 +242,7 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
     }
 
     phaseNotifier.value = GamePhase.executing;
+    combatTimerController.resume();
     overlays.remove('actionBar');
     CombatLogger.instance.logPhaseChange(
       fromPhase: 'PLANNING',

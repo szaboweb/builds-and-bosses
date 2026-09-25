@@ -8,6 +8,7 @@ class CharacterStats {
   final String name;
   final String classId;
   final String weaponId;
+  final String rangedWeaponId;
   final String raceId;
   final int level;
   final int maxHp;
@@ -30,6 +31,7 @@ class CharacterStats {
     required this.name,
     this.classId = 'fighter',
     this.weaponId = 'longsword',
+    this.rangedWeaponId = 'shortbow',
     this.raceId = 'human',
     this.level = 1,
     required this.maxHp,
@@ -61,6 +63,12 @@ class CharacterStats {
 
   WeaponRangeConfig get weaponRange => config.combat.weaponRangeFor(weaponId);
   double get meleeRange => weaponRange.meleeReach;
+  double get meleeStagger => weaponRange.stagger;
+  WeaponRangeConfig get rangedWeaponRange =>
+      config.combat.weaponRangeFor(rangedWeaponId);
+  double get rangedNormalRange => rangedWeaponRange.rangedNormalRange;
+  double get rangedLongRange => rangedWeaponRange.rangedLongRange;
+  double get rangedKnockback => rangedWeaponRange.rangedKnockback;
   double? get thrownNormalRange => weaponRange.thrownNormalRange;
   double? get thrownLongRange => weaponRange.thrownLongRange;
 
@@ -112,6 +120,7 @@ class CharacterStats {
     return CharacterStats(
       name: 'Fighter',
       weaponId: 'longsword',
+      rangedWeaponId: 'shortbow',
       raceId: 'human',
       classId: 'fighter',
       level: 3,
@@ -151,6 +160,7 @@ class CharacterStats {
     String? name,
     String? classId,
     String? weaponId,
+    String? rangedWeaponId,
     String? raceId,
     int? level,
     int? maxHp,
@@ -169,6 +179,7 @@ class CharacterStats {
       name: name ?? this.name,
       classId: classId ?? this.classId,
       weaponId: weaponId ?? this.weaponId,
+      rangedWeaponId: rangedWeaponId ?? this.rangedWeaponId,
       raceId: raceId ?? this.raceId,
       level: level ?? this.level,
       maxHp: maxHp ?? this.maxHp,
@@ -189,6 +200,7 @@ class CharacterStats {
     'name': name,
     'classId': classId,
     'weaponId': weaponId,
+    'rangedWeaponId': rangedWeaponId,
     'raceId': raceId,
     'level': level,
     'maxHp': maxHp,
@@ -211,6 +223,7 @@ class CharacterStats {
       name: json['name'] as String? ?? 'Hero',
       classId: json['classId'] as String? ?? 'fighter',
       weaponId: json['weaponId'] as String? ?? 'longsword',
+      rangedWeaponId: json['rangedWeaponId'] as String? ?? 'shortbow',
       raceId: json['raceId'] as String? ?? 'human',
       level: json['level'] as int? ?? 1,
       maxHp: json['maxHp'] as int? ?? 20,

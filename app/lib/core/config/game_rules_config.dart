@@ -82,12 +82,20 @@ class PhysicsConfig {
 class WeaponRangeConfig {
   final String id;
   final double meleeReach;
+  final double stagger;
+  final double rangedNormalRange;
+  final double rangedLongRange;
+  final double rangedKnockback;
   final double? thrownNormalRange;
   final double? thrownLongRange;
 
   const WeaponRangeConfig({
     required this.id,
     required this.meleeReach,
+    this.stagger = 0,
+    this.rangedNormalRange = 0,
+    this.rangedLongRange = 0,
+    this.rangedKnockback = 0,
     this.thrownNormalRange,
     this.thrownLongRange,
   });
@@ -95,6 +103,10 @@ class WeaponRangeConfig {
   Map<String, dynamic> toJson() => {
     'id': id,
     'meleeReach': meleeReach,
+    'stagger': stagger,
+    'rangedNormalRange': rangedNormalRange,
+    'rangedLongRange': rangedLongRange,
+    'rangedKnockback': rangedKnockback,
     'thrownNormalRange': thrownNormalRange,
     'thrownLongRange': thrownLongRange,
   };
@@ -103,6 +115,11 @@ class WeaponRangeConfig {
     return WeaponRangeConfig(
       id: json['id'] as String,
       meleeReach: (json['meleeReach'] as num).toDouble(),
+        stagger: (json['stagger'] as num?)?.toDouble() ?? 0,
+        rangedNormalRange:
+          (json['rangedNormalRange'] as num?)?.toDouble() ?? 0,
+        rangedLongRange: (json['rangedLongRange'] as num?)?.toDouble() ?? 0,
+        rangedKnockback: (json['rangedKnockback'] as num?)?.toDouble() ?? 0,
       thrownNormalRange: (json['thrownNormalRange'] as num?)?.toDouble(),
       thrownLongRange: (json['thrownLongRange'] as num?)?.toDouble(),
     );
@@ -184,6 +201,7 @@ class CombatConfig {
   final double rangedLongRange;
   final double spellRange;
   final double spellKnockback;
+  final double spellKnockbackPerDamage;
   final Map<String, WeaponRangeConfig> weaponRanges;
 
   /// Base HP for a level 1 Fighter without CON mod.
@@ -202,6 +220,7 @@ class CombatConfig {
     this.rangedLongRange = 900.0,
     this.spellRange = 600.0,
     this.spellKnockback = 0.0,
+    this.spellKnockbackPerDamage = 1.0,
     this.weaponRanges = const {
       'dagger': WeaponRangeConfig(
         id: 'dagger',
@@ -210,8 +229,44 @@ class CombatConfig {
         thrownLongRange: 1200.0,
       ),
       'shortsword': WeaponRangeConfig(id: 'shortsword', meleeReach: 110.0),
-      'longsword': WeaponRangeConfig(id: 'longsword', meleeReach: 110.0),
-      'greatsword': WeaponRangeConfig(id: 'greatsword', meleeReach: 110.0),
+      'longsword': WeaponRangeConfig(
+        id: 'longsword',
+        meleeReach: 110.0,
+        stagger: 12.0,
+      ),
+      'greatsword': WeaponRangeConfig(
+        id: 'greatsword',
+        meleeReach: 110.0,
+        stagger: 24.0,
+      ),
+      'shortbow': WeaponRangeConfig(
+        id: 'shortbow',
+        meleeReach: 0,
+        rangedNormalRange: 420.0,
+        rangedLongRange: 900.0,
+        rangedKnockback: 8.0,
+      ),
+      'crossbow': WeaponRangeConfig(
+        id: 'crossbow',
+        meleeReach: 0,
+        rangedNormalRange: 480.0,
+        rangedLongRange: 960.0,
+        rangedKnockback: 18.0,
+      ),
+      'two_handed_rifle': WeaponRangeConfig(
+        id: 'two_handed_rifle',
+        meleeReach: 0,
+        rangedNormalRange: 600.0,
+        rangedLongRange: 1200.0,
+        rangedKnockback: 32.0,
+      ),
+      'cannon': WeaponRangeConfig(
+        id: 'cannon',
+        meleeReach: 0,
+        rangedNormalRange: 520.0,
+        rangedLongRange: 1000.0,
+        rangedKnockback: 80.0,
+      ),
     },
     this.baseFighterHp = 10,
     this.fighterHpPerLevel = 6,
@@ -235,6 +290,7 @@ class CombatConfig {
     'rangedLongRange': rangedLongRange,
     'spellRange': spellRange,
     'spellKnockback': spellKnockback,
+    'spellKnockbackPerDamage': spellKnockbackPerDamage,
     'weaponRanges': weaponRanges.map(
       (id, range) => MapEntry(id, range.toJson()),
     ),
@@ -264,6 +320,8 @@ class CombatConfig {
           (json['rangedLongRange'] as num?)?.toDouble() ?? 900.0,
       spellRange: (json['spellRange'] as num?)?.toDouble() ?? 600.0,
       spellKnockback: (json['spellKnockback'] as num?)?.toDouble() ?? 0.0,
+        spellKnockbackPerDamage:
+          (json['spellKnockbackPerDamage'] as num?)?.toDouble() ?? 1.0,
       weaponRanges: weaponRanges,
       baseFighterHp: json['baseFighterHp'] as int? ?? 10,
       fighterHpPerLevel: json['fighterHpPerLevel'] as int? ?? 6,

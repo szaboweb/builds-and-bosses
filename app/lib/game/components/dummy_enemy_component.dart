@@ -10,6 +10,7 @@ class DummyEnemyComponent extends PositionComponent with TapCallbacks {
   final VoidCallback? onTapped;
 
   double _hitFlashTimer = 0.0;
+  double _staggerTimer = 0.0;
   static const double _hitFlashDuration = 0.25;
 
   DummyEnemyComponent({
@@ -27,11 +28,19 @@ class DummyEnemyComponent extends PositionComponent with TapCallbacks {
     _hitFlashTimer = _hitFlashDuration;
   }
 
+  void triggerStagger(double value) {
+    if (value <= 0) return;
+    _staggerTimer = max(_staggerTimer, value / 100.0);
+  }
+
   @override
   void update(double dt) {
     super.update(dt);
     if (_hitFlashTimer > 0) {
       _hitFlashTimer = max(0.0, _hitFlashTimer - dt);
+    }
+    if (_staggerTimer > 0) {
+      _staggerTimer = max(0.0, _staggerTimer - dt);
     }
   }
 
@@ -50,6 +59,10 @@ class DummyEnemyComponent extends PositionComponent with TapCallbacks {
     );
 
     final isFlashing = _hitFlashTimer > 0;
+    if (_staggerTimer > 0) {
+      canvas.save();
+      canvas.translate(sin(_staggerTimer * 28) * 3, 0);
+    }
 
     // Body base
     final bodyPaint = Paint()
@@ -97,6 +110,7 @@ class DummyEnemyComponent extends PositionComponent with TapCallbacks {
 
     // Health Bar overhead
     _renderHealthBar(canvas);
+    if (_staggerTimer > 0) canvas.restore();
   }
 
   void _renderHealthBar(Canvas canvas) {

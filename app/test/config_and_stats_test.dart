@@ -105,6 +105,7 @@ void main() {
     final dagger = CharacterStats(
       name: 'Rogue',
       weaponId: 'dagger',
+      rangedWeaponId: 'dagger',
       maxHp: 20,
       armorClass: 14,
     );
@@ -119,6 +120,8 @@ void main() {
     expect(dagger.thrownNormalRange, equals(400.0));
     expect(dagger.thrownLongRange, equals(1200.0));
     expect(greatsword.meleeRange, equals(110.0));
+    expect(greatsword.meleeStagger, equals(24.0));
+    expect(dagger.rangedKnockback, equals(0.0));
     expect(greatsword.thrownNormalRange, isNull);
   });
 

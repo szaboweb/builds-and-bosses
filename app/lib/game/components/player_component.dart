@@ -214,6 +214,7 @@ class PlayerComponent extends PositionComponent with HasGameReference {
       );
 
       targetEnemy.triggerHitReaction();
+      targetEnemy.triggerStagger(stats.meleeStagger);
 
       if (result.isCritical) {
         game.world.add(
@@ -289,24 +290,25 @@ class PlayerComponent extends PositionComponent with HasGameReference {
     );
     if (result.isHit) {
       targetEnemy.triggerHitReaction();
-      if (knockback > 0) {
+      final totalKnockback =
+          knockback + result.damageDealt * stats.config.combat.spellKnockbackPerDamage;
+      if (totalKnockback > 0) {
         final direction = (targetEnemy.position - position).normalized();
-        targetEnemy.position += direction * knockback;
+        targetEnemy.position += direction * totalKnockback;
       }
     }
   }
 
   void _resolveRanged(Vector2 targetPos) {
     final rangedDistance = position.distanceTo(targetPos);
-    final combatConfig = stats.config.combat;
-    if (rangedDistance > combatConfig.rangedLongRange) {
+    if (rangedDistance > stats.rangedLongRange) {
       _showCombatRangeMessage('RANGED OUT OF RANGE');
       return;
     }
-    final disadvantage = rangedDistance > combatConfig.rangedNormalRange;
+    final disadvantage = rangedDistance > stats.rangedNormalRange;
     final enemies = game.world.children.whereType<DummyEnemyComponent>();
     DummyEnemyComponent? targetEnemy;
-    var closestDistance = combatConfig.rangedLongRange;
+    var closestDistance = stats.rangedLongRange;
     for (final enemy in enemies) {
       final distance = enemy.position.distanceTo(targetPos);
       if (distance < closestDistance) {
@@ -320,7 +322,13 @@ class PlayerComponent extends PositionComponent with HasGameReference {
       defender: targetEnemy.stats,
       disadvantage: disadvantage,
     );
-    if (result.isHit) targetEnemy.triggerHitReaction();
+    if (result.isHit) {
+      targetEnemy.triggerHitReaction();
+      if (stats.rangedKnockback > 0) {
+        final direction = (targetEnemy.position - position).normalized();
+        targetEnemy.position += direction * stats.rangedKnockback;
+      }
+    }
   }
 
   void _showCombatRangeMessage(String message) {

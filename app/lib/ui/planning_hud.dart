@@ -31,6 +31,13 @@ class PlanningHUD extends StatelessWidget {
                 builder: (context, mode, _) => _buildCombatModeIndicator(mode),
               ),
 
+              const SizedBox(width: 8),
+
+              ValueListenableBuilder<Duration>(
+                valueListenable: game.combatTimerNotifier,
+                builder: (context, elapsed, _) => _buildCombatTimer(elapsed),
+              ),
+
               const Spacer(),
 
               // Phase Banner
@@ -313,6 +320,31 @@ class PlanningHUD extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCombatTimer(Duration elapsed) {
+    final minutes = elapsed.inMinutes.toString().padLeft(2, '0');
+    final seconds = (elapsed.inSeconds % 60).toString().padLeft(2, '0');
+    final milliseconds = (elapsed.inMilliseconds % 1000)
+        .toString()
+        .padLeft(3, '0');
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF10131E).withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.white24),
+      ),
+      child: Text(
+        '$minutes:$seconds.$milliseconds',
+        style: const TextStyle(
+          color: Colors.white,
+          fontFamily: 'monospace',
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }

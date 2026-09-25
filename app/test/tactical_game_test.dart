@@ -179,6 +179,23 @@ void main() {
       expect(game.currentPhase, equals(GamePhase.realtime));
     });
 
+    test('Combat timer pauses in Tactical Mode and resumes afterward', () {
+      game.update(1.0);
+      final runningTime = game.combatTimerNotifier.value;
+      expect(runningTime.inMilliseconds, greaterThanOrEqualTo(1000));
+
+      game.startPlanning();
+      game.update(2.0);
+      expect(game.combatTimerNotifier.value, equals(runningTime));
+
+      game.cancelPlanning();
+      game.update(0.5);
+      expect(
+        game.combatTimerNotifier.value.inMilliseconds,
+        greaterThan(runningTime.inMilliseconds),
+      );
+    });
+
     test('Player platformer physics lands on ground after falling', () {
       // Position player in the air over open ground (between platforms)
       game.player.position.x = 325;

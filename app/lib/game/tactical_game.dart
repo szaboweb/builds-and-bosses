@@ -44,11 +44,13 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
   late LightingController lightingController;
   late DeveloperModeController developerModeController;
   late DateTime combatStartedAt;
+  double _combatElapsedSeconds = 0;
   late DebugReplayRecorder replayRecorder;
 
   final ActionQueue actionQueue = ActionQueue(maxAP: 100);
   final ActionCooldowns actionCooldowns = ActionCooldowns();
   final ValueNotifier<int> debugTickNotifier = ValueNotifier<int>(0);
+  final ValueNotifier<Duration> combatTimerNotifier = ValueNotifier(Duration.zero);
   bool get debugHudEnabled => developerModeController.enabled.value;
 
   // Observable state for Flutter UI widgets
@@ -134,6 +136,13 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
   @override
   void update(double dt) {
     super.update(dt);
+    if (currentPhase != GamePhase.planning &&
+        combatOutcomeNotifier.value == null) {
+      _combatElapsedSeconds += dt;
+      combatTimerNotifier.value = Duration(
+        milliseconds: (_combatElapsedSeconds * 1000).round(),
+      );
+    }
     if (debugHudEnabled) debugTickNotifier.value++;
     actionCooldowns.update(dt);
     cameraFollowController.update();
@@ -172,7 +181,7 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
         heroName: player.stats.name,
         bossId: 'training_golem',
         outcome: outcome == CombatOutcome.victory ? 'victory' : 'defeat',
-        durationMs: DateTime.now().difference(combatStartedAt).inMilliseconds,
+        durationMs: combatTimerNotifier.value.inMilliseconds,
       ),
     );
   }
@@ -180,6 +189,8 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
   void restartCombat() {
     combatOutcomeNotifier.value = null;
     combatStartedAt = DateTime.now();
+    _combatElapsedSeconds = 0;
+    combatTimerNotifier.value = Duration.zero;
     Dice.configureSeed(debugSeed);
     replayRecorder = DebugReplayRecorder(
       seed: debugSeed,

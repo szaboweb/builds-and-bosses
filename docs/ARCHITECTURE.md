@@ -62,4 +62,6 @@ pwsh -NoProfile -File tooling/validate_data.ps1
 - Add new visuals under `lib/game/components/` only after the domain result exists.
 - Add inventory rules under `lib/core/inventory/`; UI only displays and dispatches inventory intent.
 - Add Steam, Cloud Save, and achievements through `PlatformServices`; do not import Steam APIs into core rules.
+- The game is strictly single-player and offline-first: gameplay must never require internet access.
+- Combat statistics are written to a local cache first. A future Steam adapter may sync the same immutable run record to the community Hall of Fame, but sync failure must never block gameplay.
 - Every new rule or config value requires a headless test.

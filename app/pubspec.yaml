@@ -37,6 +37,7 @@ dependencies:
   flame: ^1.38.2
   flame_tiled: ^3.1.2
   window_manager: ^0.5.1
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_test:

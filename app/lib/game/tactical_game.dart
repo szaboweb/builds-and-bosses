@@ -11,6 +11,7 @@ import '../core/campaign/campaign_blueprint.dart';
 import '../core/combat/combat_logger.dart';
 import '../core/dnd/character_stats.dart';
 import '../core/platform/platform_services.dart';
+import '../platform/local_platform_services.dart';
 import 'components/arena_map_component.dart';
 import 'components/dummy_enemy_component.dart';
 import 'components/ghost_preview_component.dart';
@@ -38,6 +39,7 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
   late CameraFollowController cameraFollowController;
   late LightingController lightingController;
   late DeveloperModeController developerModeController;
+  late DateTime combatStartedAt;
 
   final ActionQueue actionQueue = ActionQueue(maxAP: 100);
   final ActionCooldowns actionCooldowns = ActionCooldowns();
@@ -62,6 +64,7 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
   @override
   Future<void> onLoad() async {
     super.onLoad();
+    combatStartedAt = DateTime.now();
 
     // 1. Arena Map (Side-view gothic dungeon with elevated platforms & torches)
     arena = ArenaMapComponent(arenaWidth: 2400, arenaHeight: 900);
@@ -147,10 +150,21 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
     if (outcome == CombatOutcome.victory) {
       platformServices.unlockAchievement('training_golem_defeated');
     }
+    platformServices.syncCombatStatistics(
+      CombatStatistics(
+        runId: DateTime.now().microsecondsSinceEpoch.toString(),
+        completedAt: DateTime.now(),
+        heroName: player.stats.name,
+        bossId: 'training_golem',
+        outcome: outcome == CombatOutcome.victory ? 'victory' : 'defeat',
+        durationMs: DateTime.now().difference(combatStartedAt).inMilliseconds,
+      ),
+    );
   }
 
   void restartCombat() {
     combatOutcomeNotifier.value = null;
+    combatStartedAt = DateTime.now();
     phaseNotifier.value = GamePhase.realtime;
     actionQueue.clear();
     player.stats.currentHp = player.stats.maxHp;

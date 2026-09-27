@@ -91,6 +91,7 @@ void main() {
       rangedNormalRange: 400,
       rangedLongRange: 800,
       spellRange: 600,
+      rangeMultiplier: 0.5,
     );
     final restored = CombatConfig.fromJson(config.toJson());
 
@@ -99,6 +100,7 @@ void main() {
     expect(restored.rangedNormalRange, equals(400));
     expect(restored.rangedLongRange, equals(800));
     expect(restored.spellRange, equals(600));
+    expect(restored.rangeMultiplier, equals(0.5));
   });
 
   test('Weapon profiles separate melee reach from dagger thrown range', () {
@@ -116,10 +118,15 @@ void main() {
       armorClass: 14,
     );
 
-    expect(dagger.meleeRange, equals(110.0));
-    expect(dagger.thrownNormalRange, equals(400.0));
-    expect(dagger.thrownLongRange, equals(1200.0));
-    expect(greatsword.meleeRange, equals(110.0));
+    expect(dagger.meleeRange, equals(55.0));
+    expect(dagger.thrownNormalRange, equals(200.0));
+    expect(dagger.thrownLongRange, equals(600.0));
+    expect(dagger.rangedNormalRange, equals(0.0));
+    expect(dagger.rangedLongRange, equals(0.0));
+    expect(greatsword.meleeRange, equals(55.0));
+    expect(greatsword.rangedNormalRange, equals(210.0));
+    expect(greatsword.rangedLongRange, equals(450.0));
+    expect(greatsword.spellRange, equals(300.0));
     expect(greatsword.meleeStagger, equals(24.0));
     expect(greatsword.copyWith(strength: 18).meleeStagger, equals(40.0));
     expect(greatsword.copyWith(strength: 8).meleeStagger, equals(20.0));

@@ -18,6 +18,7 @@ class PlanningHUD extends StatelessWidget {
       child: ValueListenableBuilder<GamePhase>(
         valueListenable: game.phaseNotifier,
         builder: (context, phase, _) {
+          final compact = MediaQuery.sizeOf(context).width < 1500;
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -26,17 +27,20 @@ class PlanningHUD extends StatelessWidget {
 
               const SizedBox(width: 8),
 
-              ValueListenableBuilder<ActionType>(
-                valueListenable: game.selectedActionNotifier,
-                builder: (context, mode, _) => _buildCombatModeIndicator(mode),
-              ),
+              if (!compact)
+                ValueListenableBuilder<ActionType>(
+                  valueListenable: game.selectedActionNotifier,
+                  builder: (context, mode, _) =>
+                      _buildCombatModeIndicator(mode),
+                ),
 
-              const SizedBox(width: 8),
+              if (!compact) const SizedBox(width: 8),
 
-              ValueListenableBuilder<Duration>(
-                valueListenable: game.combatTimerNotifier,
-                builder: (context, elapsed, _) => _buildCombatTimer(elapsed),
-              ),
+              if (!compact)
+                ValueListenableBuilder<Duration>(
+                  valueListenable: game.combatTimerNotifier,
+                  builder: (context, elapsed, _) => _buildCombatTimer(elapsed),
+                ),
 
               const Spacer(),
 
@@ -51,7 +55,7 @@ class PlanningHUD extends StatelessWidget {
               const SizedBox(width: 12),
 
               // Character Workbench (Tervezőasztal) Button
-              if (phase == GamePhase.realtime) ...[
+              if (phase == GamePhase.realtime && !compact) ...[
                 OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFFFFD54F),
@@ -84,7 +88,13 @@ class PlanningHUD extends StatelessWidget {
               ],
 
               // Quick Tactical Mode Button
-              if (phase == GamePhase.realtime)
+              if (phase == GamePhase.realtime && compact)
+                IconButton(
+                  tooltip: 'Tactical mode [Enter]',
+                  onPressed: () => game.startPlanning(),
+                  icon: const Icon(Icons.flash_on, color: Color(0xFF00E5FF)),
+                )
+              else if (phase == GamePhase.realtime)
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF00E5FF),
@@ -110,6 +120,27 @@ class PlanningHUD extends StatelessWidget {
                   tooltip: 'Auto harc: fix pipeline futtatása [F]',
                   onPressed: game.startAutoCombat,
                   icon: const Icon(Icons.smart_toy, color: Color(0xFFFF8A65)),
+                ),
+              const SizedBox(width: 8),
+              if (!compact)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF10131E).withValues(alpha: 0.88),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: Colors.white12),
+                  ),
+                  child: Text(
+                    'LOGIKAI ${TacticalModeGame.logicalWidth.toInt()}×${TacticalModeGame.logicalHeight.toInt()}',
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
             ],
           );
@@ -327,9 +358,10 @@ class PlanningHUD extends StatelessWidget {
   Widget _buildCombatTimer(Duration elapsed) {
     final minutes = elapsed.inMinutes.toString().padLeft(2, '0');
     final seconds = (elapsed.inSeconds % 60).toString().padLeft(2, '0');
-    final milliseconds = (elapsed.inMilliseconds % 1000)
-        .toString()
-        .padLeft(3, '0');
+    final milliseconds = (elapsed.inMilliseconds % 1000).toString().padLeft(
+      3,
+      '0',
+    );
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 8),
       decoration: BoxDecoration(

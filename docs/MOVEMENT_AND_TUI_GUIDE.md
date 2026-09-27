@@ -4,12 +4,15 @@ Ez a dokumentum a Dungeon Slasher-jellegű, oldalnézetes karakter-, boss- és l
 
 ## 1. Grafikai alapértékek
 
-- Alap frame-méret: `48×48 px`
-- Pixel-art skálázás: nearest-neighbor Flame sprite komponensekkel
+- Alap karakter-frame-méret: `32×32 px`
+- A Character Workshop (ComfyUI + Aseprite pipeline, lásd `docs/CHARACTER_WORKSHOP.md`) ugyanezt a 32×32-es vásznat használja, így a generált animáció mérete illeszkedik a futó játék karakter-spriteaihoz.
+- Pixel-art skálázás: nearest-neighbor Flame sprite komponensekkel (`FilterQuality.none`)
 - Színtér: RGBA PNG átlátszó háttérrel
 - Tile-méret: `48×48 px`
-- Kamera: oldalnézeti, vízszintesen követő kamera
-- Belső logikai felbontás: `1280×720`
+- Kamera: oldalnézeti, vízszintesen és függőlegesen is követő kamera (dead-zone alapú), a világ határain belül clampelve
+- Belső logikai felbontás: `640×360` (16:9), Flame `FixedResolutionViewport` skálázza az ablakmérethez
+  - PC-n egész számú nagyítás (2× → 1280×720, 3× → 1920×1080)
+  - Steam Deck 16:10 kijelzőjén 1280×720-as játékkép és 40 px-es felső/alsó letterbox-sáv, torzítás nélkül
 - Animáció: frame-alapú spritesheet, nem folyamatos blur vagy interpolált skálázás
 - Asset-fájlnevek: kisbetűsek, szóköz nélkül, Linux case-sensitive kompatibilitással
 
@@ -51,8 +54,8 @@ Az oldalnézeti játék egyetlen alap nézetet használ. A karakter jobbra néz�
 Példa:
 
 ```text
-run.png = 6 × 48 × 48 = 288×48 px
-attack.png = 6 × 48 × 48 = 288×48 px
+run.png = 6 × 32 × 32 = 192×32 px
+attack.png = 6 × 32 × 32 = 192×32 px
 ```
 
 ### Mozgásállapotok
@@ -192,7 +195,7 @@ Szabályok:
 
 Minden új karakter vagy boss előtt ellenőrizni kell:
 
-- [ ] Minden frame pontosan `48×48 px`.
+- [ ] Minden karakterframe pontosan `32×32 px`.
 - [ ] Nincs nem kívánt háttérszín.
 - [ ] A lábpozíció frame-ről frame-re stabil.
 - [ ] A fegyver vagy varázshatás nem vágódik le.

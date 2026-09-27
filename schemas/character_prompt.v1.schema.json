@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://builds-and-bosses.local/schemas/character_prompt.v1.schema.json",
+  "title": "Character generation prompt",
+  "type": "object",
+  "required": ["subject", "negative_prompt", "background"],
+  "properties": {
+    "subject": {"type": "string", "minLength": 1, "maxLength": 240},
+    "height_class": {
+      "type": "string",
+      "enum": ["short", "average", "tall"],
+      "description": "Body proportions: short (dwarf-like), average (human), tall (elf-like). Also selects the matching Aseprite rig geometry."
+    },
+    "background": {"const": "transparent"},
+    "view": {
+      "type": "string",
+      "maxLength": 200,
+      "description": "Camera framing, e.g. 'side view, facing right, full body, centered'. Canvas size is fixed at 32x32 to match the game and is not configurable here."
+    },
+    "head": {"type": "string", "maxLength": 300, "description": "Face, helmet, headwear (excluding hair/beard, see hairstyle/has_beard)"},
+    "hairstyle": {"type": "string", "maxLength": 200, "description": "Hair description, e.g. 'short cropped hair' or 'bald'"},
+    "has_beard": {"type": "boolean", "description": "Whether the character has a beard"},
+    "has_helmet": {"type": "boolean", "description": "Whether the character wears a helmet"},
+    "upper_body": {"type": "string", "maxLength": 300, "description": "Torso, arms, chest armor, sleeves"},
+    "lower_body": {"type": "string", "maxLength": 300, "description": "Legs, pants, boots, skirt"},
+    "left_hand": {"type": "string", "maxLength": 200, "default": "empty", "description": "What the character holds in their own left hand, or 'empty'"},
+    "right_hand": {"type": "string", "maxLength": 200, "default": "empty", "description": "What the character holds in their own right hand, or 'empty'"},
+    "palette": {"type": "string", "maxLength": 200, "description": "Color scheme hint"},
+    "style_tags": {"type": "string", "maxLength": 200, "description": "Extra style keywords"},
+    "positive_prompt": {"type": "string", "maxLength": 2000, "description": "Freeform extra notes appended after the structured fields"},
+    "negative_prompt": {"type": "string", "maxLength": 2000},
+    "character_lora": {"type": "string", "maxLength": 200, "description": "Optional trained SD 1.5 character LoRA filename installed in ComfyUI/models/loras"},
+    "seed": {"type": "integer", "minimum": 0, "maximum": 4294967295}
+  },
+  "additionalProperties": false
+}

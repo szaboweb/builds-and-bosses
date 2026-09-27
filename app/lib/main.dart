@@ -9,9 +9,11 @@ import 'game/tactical_game.dart';
 import 'ui/action_bar_overlay.dart';
 import 'ui/character_builder_overlay.dart';
 import 'ui/combat_log_overlay.dart';
+import 'ui/combat_hotbar_overlay.dart';
 import 'ui/combat_outcome_overlay.dart';
 import 'ui/debug_info_overlay.dart';
 import 'ui/planning_hud.dart';
+import 'ui/character_workshop_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -77,7 +79,9 @@ class _GameScreenState extends State<GameScreen> {
               'planningHud': (context, game) => PlanningHUD(game: game),
               'actionBar': (context, game) => ActionBarOverlay(game: game),
               'combatLog': (context, game) => CombatLogOverlay(game: game),
-                'combatOutcome': (context, game) =>
+              'combatHotbar': (context, game) =>
+                  CombatHotbarOverlay(game: game),
+              'combatOutcome': (context, game) =>
                   CombatOutcomeOverlay(game: game),
               'debugInfo': (context, game) => DebugInfoOverlay(game: game),
               'characterBuilder': (context, game) =>
@@ -86,8 +90,23 @@ class _GameScreenState extends State<GameScreen> {
             initialActiveOverlays: [
               'planningHud',
               'combatLog',
+              'combatHotbar',
               if (kDebugMode) 'debugInfo',
             ],
+          ),
+
+          Positioned(
+            top: 84,
+            right: 16,
+            child: IconButton.filledTonal(
+              tooltip: 'Karakterkép- és animációs műhely',
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const CharacterWorkshopScreen(),
+                ),
+              ),
+              icon: const Icon(Icons.auto_awesome),
+            ),
           ),
 
           // 2. Control Helper Tooltip in bottom corner
@@ -109,7 +128,7 @@ class _GameScreenState extends State<GameScreen> {
                     border: Border.all(color: Colors.white10),
                   ),
                   child: const Text(
-                    'Controls: A/D run • W/S fly • SPACE jump • TAB combat mode • C cast • ENTER Tactical Mode',
+                    'Controls: A/D run • W/S fly • SPACE jump • E melee • R ranged • C spell • TAB mode',
                     style: TextStyle(color: Colors.white38, fontSize: 10),
                   ),
                 );

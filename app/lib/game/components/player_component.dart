@@ -40,8 +40,12 @@ class PlayerComponent extends PositionComponent with HasGameReference {
   VoidCallback? _onPlanFinished;
 
   // Visuals & Animation
+  static const double _spriteFrameSize = 32;
   Sprite? sprite;
   bool isFacingLeft = false;
+  static final Paint _pixelArtPaint = Paint()
+    ..filterQuality = FilterQuality.none
+    ..isAntiAlias = false;
   double _slashVfxTimer = 0.0;
   Vector2? _slashTargetPos;
   double _movementAnimationTime = 0.0;
@@ -57,11 +61,11 @@ class PlayerComponent extends PositionComponent with HasGameReference {
   Future<void> onLoad() async {
     super.onLoad();
     try {
-      final image = await game.images.load('characters/fighter.png');
+      final image = await game.images.load('characters/fighter_32.png');
       sprite = Sprite(
         image,
         srcPosition: Vector2(0, 0),
-        srcSize: Vector2(48, 48),
+        srcSize: Vector2(_spriteFrameSize, _spriteFrameSize),
       );
     } catch (_) {
       sprite = null;
@@ -144,6 +148,14 @@ class PlayerComponent extends PositionComponent with HasGameReference {
       _slashTargetPos = action.targetPosition.clone();
       isFacingLeft = _slashTargetPos!.x < position.x;
       _slashVfxTimer = 0.35;
+      game.world.add(
+        ProjectileComponent(
+          position: position.clone(),
+          targetPosition: action.targetPosition.clone(),
+          color: const Color(0xFFCE93D8),
+          speed: 420,
+        ),
+      );
       _resolveSpell(action.targetPosition, action.knockback);
     } else if (action is RangedAction) {
       _slashTargetPos = action.targetPosition.clone();
@@ -268,13 +280,13 @@ class PlayerComponent extends PositionComponent with HasGameReference {
 
   void _resolveSpell(Vector2 targetPos, double knockback) {
     final spellDistance = position.distanceTo(targetPos);
-    if (spellDistance > stats.config.combat.spellRange) {
+    if (spellDistance > stats.spellRange) {
       _showCombatRangeMessage('SPELL OUT OF RANGE');
       return;
     }
     final enemies = game.world.children.whereType<DummyEnemyComponent>();
     DummyEnemyComponent? targetEnemy;
-    double closestDistance = stats.config.combat.spellRange;
+    double closestDistance = stats.spellRange;
     for (final enemy in enemies) {
       final distance = enemy.position.distanceTo(targetPos);
       if (distance < closestDistance) {
@@ -291,7 +303,8 @@ class PlayerComponent extends PositionComponent with HasGameReference {
     if (result.isHit) {
       targetEnemy.triggerHitReaction();
       final totalKnockback =
-          knockback + result.damageDealt * stats.config.combat.spellKnockbackPerDamage;
+          knockback +
+          result.damageDealt * stats.config.combat.spellKnockbackPerDamage;
       if (totalKnockback > 0) {
         final direction = (targetEnemy.position - position).normalized();
         targetEnemy.position += direction * totalKnockback;
@@ -495,7 +508,13 @@ class PlayerComponent extends PositionComponent with HasGameReference {
     }
 
     if (sprite != null) {
-      sprite!.render(canvas, size: size);
+      final spriteSize = Vector2(_spriteFrameSize, _spriteFrameSize);
+      sprite!.render(
+        canvas,
+        position: Vector2((size.x - spriteSize.x) / 2, size.y - spriteSize.y),
+        size: spriteSize,
+        overridePaint: _pixelArtPaint,
+      );
     } else {
       _renderProceduralSideViewFighter(canvas);
     }

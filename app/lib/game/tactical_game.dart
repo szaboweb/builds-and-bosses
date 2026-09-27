@@ -25,6 +25,7 @@ import 'developer_mode_controller.dart';
 import 'developer_visualization_component.dart';
 
 enum GamePhase { realtime, planning, executing, cooldown }
+
 enum CombatOutcome { victory, defeat }
 
 /// The main Flame game instance integrating the Side-view Platformer arena,
@@ -33,9 +34,19 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
   final PlatformServices platformServices;
   final int debugSeed;
 
+  /// Fixed logical canvas (16:9), scaled 2x at 1280x720 and 3x at 1920x1080.
+  static const double logicalWidth = 640;
+  static const double logicalHeight = 360;
+
   TacticalModeGame({PlatformServices? platformServices, int? debugSeed})
     : platformServices = platformServices ?? LocalPlatformServices(),
-      debugSeed = debugSeed ?? DateTime.now().millisecondsSinceEpoch;
+      debugSeed = debugSeed ?? DateTime.now().millisecondsSinceEpoch,
+      super(
+        camera: CameraComponent.withFixedResolution(
+          width: logicalWidth,
+          height: logicalHeight,
+        ),
+      );
 
   late ArenaMapComponent arena;
   late PlayerComponent player;
@@ -62,9 +73,27 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
       ValueNotifier<CombatOutcome?>(null);
   final ValueNotifier<ActionType> selectedActionNotifier =
       ValueNotifier<ActionType>(ActionType.slash);
+  static const List<ActionType?> hotbarSlots = [
+    ActionType.slash,
+    ActionType.ranged,
+    ActionType.spell,
+    ActionType.dash,
+    ActionType.heal,
+    null,
+    null,
+    null,
+    null,
+    null,
+  ];
   CampaignBlueprint? activeBlueprint;
 
   GamePhase get currentPhase => phaseNotifier.value;
+
+  void selectHotbarSlot(int index) {
+    if (index < 0 || index >= hotbarSlots.length) return;
+    final action = hotbarSlots[index];
+    if (action != null) selectedActionNotifier.value = action;
+  }
 
   @override
   Color backgroundColor() => const Color(0xFF0D0B14);
@@ -136,7 +165,8 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
   @override
   void update(double dt) {
     super.update(dt);
-    if (currentPhase != GamePhase.planning && combatOutcomeNotifier.value == null) {
+    if (currentPhase != GamePhase.planning &&
+        combatOutcomeNotifier.value == null) {
       combatTimerController.update(dt);
     }
     if (debugHudEnabled) debugTickNotifier.value++;
@@ -268,8 +298,7 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
 
     final target = enemy.position.clone();
     final pipeline = <GameAction>[];
-    if (player.position.distanceTo(target) >
-        player.stats.meleeRange) {
+    if (player.position.distanceTo(target) > player.stats.meleeRange) {
       pipeline.add(DashAction(targetPosition: target.clone()));
     }
     pipeline.addAll([
@@ -364,8 +393,7 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
       knockback: player.stats.config.combat.spellKnockback,
     );
     if (!actionCooldowns.canUse(spell)) return;
-    if (player.position.distanceTo(enemy.position) >
-        player.stats.config.combat.spellRange) {
+    if (player.position.distanceTo(enemy.position) > player.stats.spellRange) {
       CombatLogger.instance.logWarning(
         'SPELL',
         'Spell hotkey pressed while the training golem is out of range.',
@@ -378,10 +406,48 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
     player.executePlan([spell], () => phaseNotifier.value = GamePhase.realtime);
   }
 
+  void triggerRangedHotkey() {
+    if (currentPhase != GamePhase.realtime) return;
+    final ranged = RangedAction(targetPosition: enemy.position.clone());
+    if (!actionCooldowns.canUse(ranged)) return;
+    if (player.position.distanceTo(enemy.position) >
+        player.stats.rangedLongRange) {
+      CombatLogger.instance.logWarning(
+        'RANGED',
+        'Ranged hotkey pressed while the training golem is out of range.',
+      );
+      return;
+    }
+    actionCooldowns.start(ranged, player.stats.config.cooldowns.actionCooldown);
+    phaseNotifier.value = GamePhase.executing;
+    replayRecorder.recordAction(ranged);
+    player.executePlan([
+      ranged,
+    ], () => phaseNotifier.value = GamePhase.realtime);
+  }
+
   void cycleCombatMode() {
     const modes = [ActionType.slash, ActionType.ranged, ActionType.spell];
     final currentIndex = modes.indexOf(selectedActionNotifier.value);
     selectedActionNotifier.value = modes[(currentIndex + 1) % modes.length];
+  }
+
+  void triggerSelectedCombatHotkey() {
+    switch (selectedActionNotifier.value) {
+      case ActionType.slash:
+        triggerSlashHotkey();
+        break;
+      case ActionType.ranged:
+        triggerRangedHotkey();
+        break;
+      case ActionType.spell:
+        triggerSpellHotkey();
+        break;
+      case ActionType.move:
+      case ActionType.dash:
+      case ActionType.heal:
+        break;
+    }
   }
 
   void queueActionAt(Vector2 tapPosition) {
@@ -496,9 +562,20 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
       return KeyEventResult.handled;
     }
 
-    if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.keyC) {
-      triggerSpellHotkey();
+    if (event is KeyDownEvent &&
+        (event.logicalKey == LogicalKeyboardKey.keyR ||
+            event.logicalKey == LogicalKeyboardKey.altGraph ||
+            event.logicalKey == LogicalKeyboardKey.altRight)) {
+      triggerSelectedCombatHotkey();
       return KeyEventResult.handled;
+    }
+
+    if (event is KeyDownEvent) {
+      final slot = _hotbarSlotForKey(event.logicalKey);
+      if (slot != null) {
+        selectHotbarSlot(slot);
+        return KeyEventResult.handled;
+      }
     }
 
     if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.keyL) {
@@ -521,11 +598,6 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
     }
 
     if (event is KeyDownEvent) {
-      if (event.logicalKey == LogicalKeyboardKey.keyE ||
-          event.logicalKey == LogicalKeyboardKey.altGraph) {
-        triggerSlashHotkey();
-        return KeyEventResult.handled;
-      }
       if (currentPhase == GamePhase.planning &&
           (event.logicalKey == LogicalKeyboardKey.keyQ ||
               event.logicalKey == LogicalKeyboardKey.controlRight)) {
@@ -600,5 +672,22 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
     }
 
     return KeyEventResult.ignored;
+  }
+
+  int? _hotbarSlotForKey(LogicalKeyboardKey key) {
+    const keys = [
+      LogicalKeyboardKey.digit1,
+      LogicalKeyboardKey.digit2,
+      LogicalKeyboardKey.digit3,
+      LogicalKeyboardKey.digit4,
+      LogicalKeyboardKey.digit5,
+      LogicalKeyboardKey.digit6,
+      LogicalKeyboardKey.digit7,
+      LogicalKeyboardKey.digit8,
+      LogicalKeyboardKey.digit9,
+      LogicalKeyboardKey.digit0,
+    ];
+    final index = keys.indexOf(key);
+    return index == -1 ? null : index;
   }
 }

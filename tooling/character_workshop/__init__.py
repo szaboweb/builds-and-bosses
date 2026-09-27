@@ -1,0 +1,1 @@
+"""Local character-art workflow service."""

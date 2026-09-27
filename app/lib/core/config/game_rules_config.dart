@@ -118,13 +118,12 @@ class WeaponRangeConfig {
     return WeaponRangeConfig(
       id: json['id'] as String,
       meleeReach: (json['meleeReach'] as num).toDouble(),
-        stagger: (json['stagger'] as num?)?.toDouble() ?? 0,
-          staggerStrengthScaling:
-            (json['staggerStrengthScaling'] as num?)?.toDouble() ?? 0,
-        rangedNormalRange:
-          (json['rangedNormalRange'] as num?)?.toDouble() ?? 0,
-        rangedLongRange: (json['rangedLongRange'] as num?)?.toDouble() ?? 0,
-        rangedKnockback: (json['rangedKnockback'] as num?)?.toDouble() ?? 0,
+      stagger: (json['stagger'] as num?)?.toDouble() ?? 0,
+      staggerStrengthScaling:
+          (json['staggerStrengthScaling'] as num?)?.toDouble() ?? 0,
+      rangedNormalRange: (json['rangedNormalRange'] as num?)?.toDouble() ?? 0,
+      rangedLongRange: (json['rangedLongRange'] as num?)?.toDouble() ?? 0,
+      rangedKnockback: (json['rangedKnockback'] as num?)?.toDouble() ?? 0,
       thrownNormalRange: (json['thrownNormalRange'] as num?)?.toDouble(),
       thrownLongRange: (json['thrownLongRange'] as num?)?.toDouble(),
     );
@@ -169,8 +168,7 @@ class VisionConfig {
         (json['elfDarkvisionRadius'] as num?)?.toDouble() ?? 480,
     dwarfDarkvisionRadius:
         (json['dwarfDarkvisionRadius'] as num?)?.toDouble() ?? 960,
-    darknessIntensity:
-        (json['darknessIntensity'] as num?)?.toDouble() ?? 0.9,
+    darknessIntensity: (json['darknessIntensity'] as num?)?.toDouble() ?? 0.9,
   );
 }
 
@@ -191,11 +189,12 @@ class InventoryConfig {
     'maxItemsPerEquipmentSet': maxItemsPerEquipmentSet,
   };
 
-  factory InventoryConfig.fromJson(Map<String, dynamic> json) => InventoryConfig(
-    maxInventorySlots: json['maxInventorySlots'] as int? ?? 20,
-    maxArmorySlots: json['maxArmorySlots'] as int? ?? 3,
-    maxItemsPerEquipmentSet: json['maxItemsPerEquipmentSet'] as int? ?? 6,
-  );
+  factory InventoryConfig.fromJson(Map<String, dynamic> json) =>
+      InventoryConfig(
+        maxInventorySlots: json['maxInventorySlots'] as int? ?? 20,
+        maxArmorySlots: json['maxArmorySlots'] as int? ?? 3,
+        maxItemsPerEquipmentSet: json['maxItemsPerEquipmentSet'] as int? ?? 6,
+      );
 }
 
 class CombatConfig {
@@ -205,6 +204,7 @@ class CombatConfig {
   final double rangedNormalRange;
   final double rangedLongRange;
   final double spellRange;
+  final double rangeMultiplier;
   final double spellKnockback;
   final double spellKnockbackPerDamage;
   final Map<String, WeaponRangeConfig> weaponRanges;
@@ -224,6 +224,7 @@ class CombatConfig {
     this.rangedNormalRange = 420.0,
     this.rangedLongRange = 900.0,
     this.spellRange = 600.0,
+    this.rangeMultiplier = 0.5,
     this.spellKnockback = 0.0,
     this.spellKnockbackPerDamage = 1.0,
     this.weaponRanges = const {
@@ -296,6 +297,7 @@ class CombatConfig {
     'rangedNormalRange': rangedNormalRange,
     'rangedLongRange': rangedLongRange,
     'spellRange': spellRange,
+    'rangeMultiplier': rangeMultiplier,
     'spellKnockback': spellKnockback,
     'spellKnockbackPerDamage': spellKnockbackPerDamage,
     'weaponRanges': weaponRanges.map(
@@ -308,26 +310,25 @@ class CombatConfig {
 
   factory CombatConfig.fromJson(Map<String, dynamic> json) {
     final jsonWeaponRanges = json['weaponRanges'] as Map<String, dynamic>?;
-    final weaponRanges = jsonWeaponRanges?.map(
+    final weaponRanges =
+        jsonWeaponRanges?.map(
           (id, value) => MapEntry(
             id,
-            WeaponRangeConfig.fromJson(
-              Map<String, dynamic>.from(value as Map),
-            ),
+            WeaponRangeConfig.fromJson(Map<String, dynamic>.from(value as Map)),
           ),
         ) ??
         const CombatConfig().weaponRanges;
     return CombatConfig(
       meleeRange: (json['meleeRange'] as num?)?.toDouble() ?? 110.0,
-        meleeVerticalTolerance:
+      meleeVerticalTolerance:
           (json['meleeVerticalTolerance'] as num?)?.toDouble() ?? 1.5,
       rangedNormalRange:
           (json['rangedNormalRange'] as num?)?.toDouble() ?? 420.0,
-      rangedLongRange:
-          (json['rangedLongRange'] as num?)?.toDouble() ?? 900.0,
+      rangedLongRange: (json['rangedLongRange'] as num?)?.toDouble() ?? 900.0,
       spellRange: (json['spellRange'] as num?)?.toDouble() ?? 600.0,
+      rangeMultiplier: (json['rangeMultiplier'] as num?)?.toDouble() ?? 0.5,
       spellKnockback: (json['spellKnockback'] as num?)?.toDouble() ?? 0.0,
-        spellKnockbackPerDamage:
+      spellKnockbackPerDamage:
           (json['spellKnockbackPerDamage'] as num?)?.toDouble() ?? 1.0,
       weaponRanges: weaponRanges,
       baseFighterHp: json['baseFighterHp'] as int? ?? 10,
@@ -485,14 +486,12 @@ class GameRulesConfig {
       cooldowns: json['cooldowns'] != null
           ? CooldownConfig.fromJson(json['cooldowns'] as Map<String, dynamic>)
           : const CooldownConfig(),
-          vision: json['vision'] != null
-            ? VisionConfig.fromJson(json['vision'] as Map<String, dynamic>)
-            : const VisionConfig(),
-        inventory: json['inventory'] != null
-            ? InventoryConfig.fromJson(
-                json['inventory'] as Map<String, dynamic>,
-              )
-            : const InventoryConfig(),
+      vision: json['vision'] != null
+          ? VisionConfig.fromJson(json['vision'] as Map<String, dynamic>)
+          : const VisionConfig(),
+      inventory: json['inventory'] != null
+          ? InventoryConfig.fromJson(json['inventory'] as Map<String, dynamic>)
+          : const InventoryConfig(),
     );
   }
 }

@@ -1,0 +1,260 @@
+{
+  "type": "character_animations",
+  "schema_version": 1,
+  "sheet": "walk13_rendered.png",
+  "cols": 13,
+  "rows": 1,
+  "cell_w": 32,
+  "cell_h": 32,
+  "frame_ms": 100,
+  "alpha": true,
+  "direction_mode": "pre_rendered",
+  "palette_colors": 26,
+  "animations": {
+    "idle_right": {
+      "frames": [
+        0
+      ],
+      "loop": true
+    },
+    "walk_right": {
+      "frames": [
+        1,
+        2
+      ],
+      "loop": true
+    },
+    "run_right": {
+      "frames": [
+        3,
+        4
+      ],
+      "loop": true
+    },
+    "turn": {
+      "frames": [
+        5,
+        6,
+        7
+      ],
+      "loop": false
+    },
+    "run_left": {
+      "frames": [
+        8,
+        9
+      ],
+      "loop": true
+    },
+    "walk_left": {
+      "frames": [
+        10,
+        11
+      ],
+      "loop": true
+    },
+    "idle_left": {
+      "frames": [
+        12
+      ],
+      "loop": true
+    }
+  },
+  "frames": [
+    {
+      "name": "frame_01",
+      "index": 0,
+      "pose": "idle_right",
+      "kind": "idle",
+      "facing": "right",
+      "phase": 0,
+      "file": "rendered_01.png",
+      "rect": [
+        0,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "frame_02",
+      "index": 1,
+      "pose": "walk_right_1",
+      "kind": "walk",
+      "facing": "right",
+      "phase": 1,
+      "file": "rendered_02.png",
+      "rect": [
+        32,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "frame_03",
+      "index": 2,
+      "pose": "walk_right_2",
+      "kind": "walk",
+      "facing": "right",
+      "phase": -1,
+      "file": "rendered_03.png",
+      "rect": [
+        64,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "frame_04",
+      "index": 3,
+      "pose": "run_right_1",
+      "kind": "run",
+      "facing": "right",
+      "phase": 1,
+      "file": "rendered_04.png",
+      "rect": [
+        96,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "frame_05",
+      "index": 4,
+      "pose": "run_right_2",
+      "kind": "run",
+      "facing": "right",
+      "phase": -1,
+      "file": "rendered_05.png",
+      "rect": [
+        128,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "frame_06",
+      "index": 5,
+      "pose": "turn_front_1",
+      "kind": "turn",
+      "facing": "front",
+      "phase": 1,
+      "file": "rendered_06.png",
+      "rect": [
+        160,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "frame_07",
+      "index": 6,
+      "pose": "front",
+      "kind": "front",
+      "facing": "front",
+      "phase": 0,
+      "file": "rendered_07.png",
+      "rect": [
+        192,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "frame_08",
+      "index": 7,
+      "pose": "turn_left_1",
+      "kind": "turn",
+      "facing": "left",
+      "phase": -1,
+      "file": "rendered_08.png",
+      "rect": [
+        224,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "frame_09",
+      "index": 8,
+      "pose": "run_left_1",
+      "kind": "run",
+      "facing": "left",
+      "phase": -1,
+      "file": "rendered_09.png",
+      "rect": [
+        256,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "frame_10",
+      "index": 9,
+      "pose": "run_left_2",
+      "kind": "run",
+      "facing": "left",
+      "phase": 1,
+      "file": "rendered_10.png",
+      "rect": [
+        288,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "frame_11",
+      "index": 10,
+      "pose": "walk_left_1",
+      "kind": "walk",
+      "facing": "left",
+      "phase": -1,
+      "file": "rendered_11.png",
+      "rect": [
+        320,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "frame_12",
+      "index": 11,
+      "pose": "walk_left_2",
+      "kind": "walk",
+      "facing": "left",
+      "phase": 1,
+      "file": "rendered_12.png",
+      "rect": [
+        352,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "frame_13",
+      "index": 12,
+      "pose": "idle_left",
+      "kind": "idle",
+      "facing": "left",
+      "phase": 0,
+      "file": "rendered_13.png",
+      "rect": [
+        384,
+        0,
+        32,
+        32
+      ]
+    }
+  ]
+}

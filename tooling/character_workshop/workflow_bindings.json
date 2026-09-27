@@ -1,0 +1,37 @@
+{
+  "workflow_path": "assets/ComfyUI_API.json",
+  "animation_workflow_path": "assets/ComfyUI_Animation_API.json",
+  "nodes": {
+    "positive_prompt": "2",
+    "negative_prompt": "3",
+    "area_conditioning": "8",
+    "lora_loader": "9",
+    "lora_model_target": "5",
+    "sampler": "5",
+    "save_image": "7"
+  },
+  "animation_nodes": {
+    "positive_prompt": "2",
+    "negative_prompt": "3",
+    "sampler": "5",
+    "samplers": ["5", "64", "65"],
+    "positive_prompts": ["45", "46", "47"],
+    "latent_slices": ["48", "49", "50"],
+    "pose_slices": ["51", "52", "53"],
+    "reference_slices": ["54", "55", "56"],
+    "canny_applies": ["57", "58", "59"],
+    "tile_applies": ["60", "61", "62"],
+    "latent_batch_nodes": ["66", "67"],
+    "save_image": "7",
+    "controlnet_loader": "8",
+    "ipadapter_loader": "39",
+    "clip_vision_loader": "40",
+    "ipadapter_apply": "41",
+    "tile_reference_batch": "42",
+    "tile_controlnet_loader": "43",
+    "lora_loader": "70",
+    "lora_model_target": "41",
+    "pose_images": ["9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21"],
+    "approved_reference": "34"
+  }
+}

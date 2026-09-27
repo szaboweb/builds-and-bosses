@@ -62,19 +62,26 @@ class CharacterStats {
   int get meleeAttackBonus => strengthMod + proficiencyBonus;
 
   WeaponRangeConfig get weaponRange => config.combat.weaponRangeFor(weaponId);
-  double get meleeRange => weaponRange.meleeReach;
+  double get _rangeMultiplier => config.combat.rangeMultiplier;
+  double get meleeRange => weaponRange.meleeReach * _rangeMultiplier;
+  double get spellRange => config.combat.spellRange * _rangeMultiplier;
   double get meleeStagger => max(
     0,
-    weaponRange.stagger +
-        strengthMod * weaponRange.staggerStrengthScaling,
+    weaponRange.stagger + strengthMod * weaponRange.staggerStrengthScaling,
   );
   WeaponRangeConfig get rangedWeaponRange =>
       config.combat.weaponRangeFor(rangedWeaponId);
-  double get rangedNormalRange => rangedWeaponRange.rangedNormalRange;
-  double get rangedLongRange => rangedWeaponRange.rangedLongRange;
+  double get rangedNormalRange =>
+      rangedWeaponRange.rangedNormalRange * _rangeMultiplier;
+  double get rangedLongRange =>
+      rangedWeaponRange.rangedLongRange * _rangeMultiplier;
   double get rangedKnockback => rangedWeaponRange.rangedKnockback;
-  double? get thrownNormalRange => weaponRange.thrownNormalRange;
-  double? get thrownLongRange => weaponRange.thrownLongRange;
+  double? get thrownNormalRange => weaponRange.thrownNormalRange == null
+      ? null
+      : weaponRange.thrownNormalRange! * _rangeMultiplier;
+  double? get thrownLongRange => weaponRange.thrownLongRange == null
+      ? null
+      : weaponRange.thrownLongRange! * _rangeMultiplier;
 
   int get spellcastingAbilityMod {
     switch (classId) {

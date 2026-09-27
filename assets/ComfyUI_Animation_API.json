@@ -1,0 +1,232 @@
+{
+  "1": {
+    "inputs": {"ckpt_name": "dreamshaperPixelart_v10.safetensors"},
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {"title": "Load Pixel Art Checkpoint"}
+  },
+  "2": {
+    "inputs": {"text": "", "clip": ["1", 1]},
+    "class_type": "CLIPTextEncode",
+    "_meta": {"title": "Character Prompt"}
+  },
+  "3": {
+    "inputs": {"text": "", "clip": ["1", 1]},
+    "class_type": "CLIPTextEncode",
+    "_meta": {"title": "Negative Prompt"}
+  },
+  "4": {
+    "inputs": {"width": 32, "height": 32, "batch_size": 13},
+    "class_type": "EmptyLatentImage",
+    "_meta": {"title": "32px Animation Batch"}
+  },
+  "5": {
+    "inputs": {
+      "seed": 0,
+      "steps": 20,
+      "cfg": 8,
+      "sampler_name": "euler",
+      "scheduler": "normal",
+      "denoise": 0.38,
+      "model": ["41", 0],
+      "positive": ["60", 0],
+      "negative": ["60", 1],
+      "latent_image": ["48", 0]
+    },
+    "class_type": "KSampler",
+    "_meta": {"title": "Render Pose Batch"}
+  },
+  "6": {
+    "inputs": {"samples": ["67", 0], "vae": ["1", 2]},
+    "class_type": "VAEDecode",
+    "_meta": {"title": "Decode Rendered Frames"}
+  },
+  "7": {
+    "inputs": {"filename_prefix": "character_workshop/animation", "images": ["6", 0]},
+    "class_type": "SaveImage",
+    "_meta": {"title": "Save Rendered Frames"}
+  },
+  "8": {
+    "inputs": {"control_net_name": "control_v11p_sd15_canny.pth"},
+    "class_type": "ControlNetLoader",
+    "_meta": {"title": "Load SD15 Canny ControlNet"}
+  },
+  "9": {"inputs": {"image": "__POSE_01__"}, "class_type": "LoadImage", "_meta": {"title": "Pose Mask 01"}},
+  "10": {"inputs": {"image": "__POSE_02__"}, "class_type": "LoadImage", "_meta": {"title": "Pose Mask 02"}},
+  "11": {"inputs": {"image": "__POSE_03__"}, "class_type": "LoadImage", "_meta": {"title": "Pose Mask 03"}},
+  "12": {"inputs": {"image": "__POSE_04__"}, "class_type": "LoadImage", "_meta": {"title": "Pose Mask 04"}},
+  "13": {"inputs": {"image": "__POSE_05__"}, "class_type": "LoadImage", "_meta": {"title": "Pose Mask 05"}},
+  "14": {"inputs": {"image": "__POSE_06__"}, "class_type": "LoadImage", "_meta": {"title": "Pose Mask 06"}},
+  "15": {"inputs": {"image": "__POSE_07__"}, "class_type": "LoadImage", "_meta": {"title": "Pose Mask 07"}},
+  "16": {"inputs": {"image": "__POSE_08__"}, "class_type": "LoadImage", "_meta": {"title": "Pose Mask 08"}},
+  "17": {"inputs": {"image": "__POSE_09__"}, "class_type": "LoadImage", "_meta": {"title": "Pose Mask 09"}},
+  "18": {"inputs": {"image": "__POSE_10__"}, "class_type": "LoadImage", "_meta": {"title": "Pose Mask 10"}},
+  "19": {"inputs": {"image": "__POSE_11__"}, "class_type": "LoadImage", "_meta": {"title": "Pose Mask 11"}},
+  "20": {"inputs": {"image": "__POSE_12__"}, "class_type": "LoadImage", "_meta": {"title": "Pose Mask 12"}},
+  "21": {"inputs": {"image": "__POSE_13__"}, "class_type": "LoadImage", "_meta": {"title": "Pose Mask 13"}},
+  "22": {"inputs": {"image1": ["9", 0], "image2": ["10", 0]}, "class_type": "ImageBatch", "_meta": {"title": "Batch Poses 01-02"}},
+  "23": {"inputs": {"image1": ["22", 0], "image2": ["11", 0]}, "class_type": "ImageBatch", "_meta": {"title": "Batch Poses 01-03"}},
+  "24": {"inputs": {"image1": ["23", 0], "image2": ["12", 0]}, "class_type": "ImageBatch", "_meta": {"title": "Batch Poses 01-04"}},
+  "25": {"inputs": {"image1": ["24", 0], "image2": ["13", 0]}, "class_type": "ImageBatch", "_meta": {"title": "Batch Poses 01-05"}},
+  "26": {"inputs": {"image1": ["25", 0], "image2": ["14", 0]}, "class_type": "ImageBatch", "_meta": {"title": "Batch Poses 01-06"}},
+  "27": {"inputs": {"image1": ["26", 0], "image2": ["15", 0]}, "class_type": "ImageBatch", "_meta": {"title": "Batch Poses 01-07"}},
+  "28": {"inputs": {"image1": ["27", 0], "image2": ["16", 0]}, "class_type": "ImageBatch", "_meta": {"title": "Batch Poses 01-08"}},
+  "29": {"inputs": {"image1": ["28", 0], "image2": ["17", 0]}, "class_type": "ImageBatch", "_meta": {"title": "Batch Poses 01-09"}},
+  "30": {"inputs": {"image1": ["29", 0], "image2": ["18", 0]}, "class_type": "ImageBatch", "_meta": {"title": "Batch Poses 01-10"}},
+  "31": {"inputs": {"image1": ["30", 0], "image2": ["19", 0]}, "class_type": "ImageBatch", "_meta": {"title": "Batch Poses 01-11"}},
+  "32": {"inputs": {"image1": ["31", 0], "image2": ["20", 0]}, "class_type": "ImageBatch", "_meta": {"title": "Batch Poses 01-12"}},
+  "33": {"inputs": {"image1": ["32", 0], "image2": ["21", 0]}, "class_type": "ImageBatch", "_meta": {"title": "Batch All 13 Poses"}},
+  "34": {"inputs": {"image": "__APPROVED_REFERENCE__"}, "class_type": "LoadImage", "_meta": {"title": "Approved Character Reference"}},
+  "35": {
+    "inputs": {"image": ["34", 0], "upscale_method": "lanczos", "width": 32, "height": 32, "crop": "center"},
+    "class_type": "ImageScale",
+    "_meta": {"title": "Reference at Sprite Resolution"}
+  },
+  "36": {"inputs": {"pixels": ["35", 0], "vae": ["1", 2]}, "class_type": "VAEEncode", "_meta": {"title": "Encode Approved Reference"}},
+  "37": {"inputs": {"samples": ["36", 0], "amount": 13}, "class_type": "RepeatLatentBatch", "_meta": {"title": "Repeat Reference for 13 Poses"}},
+  "39": {
+    "inputs": {"ipadapter_file": "ip-adapter-plus_sd15.safetensors"},
+    "class_type": "IPAdapterModelLoader",
+    "_meta": {"title": "Load Character IP-Adapter"}
+  },
+  "40": {
+    "inputs": {"clip_name": "CLIP-ViT-H-14-laion2B-s32B-b79K.safetensors"},
+    "class_type": "CLIPVisionLoader",
+    "_meta": {"title": "Load IP-Adapter Vision Encoder"}
+  },
+  "41": {
+    "inputs": {
+      "model": ["1", 0],
+      "ipadapter": ["39", 0],
+      "image": ["34", 0],
+      "weight": 0.7,
+      "weight_type": "linear",
+      "combine_embeds": "concat",
+      "start_at": 0,
+      "end_at": 1,
+      "embeds_scaling": "V only",
+      "clip_vision": ["40", 0]
+    },
+    "class_type": "IPAdapterAdvanced",
+    "_meta": {"title": "Preserve Approved Character Appearance"}
+  },
+  "42": {
+    "inputs": {"image": ["35", 0], "amount": 13},
+    "class_type": "RepeatImageBatch",
+    "_meta": {"title": "Repeat Reference for Tile Control"}
+  },
+  "43": {
+    "inputs": {"control_net_name": "control_v11f1e_sd15_tile.pth"},
+    "class_type": "ControlNetLoader",
+    "_meta": {"title": "Load SD15 Tile ControlNet"}
+  },
+  "45": {
+    "inputs": {"text": "", "clip": ["1", 1]},
+    "class_type": "CLIPTextEncode",
+    "_meta": {"title": "Right-Facing Movement Prompt"}
+  },
+  "46": {
+    "inputs": {"text": "", "clip": ["1", 1]},
+    "class_type": "CLIPTextEncode",
+    "_meta": {"title": "Turn Sequence Prompt"}
+  },
+  "47": {
+    "inputs": {"text": "", "clip": ["1", 1]},
+    "class_type": "CLIPTextEncode",
+    "_meta": {"title": "Left-Facing Movement Prompt"}
+  },
+  "48": {
+    "inputs": {"samples": ["37", 0], "batch_index": 0, "length": 5},
+    "class_type": "LatentFromBatch",
+    "_meta": {"title": "Right Group Latents (5)"}
+  },
+  "49": {
+    "inputs": {"samples": ["37", 0], "batch_index": 5, "length": 3},
+    "class_type": "LatentFromBatch",
+    "_meta": {"title": "Turn Group Latents (3)"}
+  },
+  "50": {
+    "inputs": {"samples": ["37", 0], "batch_index": 8, "length": 5},
+    "class_type": "LatentFromBatch",
+    "_meta": {"title": "Left Group Latents (5)"}
+  },
+  "51": {
+    "inputs": {"image": ["33", 0], "batch_index": 0, "length": 5},
+    "class_type": "ImageFromBatch",
+    "_meta": {"title": "Right Group Pose Controls (5)"}
+  },
+  "52": {
+    "inputs": {"image": ["33", 0], "batch_index": 5, "length": 3},
+    "class_type": "ImageFromBatch",
+    "_meta": {"title": "Turn Group Pose Controls (3)"}
+  },
+  "53": {
+    "inputs": {"image": ["33", 0], "batch_index": 8, "length": 5},
+    "class_type": "ImageFromBatch",
+    "_meta": {"title": "Left Group Pose Controls (5)"}
+  },
+  "54": {
+    "inputs": {"image": ["42", 0], "batch_index": 0, "length": 5},
+    "class_type": "ImageFromBatch",
+    "_meta": {"title": "Right Group Reference Tiles (5)"}
+  },
+  "55": {
+    "inputs": {"image": ["42", 0], "batch_index": 5, "length": 3},
+    "class_type": "ImageFromBatch",
+    "_meta": {"title": "Turn Group Reference Tiles (3)"}
+  },
+  "56": {
+    "inputs": {"image": ["42", 0], "batch_index": 8, "length": 5},
+    "class_type": "ImageFromBatch",
+    "_meta": {"title": "Left Group Reference Tiles (5)"}
+  },
+  "57": {
+    "inputs": {"positive": ["45", 0], "negative": ["3", 0], "control_net": ["8", 0], "image": ["51", 0], "strength": 1, "start_percent": 0, "end_percent": 1},
+    "class_type": "ControlNetApplyAdvanced",
+    "_meta": {"title": "Right Group Canny Control"}
+  },
+  "58": {
+    "inputs": {"positive": ["46", 0], "negative": ["3", 0], "control_net": ["8", 0], "image": ["52", 0], "strength": 1, "start_percent": 0, "end_percent": 1},
+    "class_type": "ControlNetApplyAdvanced",
+    "_meta": {"title": "Turn Group Canny Control"}
+  },
+  "59": {
+    "inputs": {"positive": ["47", 0], "negative": ["3", 0], "control_net": ["8", 0], "image": ["53", 0], "strength": 1, "start_percent": 0, "end_percent": 1},
+    "class_type": "ControlNetApplyAdvanced",
+    "_meta": {"title": "Left Group Canny Control"}
+  },
+  "60": {
+    "inputs": {"positive": ["57", 0], "negative": ["57", 1], "control_net": ["43", 0], "image": ["54", 0], "strength": 0.25, "start_percent": 0, "end_percent": 0.65, "vae": ["1", 2]},
+    "class_type": "ControlNetApplyAdvanced",
+    "_meta": {"title": "Right Group Tile Control"}
+  },
+  "61": {
+    "inputs": {"positive": ["58", 0], "negative": ["58", 1], "control_net": ["43", 0], "image": ["55", 0], "strength": 0.25, "start_percent": 0, "end_percent": 0.65, "vae": ["1", 2]},
+    "class_type": "ControlNetApplyAdvanced",
+    "_meta": {"title": "Turn Group Tile Control"}
+  },
+  "62": {
+    "inputs": {"positive": ["59", 0], "negative": ["59", 1], "control_net": ["43", 0], "image": ["56", 0], "strength": 0.25, "start_percent": 0, "end_percent": 0.65, "vae": ["1", 2]},
+    "class_type": "ControlNetApplyAdvanced",
+    "_meta": {"title": "Left Group Tile Control"}
+  },
+  "64": {
+    "inputs": {"seed": 0, "steps": 20, "cfg": 8, "sampler_name": "euler", "scheduler": "normal", "denoise": 0.38, "model": ["41", 0], "positive": ["61", 0], "negative": ["61", 1], "latent_image": ["49", 0]},
+    "class_type": "KSampler",
+    "_meta": {"title": "Render Turn Group (3)"}
+  },
+  "65": {
+    "inputs": {"seed": 0, "steps": 20, "cfg": 8, "sampler_name": "euler", "scheduler": "normal", "denoise": 0.38, "model": ["41", 0], "positive": ["62", 0], "negative": ["62", 1], "latent_image": ["50", 0]},
+    "class_type": "KSampler",
+    "_meta": {"title": "Render Left Group (5)"}
+  },
+  "66": {
+    "inputs": {"samples1": ["5", 0], "samples2": ["64", 0]},
+    "class_type": "LatentBatch",
+    "_meta": {"title": "Combine Right and Turn Groups"}
+  },
+  "67": {
+    "inputs": {"samples1": ["66", 0], "samples2": ["65", 0]},
+    "class_type": "LatentBatch",
+    "_meta": {"title": "Combine All Direction Groups"}
+  }
+}

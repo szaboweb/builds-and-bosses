@@ -1,4 +1,5 @@
 import '../combat/combat_logger.dart';
+import '../errors/game_error.dart';
 import 'character_stats.dart';
 import 'dice.dart';
 
@@ -30,6 +31,36 @@ class CombatResult {
 
 /// D&D combat resolution engine.
 class CombatEngine {
+  static void _validateCombatants({
+    required CharacterStats attacker,
+    required CharacterStats defender,
+  }) {
+    if (attacker.isDead) {
+      final exception = GameException(
+        code: GameErrorCode.attackerDead,
+        context: {
+          'attacker': attacker.name,
+          'attackerHp': attacker.currentHp,
+          'defender': defender.name,
+        },
+      );
+      CombatLogger.instance.logGameException(exception);
+      throw exception;
+    }
+    if (defender.isDead) {
+      final exception = GameException(
+        code: GameErrorCode.defenderDead,
+        context: {
+          'attacker': attacker.name,
+          'defender': defender.name,
+          'defenderHp': defender.currentHp,
+        },
+      );
+      CombatLogger.instance.logGameException(exception);
+      throw exception;
+    }
+  }
+
   /// Resolves a melee weapon strike (e.g. Longsword: 1d8 + STR mod).
   static CombatResult resolveMeleeAttack({
     required CharacterStats attacker,
@@ -39,6 +70,7 @@ class CombatEngine {
     bool advantage = false,
     bool disadvantage = false,
   }) {
+    _validateCombatants(attacker: attacker, defender: defender);
     final d20 = Dice.d20(advantage: advantage, disadvantage: disadvantage);
     final totalAttack = d20 + attacker.meleeAttackBonus;
     final CombatResult result;
@@ -122,6 +154,7 @@ class CombatEngine {
     bool advantage = false,
     bool disadvantage = false,
   }) {
+    _validateCombatants(attacker: attacker, defender: defender);
     final d20 = Dice.d20(advantage: advantage, disadvantage: disadvantage);
     final totalAttack = d20 + attacker.spellAttackBonus;
     final CombatResult result;
@@ -186,6 +219,7 @@ class CombatEngine {
     bool advantage = false,
     bool disadvantage = false,
   }) {
+    _validateCombatants(attacker: attacker, defender: defender);
     final d20 = Dice.d20(advantage: advantage, disadvantage: disadvantage);
     final totalAttack = d20 + attacker.dexterityMod + attacker.proficiencyBonus;
     final critical = d20 == 20;

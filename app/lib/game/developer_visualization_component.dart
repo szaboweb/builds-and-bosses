@@ -21,25 +21,31 @@ class DeveloperVisualizationComponent extends PositionComponent {
     super.render(canvas);
     if (!mode.enabled.value) return;
 
-    _drawRange(canvas, player.position, player.stats.meleeRange, Colors.redAccent, 'MELEE');
     _drawRange(
       canvas,
       player.position,
-      player.stats.config.combat.rangedNormalRange,
+      player.stats.meleeRange,
+      Colors.redAccent,
+      'MELEE',
+    );
+    _drawRange(
+      canvas,
+      player.position,
+      player.stats.rangedNormalRange,
       Colors.amber,
       'RANGED NORMAL',
     );
     _drawRange(
       canvas,
       player.position,
-      player.stats.config.combat.rangedLongRange,
+      player.stats.rangedLongRange,
       Colors.orange,
       'RANGED LONG',
     );
     _drawRange(
       canvas,
       player.position,
-      player.stats.config.combat.spellRange,
+      player.stats.spellRange,
       Colors.purpleAccent,
       'SPELL',
     );

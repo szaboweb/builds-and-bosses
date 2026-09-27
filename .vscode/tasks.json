@@ -1,0 +1,31 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Start ComfyUI (AMD DirectML)",
+			"type": "shell",
+			"command": "/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-File",
+				"C:\\Users\\mrsza\\tools\\ComfyUI-directml\\StartComfyUI.ps1"
+			],
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Start Character Workshop API",
+			"type": "shell",
+			"command": "/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"C:\\Users\\mrsza\\workspace\\builds-and-bosses\\tooling\\character_workshop\\start.ps1"
+			],
+			"isBackground": true,
+			"problemMatcher": []
+		}
+	]
+}

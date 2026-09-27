@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://builds-and-bosses.local/schemas/character_project.v1.schema.json",
+  "title": "Character art project",
+  "type": "object",
+  "required": ["schema_version", "id", "name", "subject", "background", "negative_prompt", "seed", "revision", "candidates", "parts"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "id": {"type": "string", "format": "uuid"},
+    "name": {"type": "string", "minLength": 1, "maxLength": 64},
+    "subject": {"type": "string", "minLength": 1, "maxLength": 240},
+    "height_class": {"type": "string", "enum": ["short", "average", "tall"]},
+    "background": {"const": "transparent"},
+    "view": {"type": "string", "maxLength": 200},
+    "head": {"type": "string", "maxLength": 300},
+    "hairstyle": {"type": "string", "maxLength": 200},
+    "has_beard": {"type": "boolean"},
+    "has_helmet": {"type": "boolean"},
+    "upper_body": {"type": "string", "maxLength": 300},
+    "lower_body": {"type": "string", "maxLength": 300},
+    "left_hand": {"type": "string", "maxLength": 200, "default": "empty"},
+    "right_hand": {"type": "string", "maxLength": 200, "default": "empty"},
+    "held_item": {"type": "string", "maxLength": 200, "deprecated": true},
+    "palette": {"type": "string", "maxLength": 200},
+    "style_tags": {"type": "string", "maxLength": 200},
+    "positive_prompt": {"type": "string", "maxLength": 2000},
+    "negative_prompt": {"type": "string", "maxLength": 2000},
+    "character_lora": {"type": "string", "maxLength": 200, "default": ""},
+    "seed": {"type": "integer", "minimum": 0, "maximum": 4294967295},
+    "generation_settings": {
+      "type": ["object", "null"],
+      "properties": {
+        "model": {"type": ["string", "null"]},
+        "seed": {"type": "integer", "minimum": 0, "maximum": 4294967295},
+        "sampler_name": {"const": "euler"},
+        "scheduler": {"const": "normal"},
+        "steps": {"const": 20},
+        "cfg": {"const": 8},
+        "denoise": {"type": "number", "minimum": 0, "maximum": 1}
+      },
+      "required": ["seed", "sampler_name", "scheduler", "steps", "cfg", "denoise"],
+      "additionalProperties": true
+    },
+    "revision": {"type": "integer", "minimum": 1},
+    "created_at": {"type": "string", "format": "date-time"},
+    "updated_at": {"type": "string", "format": "date-time"},
+    "approved_image": {"type": ["string", "null"]},
+    "candidates": {"type": "array", "items": {"type": "object"}},
+    "parts": {"type": "array", "items": {"type": "object"}},
+    "animation": {"type": ["object", "null"]}
+  },
+  "additionalProperties": true
+}

@@ -4,6 +4,8 @@ import 'package:builds_and_bosses_flame/core/dnd/character_stats.dart';
 import 'package:builds_and_bosses_flame/core/dnd/combat_engine.dart';
 import 'package:builds_and_bosses_flame/core/actions/action_queue.dart';
 import 'package:builds_and_bosses_flame/core/actions/game_action.dart';
+import 'package:builds_and_bosses_flame/core/errors/game_error.dart';
+import 'package:builds_and_bosses_flame/core/combat/combat_logger.dart';
 import 'package:flame/extensions.dart';
 
 void main() {
@@ -71,6 +73,95 @@ void main() {
         expect(dummy.currentHp, equals(initialHp));
       }
     });
+
+    test(
+      'Dead attacker throws typed error before all attack types resolve',
+      () {
+        final attacker = CharacterStats.fighterProtagonist().copyWith(
+          currentHp: 0,
+        );
+        final defender = CharacterStats.trainingDummy();
+        final defenderHp = defender.currentHp;
+        CombatLogger.instance.clear();
+
+        expect(
+          () => CombatEngine.resolveMeleeAttack(
+            attacker: attacker,
+            defender: defender,
+          ),
+          throwsA(
+            isA<GameException>().having(
+              (error) => error.code,
+              'code',
+              GameErrorCode.attackerDead,
+            ),
+          ),
+        );
+        expect(
+          () => CombatEngine.resolveSpellAttack(
+            attacker: attacker,
+            defender: defender,
+          ),
+          throwsA(
+            isA<GameException>().having(
+              (error) => error.code,
+              'code',
+              GameErrorCode.attackerDead,
+            ),
+          ),
+        );
+        expect(
+          () => CombatEngine.resolveRangedAttack(
+            attacker: attacker,
+            defender: defender,
+          ),
+          throwsA(
+            isA<GameException>().having(
+              (error) => error.code,
+              'code',
+              GameErrorCode.attackerDead,
+            ),
+          ),
+        );
+
+        expect(defender.currentHp, equals(defenderHp));
+        expect(CombatLogger.instance.history, hasLength(3));
+        expect(
+          CombatLogger.instance.history.every(
+            (entry) => entry.data?['errorCode'] == 1201,
+          ),
+          isTrue,
+        );
+        expect(
+          CombatLogger.instance.history.first.data?['attackerHp'],
+          equals(0),
+        );
+      },
+    );
+
+    test('Dead defender throws typed error and logs diagnostic context', () {
+      final attacker = CharacterStats.fighterProtagonist();
+      final defender = CharacterStats.trainingDummy()..takeDamage(35);
+      CombatLogger.instance.clear();
+
+      expect(
+        () => CombatEngine.resolveMeleeAttack(
+          attacker: attacker,
+          defender: defender,
+        ),
+        throwsA(
+          isA<GameException>().having(
+            (error) => error.code,
+            'code',
+            GameErrorCode.defenderDead,
+          ),
+        ),
+      );
+
+      final log = CombatLogger.instance.history.single;
+      expect(log.data?['errorCode'], equals(1202));
+      expect(log.data?['defenderHp'], equals(0));
+    });
   });
 
   group('Tactical Action Queue Tests', () {
@@ -79,13 +170,17 @@ void main() {
       expect(queue.remainingAP, equals(100));
 
       // Add Move (15 AP)
-      final moveAdded = queue.tryAdd(MoveAction(targetPosition: Vector2(100, 100)));
+      final moveAdded = queue.tryAdd(
+        MoveAction(targetPosition: Vector2(100, 100)),
+      );
       expect(moveAdded, isTrue);
       expect(queue.spentAP, equals(15));
       expect(queue.remainingAP, equals(85));
 
       // Add Slash (25 AP)
-      final slashAdded = queue.tryAdd(SlashAction(targetPosition: Vector2(100, 100)));
+      final slashAdded = queue.tryAdd(
+        SlashAction(targetPosition: Vector2(100, 100)),
+      );
       expect(slashAdded, isTrue);
       expect(queue.spentAP, equals(40));
 
@@ -108,7 +203,10 @@ void main() {
 
     test('Queue rejects actions exceeding max AP', () {
       final queue = ActionQueue(maxAP: 30);
-      expect(queue.tryAdd(SlashAction(targetPosition: Vector2.zero())), isTrue); // 25 AP
+      expect(
+        queue.tryAdd(SlashAction(targetPosition: Vector2.zero())),
+        isTrue,
+      ); // 25 AP
       // Next action costs 15 AP -> 25 + 15 = 40 > 30 -> should fail
       expect(queue.tryAdd(MoveAction(targetPosition: Vector2.zero())), isFalse);
       expect(queue.count, equals(1));

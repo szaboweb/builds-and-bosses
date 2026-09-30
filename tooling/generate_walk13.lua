@@ -1,6 +1,6 @@
--- Generates a deterministic 13-frame, 32x32 directional walk/run block-in.
--- The 32x32 canvas matches the game's authoritative character sprite size
--- (see docs/MOVEMENT_AND_TUI_GUIDE.md).
+-- Generates a deterministic 13-frame, 64x64 directional walk/run block-in.
+-- The 64x64 authoring canvas is supersampled down to the game's 32x32 sprite
+-- by the Character Workshop (see docs/MOVEMENT_AND_TUI_GUIDE.md).
 --
 -- Usage:
 --   Aseprite.exe -b --script-param config=path/to/walk13.json \
@@ -11,25 +11,27 @@
 --     "projectName": "hero",
 --     "subjectDescription": "pixel adventurer",
 --     "parts": [
---       {"name":"head", "role":"head", "x":13, "y":1,
---        "width":6, "height":6, "color":"#F2C078"},
---       {"name":"torso", "role":"torso", "x":11, "y":9,
---        "width":10, "height":7, "color":"#3366FF"},
---       {"name":"arm_left", "role":"arm_left", "x":8, "y":10,
---        "width":2, "height":6, "color":"#F2C078"},
---       {"name":"arm_right", "role":"arm_right", "x":22, "y":10,
---        "width":2, "height":6, "color":"#F2C078"},
---       {"name":"leg_left", "role":"leg_left", "x":11, "y":18,
---        "width":3, "height":14, "color":"#30384A"},
---       {"name":"leg_right", "role":"leg_right", "x":18, "y":18,
---        "width":3, "height":14, "color":"#30384A"}
+--       {"name":"head", "role":"head", "x":26, "y":2,
+--        "width":12, "height":12, "color":"#F2C078"},
+--       {"name":"torso", "role":"torso", "x":22, "y":18,
+--        "width":20, "height":14, "color":"#3366FF"},
+--       {"name":"arm_left", "role":"arm_left", "x":16, "y":20,
+--        "width":4, "height":12, "color":"#F2C078"},
+--       {"name":"arm_right", "role":"arm_right", "x":44, "y":20,
+--        "width":4, "height":12, "color":"#F2C078"},
+--       {"name":"leg_left", "role":"leg_left", "x":22, "y":36,
+--        "width":6, "height":28, "color":"#30384A"},
+--       {"name":"leg_right", "role":"leg_right", "x":36, "y":36,
+--        "width":6, "height":28, "color":"#30384A"}
 --     ]
 --   }
 --
 -- Required roles: head, torso, arm_left, arm_right, leg_left, leg_right.
 -- All source rectangles must be disjoint, and must keep enough clearance
 -- between adjacent parts so pose shifts (walk +-1, run +-2, turn +-1) never
--- make them touch or overlap. Legs must end at y=31.
+-- make them touch or overlap. Legs must end on the last canvas row.
+
+local CANVAS = 64
 
 local configPath = app.params["config"]
 if not configPath or configPath == "" then
@@ -90,9 +92,9 @@ for _, part in ipairs(config.parts) do
   if part.width < 1 or part.height < 1 then
     error("Part " .. part.name .. " dimensions must be positive")
   end
-  if part.x < 0 or part.y < 0 or part.x + part.width > 32
-    or part.y + part.height > 32 then
-    error("Part " .. part.name .. " is outside the 32x32 canvas")
+  if part.x < 0 or part.y < 0 or part.x + part.width > CANVAS
+    or part.y + part.height > CANVAS then
+    error("Part " .. part.name .. " is outside the " .. CANVAS .. "x" .. CANVAS .. " canvas")
   end
   part.pixelColor = parseHex(part.color, part.name)
   if part.role ~= "head" and part.role ~= "torso"
@@ -117,8 +119,8 @@ end
 
 local leftLeg = byRole.leg_left
 local rightLeg = byRole.leg_right
-if leftLeg.y + leftLeg.height ~= 32 or rightLeg.y + rightLeg.height ~= 32 then
-  error("Both legs must end on canvas row Y=31")
+if leftLeg.y + leftLeg.height ~= CANVAS or rightLeg.y + rightLeg.height ~= CANVAS then
+  error("Both legs must end on canvas row Y=" .. (CANVAS - 1))
 end
 if leftLeg.width ~= rightLeg.width or leftLeg.height ~= rightLeg.height then
   error("Left and right legs must have matching dimensions")
@@ -220,7 +222,7 @@ local function transformedPart(part, pose)
       if folded then
         result.width, result.height = foldedLegShape(part)
         result.x = math.floor(part.x + part.width / 2 - result.width / 2)
-        result.y = 32 - result.height
+        result.y = CANVAS - result.height
       elseif part.role == "leg_left" then
         result.x = result.x + phase * 2
       else
@@ -252,19 +254,19 @@ local function transformedPart(part, pose)
 
   if pose.kind == "front" or pose.facing == "front" then
     if part.role == "head" then
-      result.x = math.floor((32 - result.width) / 2)
+      result.x = math.floor((CANVAS - result.width) / 2)
     elseif part.role == "torso" then
       result.width, result.height = frontTorsoShape(part)
-      result.x = math.floor((32 - result.width) / 2)
+      result.x = math.floor((CANVAS - result.width) / 2)
     elseif part.role == "arm_left" or part.role == "leg_left" then
       local torso = byRole.torso
       local torsoWidth = frontTorsoShape(torso)
-      local torsoX = math.floor((32 - torsoWidth) / 2)
+      local torsoX = math.floor((CANVAS - torsoWidth) / 2)
       result.x = torsoX - result.width
     elseif part.role == "arm_right" or part.role == "leg_right" then
       local torso = byRole.torso
       local torsoWidth = frontTorsoShape(torso)
-      local torsoX = math.floor((32 - torsoWidth) / 2)
+      local torsoX = math.floor((CANVAS - torsoWidth) / 2)
       result.x = torsoX + torsoWidth
     end
   elseif pose.kind == "idle" or pose.kind == "walk" then
@@ -274,10 +276,10 @@ local function transformedPart(part, pose)
   end
 
   if pose.facing == "left" or pose.name == "turn_left_1" then
-    result.x = 32 - result.x - result.width
+    result.x = CANVAS - result.x - result.width
   end
-  if result.x < 0 or result.y < 0 or result.x + result.width > 32
-    or result.y + result.height > 32 then
+  if result.x < 0 or result.y < 0 or result.x + result.width > CANVAS
+    or result.y + result.height > CANVAS then
     error("Pose " .. pose.name .. " moves part outside the canvas")
   end
   return result
@@ -296,8 +298,8 @@ end
 
 local function countOpaquePixels(image)
   local count = 0
-  for y = 0, 31 do
-    for x = 0, 31 do
+  for y = 0, CANVAS - 1 do
+    for x = 0, CANVAS - 1 do
       if app.pixelColor.rgbaA(image:getPixel(x, y)) > 0 then
         count = count + 1
       end
@@ -306,7 +308,7 @@ local function countOpaquePixels(image)
   return count
 end
 
-local sprite = Sprite(32, 32, ColorMode.RGB)
+local sprite = Sprite(CANVAS, CANVAS, ColorMode.RGB)
 sprite.data = config.subjectDescription
 local layer = sprite:newLayer()
 layer.name = "Character"
@@ -316,7 +318,7 @@ for frameIndex, pose in ipairs(poses) do
   if frameIndex > 1 then
     sprite:newEmptyFrame(frameIndex)
   end
-  local image = Image(32, 32, ColorMode.RGB)
+  local image = Image(CANVAS, CANVAS, ColorMode.RGB)
   drawPose(image, pose)
   local mass = countOpaquePixels(image)
   if expectedMass == nil then

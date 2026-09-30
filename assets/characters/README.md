@@ -1,6 +1,7 @@
 # Character Animation Assets
 
-Character animation sheets use 32x32 pixel frames. Keep the character's feet on
+Character animation sheets use 32x32 pixel frames in the game, authored at 64x64 and
+supersampled 2:1 by the Character Workshop. Keep the character's feet on
 the same baseline in every frame; transparent padding is allowed.
 
 ## Directory layout

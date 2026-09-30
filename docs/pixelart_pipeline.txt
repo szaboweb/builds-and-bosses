@@ -1,0 +1,130 @@
+Cél: Játékfejlesztési asset-pipeline kialakítása, amely ComfyUI-alapú generatív modellekkel (Canny ControlNet + IP-Adapter) hoz létre konzisztens, stílushelyes pixel art karakter animációkat és sprite sheeteket koncepcióképek alapján.A probléma: A generatív modellek természetükből adódóan instabilak (rángatózó törzs, változó végtaghossz, színvillogás képkockáról képkockára).A megoldás: Determinisztikus, rácsalapú, Inverz Kinematikát (IK) és fix törzset (vagy előre meghatározott vertikális íveket) használó vázgeneráló modul, amely stabil, hibamentes Canny kontrollképeket biztosít a ComfyUI számára.2. Moduláris Architektúra és FájlstruktúraA framework az alábbi moduláris felépítés szerint épül be a repository-ba:Plaintextframework/
+├── skeleton/            # 1. Modul: Váz és IK motor
+│   ├── ik_solver.py     # 2-csontos IK matematikai logika
+│   └── poses.py         # Póz definíciók és IK célpontok (IK_TARGETS az összes state-hez)
+├── generator/           # 2. Modul: Renderelő és Képkocka generátor
+│   ├── drawer.py        # PIL alapú pixel-art rajzolás (vonalak, ízületek, fej)
+│   └── sheet_builder.py # Sprite sheet és kontaktlap összeállítás
+├── exporter/            # 3. Modul: Exportálás és Post-processing
+│   ├── gif_exporter.py  # Optimalizált GIF mentés transzparenciával
+│   └── quantizer.py     # Színpaletta korlátozás (median-cut,Nearest-Neighbor)
+└── pipeline_config.json # ComfyUI API / Batch futtatási beállítások
+3. Animációs Állapotok (States) & Klipek SpecifikációjaA monolitikus animációk helyett önálló, moduláris klipeket generálunk, amelyek azonos IK-alappal rendelkeznek.A) Alapvető mozgások (Looping States)idle (Alapállás): 4–8 frame. Finom, apró lélegző ciklus; a váll és a fej minimális, szabályos periodikus mozgást végezhet.walk_right / walk_left (Séta): 8–12 frame. Szigorúan zárt, loopolható ciklus; a lábfejek a ciklus végén visszatérnek a kiinduló talajpontra.run / run_backward (Futás / Menekülés): 6–8 frame. Dinamikusabb, enyhén előredőlt törzs-pozíció, nagyobb kar- és láblengési amplitúdóval.B) Akciók és Harci fázisok (Non-Looping / Triggered States)attack / cast / shoot (Akciók): Egyirányú, nem loopoló animációk (Előkészület -> Csapás/Kibocsátás -> Visszatérés idle-be).turn (Fordulás): 3–5 frame. Irányváltási átmenetek (pl. szemből oldalra vagy balról jobbra).C) Fizikai / Speciális Állapotok (Rigid & Ballistic States) — Kiemelten fontos!jump (Ugrás): 6–10 frame.Fázisai: Elrugaszkodás (Anticipation / Guggolás: a törzs hirtelen alacsonyabbra kerül, de az IK-nak köszönhetően a csontok nem nyúlnak meg) $\rightarrow$ Felfelé repülés (nyújtott test, a lábak felhúzva) $\rightarrow$ Tetőpont (Apex).fall (Zuhanás / Esés): 4–6 frame (loopolható vagy a földet érésig tartó klip).Sajátossága: A test megfeszül, a karok enyhén széttárva az egyensúlyozás miatt, a lábak lefelé lógnak. Ha a zuhanás landolásba torkollik, szükséges egy 2-3 frames becsapódási (landing recovery) fázis, ami elnyeli az energiát, mielőtt visszatérne idle-be.die (Halál / Megsemmisülés): 8–12 frame (egyszer lefutó, végállapotban megálló klip).Sajátossága: Megszűnik az IK stabilitás (vagy a fizika/gravitáció ívét követi): a térdek berogynak, a felsőtest hátra- vagy előredől, a fej lehajlik, és a sprite véglegesen elnyeri a fekvő pozícióját az utolsó képkockán.4. Technológiai Core Modulok (Kódrészletek)Modul 1: Az IK Solver (skeleton/ik_solver.py)Biztosítja a fix végtaghosszakat és a pontos pozícionálást, megakadályozva a modellek torzulását.Pythonimport math
+
+def ik_solve_2bone(
+    origin: tuple[float, float],
+    target: tuple[float, float],
+    len1: float,
+    len2: float,
+    flip: bool = False
+) -> tuple[float, float]:
+    x0, y0 = origin
+    x2, y2 = target
+    dx = x2 - x0
+    dy = y2 - y0
+    dist_sq = dx*dx + dy*dy
+    dist = math.sqrt(dist_sq)
+
+    if dist > len1 + len2 or dist < abs(len1 - len2):
+        if dist == 0: dist = 0.0001
+        scale = (len1 + len2) / dist
+        return (x0 + dx * scale * (len1/(len1+len2)), y0 + dy * scale * (len1/(len1+len2)))
+
+    try:
+        cos_angle = (len1*len1 + dist_sq - len2*len2) / (2 * len1 * dist)
+        cos_angle = max(min(cos_angle, 1.0), -1.0)
+        angle_base = math.acos(cos_angle)
+    except ZeroDivisionError:
+        angle_base = 0
+
+    atan_angle = math.atan2(dy, dx)
+    joint_angle = atan_angle - angle_base if not flip else atan_angle + angle_base
+    
+    joint_x = x0 + len1 * math.cos(joint_angle)
+    joint_y = y0 + len1 * math.sin(joint_angle)
+    return (joint_x, joint_y)
+Modul 2: Vázrajzoló (generator/drawer.py)Szigorú, élsimítás mentes (Nearest Neighbor kompatibilis) renderelés.Pythonfrom PIL import Image, ImageDraw
+
+SIZE = 64
+INK = (226, 239, 255, 255)
+JOINT = (255, 201, 111, 255)
+
+def draw_skeleton_pose(points: dict[str, tuple[int, int]]) -> Image.Image:
+    image = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+
+    segments = (
+        ("head", "neck"),
+        ("neck", "shoulder"),
+        ("shoulder", "hip"),
+        ("left_shoulder", "left_elbow"),
+        ("left_elbow", "left_hand"),
+        ("right_shoulder", "right_elbow"),
+        ("right_elbow", "right_hand"),
+        ("left_hip", "left_knee"),
+        ("left_knee", "left_foot"),
+        ("right_hip", "right_knee"),
+        ("right_knee", "right_foot"),
+    )
+    
+    for start, end in segments:
+        draw.line((points[start], points[end]), fill=INK, width=1)
+
+    head_x, head_y = points["head"]
+    draw.ellipse((head_x - 2, head_y - 2, head_x + 2, head_y + 2), outline=JOINT)
+    draw.line((points["head"], points["nose"]), fill=INK, width=1)
+    
+    for name in ("shoulder", "hip", "left_elbow", "right_elbow", "left_knee", "right_knee"):
+        x, y = points[name]
+        draw.point((x, y), fill=JOINT)
+        
+    return image
+5. Játékmotoros Integrációs & Átmenet-kezelési SzabályokRoot Anchoring (Gyökérstabilitás): Mivel az IK váz biztosítja a törzs fix sarokpontjait, a Séta, Ugrás és Harc közötti váltáskor a karakter nem ugrál el váratlanul a képernyőn.Felső- és Alsótest Szétválasztás (Layered Animation): Séta közbeni lövésnél vagy varázslásnál a lábak sétaciklusát (walk state) kombinálni kell a felsőtest akciójával (attack/cast state), így megspórolható az összes kombináció külön generálása.Ballisztikus ívek kezelése (jump és fall): Az ugrásnál a váz Y koordinátája a fizikai parabolát követi, de a ComfyUI-ba küldött Canny vázon belül a csontok arányai szigorúan megmaradnak, így az AI nem torzítja el a karaktert a levegőben sem.6. Hibamegelőzési Checklist (Anti-Patterns & Safeguards)[ ] Tilos a dinamikus baseline shift: Soha ne igazítsd a vázat a legalsó lábfej alapján a Y tengelyen (max(foot_y)), mert az a test ugrálását okozza.[ ] Konstans végtaghossz: Kizárólag az IK solver által számolt pozíciókat használd (combszár és alsó lábszár hossza fix).[ ] Nearest-Neighbor skálázás: Tilos a bilinear/bicubic interpoláció alkalmazása a képek méretezésekor, hogy elkerüld a Canny vonalak elszürkülését/elmosódását.[ ] Zárt ciklus ellenőrzés: A loopolható animációknál (idle, walk, run, fall) az utolsó képkocka logikailag és vizuálisan is zökkenőmentesen kösse be az elsőt.[ ] Tükrözési (Mirroring) konzisztencia: Oldalnézetnél (facing == "left") a koordináták horizontális tükrözése mellett a szótár kulcsaiban is kötelező felcserélni a left_ és right_ prefixeket.
+
+Íme a kulcsfontosságú csomagok listája:
+
+1. Alapmodellek (Checkpoints) Pixel Art-hoz
+Ahelyett, hogy egy általános fotóreális modellt kényszerítenél pixel art stílusra, érdemes eleve pixel artra finomhangolt modelleket használni:
+
+PixelArt Diffusion / Retro Diffusion jellegű modellek (megtalálhatók a Hugging Face-en és a Civitai-on is): Ezek natívan tiszta, retró stílusú, konzisztens színes pixeleket generálnak.
+
+SD 1.5 Base vagy SDXL (ha inkább saját LoRA-t használsz): Az SD 1.5 a legelterjedtebb a ControlNet és az IP-Adapter integrációk stabilitása miatt.
+
+2. ControlNet Modellek (A vázhoz)
+A pálcikaember vagy IK-alapú vázfeldolgozáshoz a standard élfelismerő modulok kellenek:
+
+control_v11p_sd15_canny vagy control_v11p_sd15s2_lineart_anime: Ezek a Hugging Face-ről (lllyasviel / ControlNet-v1-1 repókból) letölthető modellek tökéletesen értelmezik a Pythonnal generált vázképeidet, és tűpontosan tartják a geometriát.
+
+3. IP-Adapter (A stílushoz és koncepcióhoz)
+A konzisztens karakteridentitás megőrzéséhez a referenciakép alapján:
+
+ip-adapter_sd15 vagy ip-adapter_sd15_plus: A H94 / IP-Adapter hivatalos Hugging Face repójából töltheted le. Szükséged lesz hozzá a Vision Transformer encoder fájlra is (CLIP-ViT-H-14 vagy CLIP-ViT-bigG-14, attól függően, hogy SD 1.5-öt vagy SDXL-t használsz).
+
+4. VAE (A tiszta élekért)
+vae-ft-mse-840k-ema_vae.safetensors vagy specifikus pixel-art VAE-k: Ezek megakadályozzák, hogy a ComfyUI elmossa a pixeleket, és megőrzik a kockák éles kontúrját.
+
+Ezeket a ComfyUI megfelelő mappáiba (models/checkpoints, models/controlnet, models/ip-adapter, models/vae) bemásolva máris kész a gépezet háttere, amire rákötheted a saját IK-váz generáló modulodat!
+
+
+1. GitHub Repók: Procedural & AI Pixel Art Pipelines
+A GitHubon több indie fejlesztő és kutató is megosztott olyan szkripteket, amelyek 2D csontvázakból vagy 3D bábúkból renderelnek ControlNet-kompatibilis vezérlőképeket sprite sheetekhez:
+
+OpenPose / ControlNet 2D Character Generators: Keresd a pixel-art-controlnet vagy ai-sprite-sheet-generator kulcsszavakat a GitHubon. Sok projekt Pythonban (Pygame vagy Pillow segítségével) implementál egyszerűbb IK-t vagy pozíció-táblázatokat, amiket aztán automatikusan batch-ben küldenek át az AUTOMATIC1111 vagy ComfyUI API-nak.
+
+Retro Diffusion / Pixel Art ComfyUI Custom Nodes: Bár a Retro Diffusion részben zárt forrású (plugin alapú), a ComfyUI közösségben van jó néhány nyílt forráskódú egyedi csomópont (custom node), mint például a ComfyUI-PixelArt vagy különféle Image Processing utilities, amelyek kifejezetten a Nearest-Neighbor skálázást, a paletta-korlátozást és a tile-olást automatizálják.
+
+2. Civitai / Hugging Face: Open Source Workflow JSON-ok
+Ahelyett, hogy egy teljes szoftver-keretrendszert keresnél, a legtöbb ehhez hasonló projekt ComfyUI workflow JSON fájlként vagy Civitai-on megosztott "Recipe"-ként él:
+
+Sok alkotó feltölt olyan ComfyUI workflow-kat, amelyekbe már be van drótozva az IP-Adapter (a karakter stílusához), a Canny ControlNet (a pálcika vázhoz) és a latent upscale/tile pipeline.
+
+Ha rákeresel a Civitai-on vagy a Hugging Face-en olyan kulcsszavakra, hogy „Pixel art animation workflow ComfyUI” vagy „Sprite sheet generator ControlNet”, találhatsz kész, letölthető graphokat, amik pontosan ezt a láncot valósítják meg vizuálisan.
+
+Miért van az, hogy mégsem találsz egyetlen "kész, dobozos" keretrendszert?
+Azért, mert a vázgenerálás logikája (az IK, a te saját rácsméreted, a karaktered anatómiája) minden játéknál egyedi. Egy 64x64-es akció-RPG (mint a te Builds & Bosses jellegű koncepciód) teljesen más arányokat és pózokat igényel, mint egy oldalnéztes platformer vagy egy top-down stratégiás bábú.
+
+Ezért a legokosabb megközelítés az, amit most csinálsz: a vázgeneráló / IK logikát te írod meg Pythonban (hiszen ez a te játékod egyedi motorja/eszköze), a vizuális generáláshoz meg a Hugging Face-es nyílt forráskódú modelleket (ControlNet + IP-Adapter) használod fel. Ezzel a hibrid módszerrel éred el a legstabilabb, legprofibb eredményt anélkül, hogy újra kellene találnod a spanyolviaszt a diffúziós modellek terén!
+
+
+
+

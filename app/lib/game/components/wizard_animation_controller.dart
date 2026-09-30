@@ -11,6 +11,7 @@ enum WizardAnimationState {
   runLeft,
   walkLeft,
   idleLeft,
+  showcaseLoop,
 }
 
 class WizardAnimationController
@@ -85,6 +86,7 @@ class WizardAnimationController
     'run_left' => WizardAnimationState.runLeft,
     'walk_left' => WizardAnimationState.walkLeft,
     'idle_left' => WizardAnimationState.idleLeft,
+    'showcase_loop' => WizardAnimationState.showcaseLoop,
     _ => throw FormatException('Unsupported animation group: $key'),
   };
 }

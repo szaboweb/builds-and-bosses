@@ -15,7 +15,7 @@
     "view": {
       "type": "string",
       "maxLength": 200,
-      "description": "Camera framing, e.g. 'side view, facing right, full body, centered'. Canvas size is fixed at 32x32 to match the game and is not configurable here."
+      "description": "Camera framing, e.g. 'side view, facing right, full body, centered'. The authoring canvas is fixed at 64x64 and is supersampled to the game's 32x32 sprite; it is not configurable here."
     },
     "head": {"type": "string", "maxLength": 300, "description": "Face, helmet, headwear (excluding hair/beard, see hairstyle/has_beard)"},
     "hairstyle": {"type": "string", "maxLength": 200, "description": "Hair description, e.g. 'short cropped hair' or 'bald'"},

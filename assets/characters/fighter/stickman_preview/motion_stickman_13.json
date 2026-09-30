@@ -1,0 +1,292 @@
+{
+  "type": "motion_stickman_reference",
+  "schema_version": 1,
+  "frame_size": [
+    64,
+    64
+  ],
+  "frame_ms": 100,
+  "sheet": "motion_stickman_13.png",
+  "contact_sheet": "motion_stickman_contact.png",
+  "gif": "motion_stickman_13.gif",
+  "group_gifs": {
+    "idle_right": "motion_stickman_idle_right.gif",
+    "walk_right": "motion_stickman_walk_right.gif",
+    "run_right": "motion_stickman_run_right.gif",
+    "turn": "motion_stickman_turn.gif",
+    "run_left": "motion_stickman_run_left.gif",
+    "walk_left": "motion_stickman_walk_left.gif",
+    "idle_left": "motion_stickman_idle_left.gif",
+    "showcase_loop": "motion_stickman_showcase_loop.gif"
+  },
+  "animations": {
+    "idle_right": {
+      "frames": [
+        0
+      ],
+      "loop": true
+    },
+    "walk_right": {
+      "frames": [
+        1,
+        2
+      ],
+      "loop": true
+    },
+    "run_right": {
+      "frames": [
+        3,
+        4
+      ],
+      "loop": true
+    },
+    "turn": {
+      "frames": [
+        5,
+        6,
+        7
+      ],
+      "loop": false
+    },
+    "run_left": {
+      "frames": [
+        8,
+        9
+      ],
+      "loop": true
+    },
+    "walk_left": {
+      "frames": [
+        10,
+        11
+      ],
+      "loop": true
+    },
+    "idle_left": {
+      "frames": [
+        12
+      ],
+      "loop": true
+    },
+    "showcase_loop": {
+      "frames": [
+        6,
+        5,
+        0,
+        1,
+        2,
+        1,
+        2,
+        0,
+        5,
+        6,
+        7,
+        12,
+        11,
+        10,
+        11,
+        10,
+        12,
+        7
+      ],
+      "loop": true
+    }
+  },
+  "frames": [
+    {
+      "name": "idle_right",
+      "index": 0,
+      "kind": "idle",
+      "facing": "right",
+      "phase": 0,
+      "file": "motion_stickman_frames/frame_01.png",
+      "rect": [
+        0,
+        0,
+        64,
+        64
+      ],
+      "pixel_sha256": "609b718b2e584795cd3dbf18362f48228bde49d8c527dcedc8e87e128c0630f6"
+    },
+    {
+      "name": "walk_right_1",
+      "index": 1,
+      "kind": "walk",
+      "facing": "right",
+      "phase": 1,
+      "file": "motion_stickman_frames/frame_02.png",
+      "rect": [
+        64,
+        0,
+        64,
+        64
+      ],
+      "pixel_sha256": "38fcc8513bd7dcf539ad9f2bd2fe017f5b8896195dfc3fd10ab5b21ce77b0156"
+    },
+    {
+      "name": "walk_right_2",
+      "index": 2,
+      "kind": "walk",
+      "facing": "right",
+      "phase": -1,
+      "file": "motion_stickman_frames/frame_03.png",
+      "rect": [
+        128,
+        0,
+        64,
+        64
+      ],
+      "pixel_sha256": "382463ea4ec48f286c0289138bf86e7c87951ae12097a31e63593fdf2090a36c"
+    },
+    {
+      "name": "run_right_1",
+      "index": 3,
+      "kind": "run",
+      "facing": "right",
+      "phase": 1,
+      "file": "motion_stickman_frames/frame_04.png",
+      "rect": [
+        192,
+        0,
+        64,
+        64
+      ],
+      "pixel_sha256": "246a399c372628c32a0b0b8c8b817b86d8d3354570fa32185d8f5169c4d10fe6"
+    },
+    {
+      "name": "run_right_2",
+      "index": 4,
+      "kind": "run",
+      "facing": "right",
+      "phase": -1,
+      "file": "motion_stickman_frames/frame_05.png",
+      "rect": [
+        256,
+        0,
+        64,
+        64
+      ],
+      "pixel_sha256": "257abad4c5a5d2578f2b76e5c944602a550991a2aeecebf78da57ab91eac86e6"
+    },
+    {
+      "name": "turn_front_1",
+      "index": 5,
+      "kind": "turn",
+      "facing": "front",
+      "phase": 1,
+      "file": "motion_stickman_frames/frame_06.png",
+      "rect": [
+        320,
+        0,
+        64,
+        64
+      ],
+      "pixel_sha256": "2c8bbbfa61df2cff1742b96205211e95ec98e547dd725d4dc8fe9a9d781d0dba"
+    },
+    {
+      "name": "front",
+      "index": 6,
+      "kind": "front",
+      "facing": "front",
+      "phase": 0,
+      "file": "motion_stickman_frames/frame_07.png",
+      "rect": [
+        384,
+        0,
+        64,
+        64
+      ],
+      "pixel_sha256": "ec83ad65f9c75090cbe1a0a661c6a6f69ba0e36121beeed56e7712420e0dde7b"
+    },
+    {
+      "name": "turn_left_1",
+      "index": 7,
+      "kind": "turn",
+      "facing": "left",
+      "phase": -1,
+      "file": "motion_stickman_frames/frame_08.png",
+      "rect": [
+        448,
+        0,
+        64,
+        64
+      ],
+      "pixel_sha256": "e3d553d7d99436f80ffe388b137aed7c1cb7083ed925a90d9b43037a4e52ae0d"
+    },
+    {
+      "name": "run_left_1",
+      "index": 8,
+      "kind": "run",
+      "facing": "left",
+      "phase": -1,
+      "file": "motion_stickman_frames/frame_09.png",
+      "rect": [
+        512,
+        0,
+        64,
+        64
+      ],
+      "pixel_sha256": "a5a642ba4b50238390e92919ba0bc5ec98966d58eccbed5a46d12dfd52fb5bfb"
+    },
+    {
+      "name": "run_left_2",
+      "index": 9,
+      "kind": "run",
+      "facing": "left",
+      "phase": 1,
+      "file": "motion_stickman_frames/frame_10.png",
+      "rect": [
+        576,
+        0,
+        64,
+        64
+      ],
+      "pixel_sha256": "0d4f36828d05ed0f60073264be3b8954b652daba8e0a18430af986d444094f28"
+    },
+    {
+      "name": "walk_left_1",
+      "index": 10,
+      "kind": "walk",
+      "facing": "left",
+      "phase": -1,
+      "file": "motion_stickman_frames/frame_11.png",
+      "rect": [
+        640,
+        0,
+        64,
+        64
+      ],
+      "pixel_sha256": "740bd0e96ed00e3f43b2f8bb439d9ff41586a77d3a8dff3ffc86b67b4554d546"
+    },
+    {
+      "name": "walk_left_2",
+      "index": 11,
+      "kind": "walk",
+      "facing": "left",
+      "phase": 1,
+      "file": "motion_stickman_frames/frame_12.png",
+      "rect": [
+        704,
+        0,
+        64,
+        64
+      ],
+      "pixel_sha256": "178d4fb35be7834024e029569e028937fb52dfde5cf810389532dff39bcc6f91"
+    },
+    {
+      "name": "idle_left",
+      "index": 12,
+      "kind": "idle",
+      "facing": "left",
+      "phase": 0,
+      "file": "motion_stickman_frames/frame_13.png",
+      "rect": [
+        768,
+        0,
+        64,
+        64
+      ],
+      "pixel_sha256": "0ec5985c3a990d600b8e92d281bdd6d4bcd339bef9aa62229c92967830fd25a4"
+    }
+  ]
+}

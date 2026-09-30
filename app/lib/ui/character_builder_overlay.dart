@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../core/campaign/campaign_blueprint.dart';
 import '../core/config/game_rules_config.dart';
 import '../core/dnd/character_catalog.dart';
 import '../core/dnd/character_stats.dart';
+import '../game/components/player_component.dart';
 import '../game/tactical_game.dart';
 
 /// Gothic-themed RPG Character Builder / Tervezőasztal Overlay.
@@ -29,6 +31,7 @@ class _CharacterBuilderOverlayState extends State<CharacterBuilderOverlay> {
   final String _selectedClassId = 'fighter';
   final Set<String> _selectedAbilityIds = <String>{};
   CampaignLevelMode _levelMode = CampaignLevelMode.levelUp;
+  List<String> _characterSheets = const [];
 
   int get _heroLevel => _progression.expectedHeroLevel(_levelMode);
 
@@ -46,7 +49,46 @@ class _CharacterBuilderOverlayState extends State<CharacterBuilderOverlay> {
       'WIS': currentStats.wisdom,
       'CHA': currentStats.charisma,
     };
+    _loadCharacterSheets();
   }
+
+  Future<void> _loadCharacterSheets() async {
+    final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+    final sheets =
+        manifest
+            .listAssets()
+            .where(
+              (asset) =>
+                  asset.startsWith('assets/images/characters/') &&
+                  asset.endsWith('.png') &&
+                  asset.contains('walk13_'),
+            )
+            .map((asset) => asset.substring('assets/images/'.length))
+            .toList()
+          ..sort();
+    if (!mounted) return;
+    setState(() => _characterSheets = sheets);
+  }
+
+  Future<void> _selectCharacterSheet(String path) async {
+    if (path == _livePublishedValue) {
+      PlayerComponent.characterSheetPath = path;
+    } else {
+      PlayerComponent.runtimeSheetImage = null;
+      PlayerComponent.runtimeSheetLabel = null;
+      PlayerComponent.characterSheetPath = path;
+    }
+    await widget.game.player.reloadCharacterSheet();
+    if (!mounted) return;
+    setState(() {});
+  }
+
+  static const String _livePublishedValue = '__live_published__';
+
+  List<String> get _sheetOptions => [
+    if (PlayerComponent.runtimeSheetImage != null) _livePublishedValue,
+    ..._characterSheets,
+  ];
 
   int get _remainingPoints => _pointBuy.remainingPoints(_scores);
 
@@ -464,6 +506,52 @@ class _CharacterBuilderOverlayState extends State<CharacterBuilderOverlay> {
               const SizedBox(height: 22),
 
               // Bottom Action Buttons
+              if (_sheetOptions.length > 1) ...[
+                Row(
+                  children: [
+                    const Text(
+                      'Karakter sprite',
+                      style: TextStyle(color: Colors.white70, fontSize: 13),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: DropdownButton<String>(
+                        isExpanded: true,
+                        dropdownColor: const Color(0xFF1B1727),
+                        value:
+                            PlayerComponent.runtimeSheetImage != null &&
+                                PlayerComponent.characterSheetPath ==
+                                    _livePublishedValue
+                            ? _livePublishedValue
+                            : (_characterSheets.contains(
+                                    PlayerComponent.characterSheetPath,
+                                  )
+                                  ? PlayerComponent.characterSheetPath
+                                  : null),
+                        hint: const Text('Publikált karakter választása'),
+                        items: [
+                          for (final sheet in _sheetOptions)
+                            DropdownMenuItem(
+                              value: sheet,
+                              child: Text(
+                                sheet == _livePublishedValue
+                                    ? '${PlayerComponent.runtimeSheetLabel ?? 'frissen publikált'} (élő)'
+                                    : (sheet.split('/').length > 1
+                                          ? sheet.split('/')[1]
+                                          : sheet),
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                            ),
+                        ],
+                        onChanged: (value) {
+                          if (value != null) _selectCharacterSheet(value);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+              ],
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [

@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui' as ui;
 
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +42,25 @@ class PlayerComponent extends PositionComponent with HasGameReference {
 
   // Visuals & Animation
   static const double _spriteFrameSize = 32;
+
+  /// Swap to `characters/<published_id>/walk13_game.png` to use a Character
+  /// Workshop character instead of the built-in stickman reference.
+  static String characterSheetPath =
+      'characters/stickman_13/walk13_rendered.png';
+
+  /// Set by the workshop right after publishing so the freshly rendered sheet is
+  /// playable without the rebuild a new bundled asset folder would require.
+  static ui.Image? runtimeSheetImage;
+  static String? runtimeSheetLabel; // Right-facing frames of the 13-pose sheet; left is produced by flipping.
+  static const List<int> _idleFrames = [0];
+  static const List<int> _walkFrames = [1, 2];
+  static const List<int> _runFrames = [3, 4];
+  // Pixels covered by one full two-frame cycle, used to sync steps to real speed.
+  static const double _walkStrideLength = 26;
+  static const double _runStrideLength = 44;
   Sprite? sprite;
+  List<Sprite> _animationFrames = const [];
+  double _animationPhase = 0.0;
   bool isFacingLeft = false;
   static final Paint _pixelArtPaint = Paint()
     ..filterQuality = FilterQuality.none
@@ -60,15 +79,64 @@ class PlayerComponent extends PositionComponent with HasGameReference {
   @override
   Future<void> onLoad() async {
     super.onLoad();
+    await reloadCharacterSheet();
+  }
+
+  /// Rebuilds the frame list from [characterSheetPath]; call after switching
+  /// to a published Character Workshop sheet.
+  Future<void> reloadCharacterSheet() async {
     try {
-      final image = await game.images.load('characters/fighter_32.png');
-      sprite = Sprite(
-        image,
-        srcPosition: Vector2(0, 0),
-        srcSize: Vector2(_spriteFrameSize, _spriteFrameSize),
-      );
+      final image =
+          runtimeSheetImage ?? await game.images.load(characterSheetPath);
+      final frameCount = (image.width / _spriteFrameSize).floor();
+      _animationFrames = [
+        for (var index = 0; index < frameCount; index++)
+          Sprite(
+            image,
+            srcPosition: Vector2(index * _spriteFrameSize, 0),
+            srcSize: Vector2(_spriteFrameSize, _spriteFrameSize),
+          ),
+      ];
+      sprite = _animationFrames.isEmpty ? null : _animationFrames.first;
     } catch (_) {
+      _animationFrames = const [];
       sprite = null;
+    }
+  }
+
+  /// Picks idle/walk/run from the body's own speed and advances the cycle so a
+  /// full stride covers [_walkStrideLength] pixels, which keeps feet from sliding.
+  void _updateLocomotionFrame(double dt) {
+    if (_animationFrames.isEmpty) {
+      return;
+    }
+    // velocity.x is a normalised input direction, not pixels per second.
+    final speed = velocity.x.abs() * moveSpeed;
+    final List<int> cycle;
+    final double strideLength;
+    if (!isOnGround) {
+      cycle = _runFrames;
+      strideLength = 0;
+    } else if (speed < 8) {
+      cycle = _idleFrames;
+      strideLength = 0;
+    } else if (speed <= moveSpeed * 1.2) {
+      cycle = _walkFrames;
+      strideLength = _walkStrideLength;
+    } else {
+      cycle = _runFrames;
+      strideLength = _runStrideLength;
+    }
+
+    if (strideLength <= 0) {
+      _animationPhase = 0;
+    } else {
+      _animationPhase += speed * dt / strideLength * cycle.length;
+      _animationPhase %= cycle.length;
+    }
+    final frameIndex = cycle[_animationPhase.floor() % cycle.length];
+    if (frameIndex < _animationFrames.length) {
+      sprite = _animationFrames[frameIndex];
     }
   }
 
@@ -390,6 +458,7 @@ class PlayerComponent extends PositionComponent with HasGameReference {
     } else {
       _updatePlatformerPhysics(dt);
     }
+    _updateLocomotionFrame(dt);
   }
 
   void _updatePlatformerPhysics(double dt) {

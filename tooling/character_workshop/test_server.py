@@ -13,6 +13,8 @@ from PIL import Image, ImageDraw
 from pydantic import ValidationError
 
 import server
+
+CANVAS = server.CHARACTER_CANVAS_SIZE
 import generate_stickman13
 
 
@@ -83,7 +85,7 @@ class AnimationWorkflowTests(unittest.TestCase):
             gif_path = output_dir / manifest["gif"]
 
             with Image.open(gif_path) as animation:
-                self.assertEqual(animation.size, (32, 32))
+                self.assertEqual(animation.size, (server.CHARACTER_CANVAS_SIZE, server.CHARACTER_CANVAS_SIZE))
                 self.assertEqual(animation.n_frames, 13)
                 self.assertEqual(animation.info.get("duration"), 100)
                 self.assertNotIn("loop", animation.info)
@@ -314,7 +316,7 @@ class AnimationWorkflowTests(unittest.TestCase):
 
     @staticmethod
     def _make_magenta_square_png() -> bytes:
-        image = Image.new("RGB", (32, 32), (255, 0, 255))
+        image = Image.new("RGB", (CANVAS, CANVAS), (255, 0, 255))
         draw = ImageDraw.Draw(image)
         draw.rectangle((10, 10, 20, 25), fill=(30, 60, 200))
         buffer = BytesIO()
@@ -324,11 +326,11 @@ class AnimationWorkflowTests(unittest.TestCase):
     def test_control_direction_markers_stay_outside_alpha_masks(self):
         with tempfile.TemporaryDirectory() as temporary:
             directory = Path(temporary)
-            sheet = Image.new("RGBA", (32 * 13, 32), (0, 0, 0, 0))
+            sheet = Image.new("RGBA", (CANVAS * 13, CANVAS), (0, 0, 0, 0))
             for index in range(13):
-                frame = Image.new("RGBA", (32, 32), (0, 0, 0, 0))
+                frame = Image.new("RGBA", (CANVAS, CANVAS), (0, 0, 0, 0))
                 ImageDraw.Draw(frame).rectangle((10, 10, 20, 25), fill=(30, 60, 200, 255))
-                sheet.paste(frame, (index * 32, 0))
+                sheet.paste(frame, (index * CANVAS, 0))
             sheet_path = directory / "sheet.png"
             sheet.save(sheet_path)
 
@@ -564,9 +566,9 @@ class AnimationWorkflowTests(unittest.TestCase):
             frame_files = []
             alpha_masks = []
             for index in range(13):
-                alpha = Image.new("L", (32, 32), 0)
-                ImageDraw.Draw(alpha).rectangle((5 + index % 5, 4 + index, 12 + index % 5, 31), fill=255)
-                frame = Image.new("RGBA", (32, 32), (60, 100, 180, 255))
+                alpha = Image.new("L", (CANVAS, CANVAS), 0)
+                ImageDraw.Draw(alpha).rectangle((5 + index % 5, 4 + index, 12 + index % 5, CANVAS - 1), fill=255)
+                frame = Image.new("RGBA", (CANVAS, CANVAS), (60, 100, 180, 255))
                 frame.putalpha(alpha)
                 filename = f"rendered_{index + 1:02d}.png"
                 frame.save(directory / filename)
@@ -590,13 +592,21 @@ class AnimationWorkflowTests(unittest.TestCase):
             )
             covered_indices = [
                 frame_index
-                for animation in sprite_manifest["animations"].values()
+                for name, animation in sprite_manifest["animations"].items()
+                if name != "showcase_loop"
                 for frame_index in animation["frames"]
             ]
             self.assertEqual(sorted(covered_indices), list(range(13)))
+            showcase_loop = sprite_manifest["animations"]["showcase_loop"]
+            self.assertTrue(showcase_loop["loop"])
+            self.assertTrue(set(showcase_loop["frames"]).issubset(set(range(13))))
+            self.assertEqual(showcase_loop["frames"][0], showcase_loop["frames"][9])
             self.assertEqual(sprite_manifest["frame_ms"], 100)
             self.assertTrue(sprite_manifest["alpha"])
-            self.assertEqual(sprite_manifest["frames"][12]["rect"], [384, 0, 32, 32])
+            self.assertEqual(
+                sprite_manifest["frames"][12]["rect"],
+                [12 * server.GAME_CANVAS_SIZE, 0, server.GAME_CANVAS_SIZE, server.GAME_CANVAS_SIZE],
+            )
             self.assertEqual(sprite_manifest["frames"][1]["pose"], "walk_right_1")
             self.assertEqual(sprite_manifest["frames"][3]["kind"], "run")
 
@@ -606,9 +616,9 @@ class AnimationWorkflowTests(unittest.TestCase):
             frame_files = []
             alpha_masks = []
             for index in range(13):
-                mask = Image.new("L", (32, 32), 0)
-                ImageDraw.Draw(mask).rectangle((8, 8, 15, 31), fill=255)
-                frame = Image.new("RGBA", (32, 32), (60, 100, 180, 255))
+                mask = Image.new("L", (CANVAS, CANVAS), 0)
+                ImageDraw.Draw(mask).rectangle((8, 8, 15, CANVAS - 1), fill=255)
+                frame = Image.new("RGBA", (CANVAS, CANVAS), (60, 100, 180, 255))
                 frame.putalpha(mask.copy())
                 if index == 0:
                     frame.putpixel((4, 4), (60, 100, 180, 255))
@@ -626,9 +636,9 @@ class AnimationWorkflowTests(unittest.TestCase):
     def test_animation_quality_gate_rejects_static_frames_without_movement(self):
         with tempfile.TemporaryDirectory() as temporary:
             directory = Path(temporary)
-            mask = Image.new("L", (32, 32), 0)
-            ImageDraw.Draw(mask).rectangle((8, 6, 15, 31), fill=255)
-            frame = Image.new("RGBA", (32, 32), (60, 100, 180, 255))
+            mask = Image.new("L", (CANVAS, CANVAS), 0)
+            ImageDraw.Draw(mask).rectangle((8, 6, 15, CANVAS - 1), fill=255)
+            frame = Image.new("RGBA", (CANVAS, CANVAS), (60, 100, 180, 255))
             frame.putalpha(mask)
             frame_files = []
             alpha_masks = []
@@ -651,7 +661,7 @@ class AnimationWorkflowTests(unittest.TestCase):
             motion_directory = project_directory / "motion_stickman"
             motion_directory.mkdir()
             contact_path = motion_directory / "motion_stickman_contact.png"
-            Image.new("RGBA", (32, 32), (0, 0, 0, 0)).save(contact_path)
+            Image.new("RGBA", (CANVAS, CANVAS), (0, 0, 0, 0)).save(contact_path)
             with patch.object(server, "_project_directory", return_value=project_directory):
                 response = server.get_motion_reference_contact_sheet("project-id")
 
@@ -664,7 +674,7 @@ class AnimationWorkflowTests(unittest.TestCase):
             motion_directory = project_directory / "motion_stickman"
             motion_directory.mkdir()
             gif_path = motion_directory / "motion_stickman_13.gif"
-            Image.new("RGBA", (32, 32), (0, 0, 0, 0)).save(gif_path, format="GIF")
+            Image.new("RGBA", (CANVAS, CANVAS), (0, 0, 0, 0)).save(gif_path, format="GIF")
             with patch.object(server, "_project_directory", return_value=project_directory):
                 response = server.get_motion_reference_gif("project-id")
 
@@ -783,10 +793,10 @@ class AnimationWorkflowTests(unittest.TestCase):
     def test_extracts_thirteen_alpha_masks(self):
         with tempfile.TemporaryDirectory() as temporary:
             directory = Path(temporary)
-            sheet = Image.new("RGBA", (32 * 13, 32), (0, 0, 0, 0))
+            sheet = Image.new("RGBA", (CANVAS * 13, CANVAS), (0, 0, 0, 0))
             draw = ImageDraw.Draw(sheet)
             for index in range(13):
-                draw.rectangle((index * 32 + 8, 8, index * 32 + 15, 20), fill=(20, 80, 200, 255))
+                draw.rectangle((index * CANVAS + 8, 8, index * CANVAS + 15, 20), fill=(20, 80, 200, 255))
             sheet_path = directory / "walk13.png"
             sheet.save(sheet_path)
 
@@ -800,7 +810,7 @@ class AnimationWorkflowTests(unittest.TestCase):
             self.assertEqual(control.getpixel((0, 0)), (0, 0, 0))
 
             generated = BytesIO()
-            Image.new("RGBA", (32, 32), (220, 50, 60, 255)).save(generated, format="PNG")
+            Image.new("RGBA", (CANVAS, CANVAS), (220, 50, 60, 255)).save(generated, format="PNG")
             history_entry = {"outputs": {"7": {"images": [{} for _ in range(13)]}}}
             with patch.object(server, "_comfy_image_bytes", return_value=generated.getvalue()):
                 rendered_sheet, frame_files = server._composite_rendered_frames(
@@ -811,8 +821,14 @@ class AnimationWorkflowTests(unittest.TestCase):
                 )
 
             result = Image.open(rendered_sheet).convert("RGBA")
-            self.assertEqual(result.size, (416, 32))
+            self.assertEqual(result.size, (CANVAS * 13, CANVAS))
             self.assertEqual(result.getpixel((8, 8))[3], 255)
+
+            game_sheet = Image.open(directory / "walk13_game.png").convert("RGBA")
+            self.assertEqual(
+                game_sheet.size,
+                (server.GAME_CANVAS_SIZE * 13, server.GAME_CANVAS_SIZE),
+            )
             self.assertEqual(result.getpixel((0, 0))[3], 0)
             self.assertEqual(len(frame_files), 13)
 
@@ -826,14 +842,14 @@ class AnimationWorkflowTests(unittest.TestCase):
             alpha_masks = []
             generated_bytes = []
             for index in range(13):
-                mask = Image.new("L", (32, 32), 0)
-                ImageDraw.Draw(mask).rectangle((8, 5, 15, 31), fill=255)
+                mask = Image.new("L", (CANVAS, CANVAS), 0)
+                ImageDraw.Draw(mask).rectangle((8, 5, 15, CANVAS - 1), fill=255)
                 alpha_masks.append(mask)
-                generated = Image.new("RGB", (32, 32))
+                generated = Image.new("RGB", (CANVAS, CANVAS))
                 generated.putdata([
                     ((x * 13 + index * 7) % 256, (y * 17 + index * 11) % 256, (x * y * 3 + index * 19) % 256)
-                    for y in range(32)
-                    for x in range(32)
+                    for y in range(CANVAS)
+                    for x in range(CANVAS)
                 ])
                 buffer = BytesIO()
                 generated.save(buffer, format="PNG")
@@ -928,7 +944,7 @@ class AnimationWorkflowTests(unittest.TestCase):
                 try:
                     self.assertEqual(sheet.size, (server.CHARACTER_CANVAS_SIZE * 13, server.CHARACTER_CANVAS_SIZE))
                     silhouettes = [
-                        sheet.crop((index * 32, 0, (index + 1) * 32, 32))
+                        sheet.crop((index * CANVAS, 0, (index + 1) * CANVAS, CANVAS))
                         .convert("RGBA")
                         .getchannel("A")
                         .tobytes()
@@ -950,6 +966,36 @@ class AnimationWorkflowTests(unittest.TestCase):
                     self.assertNotEqual(silhouettes[0], silhouettes[-1])
                 finally:
                     sheet.close()
+
+
+class PublishTests(unittest.TestCase):
+    def test_pubspec_registration_is_idempotent_and_keeps_existing_entries(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            app_dir = root / "app"
+            app_dir.mkdir()
+            original = (
+                "flutter:\n"
+                "  uses-material-design: true\n"
+                "\n"
+                "  assets:\n"
+                "    - assets/images/characters/\n"
+                "    - assets/images/characters/wizard_13/\n"
+                "\n"
+                "  # trailing comment\n"
+            )
+            (app_dir / "pubspec.yaml").write_text(original, encoding="utf-8")
+
+            with patch.object(server, "REPO_ROOT", root):
+                self.assertTrue(server._register_pubspec_asset("hero_a"))
+                self.assertFalse(server._register_pubspec_asset("hero_a"))
+
+            updated = (app_dir / "pubspec.yaml").read_text(encoding="utf-8")
+            self.assertEqual(
+                updated.count("    - assets/images/characters/hero_a/"), 1
+            )
+            self.assertIn("    - assets/images/characters/wizard_13/", updated)
+            self.assertIn("  # trailing comment", updated)
 
 
 if __name__ == "__main__":

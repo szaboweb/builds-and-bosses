@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
+import '../game/components/player_component.dart';
 import '../platform/character_workshop_api.dart';
 
 class CharacterWorkshopScreen extends StatefulWidget {
@@ -105,6 +108,7 @@ class _CharacterWorkshopScreenState extends State<CharacterWorkshopScreen> {
   Map<String, dynamic>? _jobProgress;
   String _comfyStatus = 'checking';
   String? _error;
+  String? _publishNote;
   bool _busy = false;
   bool _polling = false;
   bool _playing = false;
@@ -393,6 +397,42 @@ class _CharacterWorkshopScreenState extends State<CharacterWorkshopScreen> {
     });
   }
 
+  Future<void> _publish() async {
+    if (_projectId == null) return;
+    await _run(() async {
+      final result = await _api.publish(_projectId!);
+      final live = await _activatePublishedSheet(
+        result['character_id'] as String?,
+      );
+      setState(() {
+        final target = result['sheet_asset'];
+        _publishNote = live
+            ? 'Copied to $target and activated for this session. '
+                  'It is also registered in pubspec.yaml for future builds.'
+            : 'Copied to $target. Restart the game to load it from assets.';
+      });
+    });
+  }
+
+  /// Loads the published sheet straight into the running game so the character
+  /// is playable before the rebuild a new bundled asset folder would need.
+  Future<bool> _activatePublishedSheet(String? characterId) async {
+    if (_projectId == null) return false;
+    try {
+      final response = await http.get(
+        _api.animationGameSheetUri(_projectId!, _imageRevision),
+      );
+      if (response.statusCode != 200) return false;
+      final codec = await ui.instantiateImageCodec(response.bodyBytes);
+      final frame = await codec.getNextFrame();
+      PlayerComponent.runtimeSheetImage = frame.image;
+      PlayerComponent.runtimeSheetLabel = characterId;
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   void _togglePlayback() {
     if (_playing) {
       _playTimer?.cancel();
@@ -643,6 +683,19 @@ class _CharacterWorkshopScreenState extends State<CharacterWorkshopScreen> {
         icon: const Icon(Icons.animation),
         label: const Text('Render 13-frame animation'),
       ),
+      const SizedBox(height: 10),
+      FilledButton.tonalIcon(
+        onPressed: _busy || !_hasAnimation ? null : _publish,
+        icon: const Icon(Icons.publish),
+        label: const Text('Publish to game'),
+      ),
+      if (_publishNote != null) ...[
+        const SizedBox(height: 6),
+        Text(
+          _publishNote!,
+          style: const TextStyle(color: Colors.white60, fontSize: 12),
+        ),
+      ],
     ],
   );
 

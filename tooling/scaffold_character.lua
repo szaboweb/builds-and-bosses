@@ -1,9 +1,11 @@
--- Scaffolds a new character source .aseprite file: 32x32 canvas, one Tag per
+-- Scaffolds a new character source .aseprite file: 64x64 canvas, one Tag per
 -- animation state, frame counts matching docs/MOVEMENT_AND_TUI_GUIDE.md.
 --
 -- Usage:
 --   Aseprite.exe -b --script-param classId=fighter --script-param outputDir=<dir>
 --     [--script-param baseImage=<png path>] --script tooling/scaffold_character.lua
+
+local CANVAS = 64
 
 local classId = app.params["classId"]
 if not classId or classId == "" then
@@ -33,11 +35,11 @@ local states = {
 local spr
 if baseImage and baseImage ~= "" then
   spr = Sprite{ fromFile = baseImage, oneFrame = true }
-  if spr.width ~= 32 or spr.height ~= 32 then
-    error("baseImage must be exactly 32x32 pixels")
+  if spr.width ~= CANVAS or spr.height ~= CANVAS then
+    error("baseImage must be exactly " .. CANVAS .. "x" .. CANVAS .. " pixels")
   end
 else
-  spr = Sprite(32, 32, ColorMode.RGB)
+  spr = Sprite(CANVAS, CANVAS, ColorMode.RGB)
 end
 
 local totalFrames = 0

@@ -50,7 +50,11 @@ IPADAPTER_MODEL = "ip-adapter-plus_sd15.safetensors"
 IPADAPTER_CLIP_VISION = "CLIP-ViT-H-14-laion2B-s32B-b79K.safetensors"
 IPADAPTER_WEIGHT = 0.7
 TILE_CONTROL_STRENGTH = 0.25
-CHARACTER_CANVAS_SIZE = 32
+# Characters are authored at 64x64 and supersampled down to the 32x32 sprite the game
+# renders 1:1. SD 1.5 is also far more stable on a 64x64 latent than on a 32x32 one.
+CHARACTER_CANVAS_SIZE = 64
+GAME_CANVAS_SIZE = 32
+GAME_DOWNSCALE = CHARACTER_CANVAS_SIZE // GAME_CANVAS_SIZE
 PALETTE_LOCK_COLORS = 32
 MAX_GENERATION_SEED = 4294967295
 SAMPLER_SETTINGS = {
@@ -107,36 +111,43 @@ ANIMATION_GROUPS = {
     "run_left": {"frames": [8, 9], "loop": True},
     "walk_left": {"frames": [10, 11], "loop": True},
     "idle_left": {"frames": [12], "loop": True},
+    # Seamless demo cycle over the same 13 poses: front idle -> turn right -> walk
+    # right -> turn back through front -> walk left -> turn back to the front idle.
+    # Turn frames 5 and 7 are replayed in reverse, so no extra poses are needed.
+    "showcase_loop": {
+        "frames": [6, 5, 0, 1, 2, 1, 2, 0, 5, 6, 7, 12, 11, 10, 11, 10, 12, 7],
+        "loop": True,
+    },
 }
 DEFAULT_PARTS = [
-    {"name": "head", "role": "head", "x": 13, "y": 1, "width": 6, "height": 6, "color": "#F2C078"},
-    {"name": "torso", "role": "torso", "x": 11, "y": 9, "width": 10, "height": 7, "color": "#3366FF"},
-    {"name": "arm_left", "role": "arm_left", "x": 8, "y": 10, "width": 2, "height": 6, "color": "#F2C078"},
-    {"name": "arm_right", "role": "arm_right", "x": 22, "y": 10, "width": 2, "height": 6, "color": "#F2C078"},
-    {"name": "leg_left", "role": "leg_left", "x": 11, "y": 18, "width": 3, "height": 14, "color": "#30384A"},
-    {"name": "leg_right", "role": "leg_right", "x": 18, "y": 18, "width": 3, "height": 14, "color": "#30384A"},
+    {"name": "head", "role": "head", "x": 26, "y": 2, "width": 12, "height": 12, "color": "#F2C078"},
+    {"name": "torso", "role": "torso", "x": 22, "y": 18, "width": 20, "height": 14, "color": "#3366FF"},
+    {"name": "arm_left", "role": "arm_left", "x": 16, "y": 20, "width": 4, "height": 12, "color": "#F2C078"},
+    {"name": "arm_right", "role": "arm_right", "x": 44, "y": 20, "width": 4, "height": 12, "color": "#F2C078"},
+    {"name": "leg_left", "role": "leg_left", "x": 22, "y": 36, "width": 6, "height": 28, "color": "#30384A"},
+    {"name": "leg_right", "role": "leg_right", "x": 36, "y": 36, "width": 6, "height": 28, "color": "#30384A"},
 ]
 
 # Alternate body proportions per height class. Every rig below was validated to stay
-# within the 32x32 canvas, keep both feet on row 31, and never let any of the 13
+# within the 64x64 canvas, keep both feet on row 63, and never let any of the 13
 # walk/run/turn/front pose transforms make two parts overlap.
 HEIGHT_RIGS: dict[str, list[dict]] = {
     "average": DEFAULT_PARTS,
     "short": [
-        {"name": "head", "role": "head", "x": 12, "y": 5, "width": 8, "height": 7, "color": "#F2C078"},
-        {"name": "torso", "role": "torso", "x": 9, "y": 13, "width": 14, "height": 8, "color": "#3366FF"},
-        {"name": "arm_left", "role": "arm_left", "x": 6, "y": 14, "width": 2, "height": 7, "color": "#F2C078"},
-        {"name": "arm_right", "role": "arm_right", "x": 24, "y": 14, "width": 2, "height": 7, "color": "#F2C078"},
-        {"name": "leg_left", "role": "leg_left", "x": 10, "y": 22, "width": 4, "height": 10, "color": "#30384A"},
-        {"name": "leg_right", "role": "leg_right", "x": 18, "y": 22, "width": 4, "height": 10, "color": "#30384A"},
+        {"name": "head", "role": "head", "x": 24, "y": 10, "width": 16, "height": 14, "color": "#F2C078"},
+        {"name": "torso", "role": "torso", "x": 18, "y": 26, "width": 28, "height": 16, "color": "#3366FF"},
+        {"name": "arm_left", "role": "arm_left", "x": 12, "y": 28, "width": 4, "height": 14, "color": "#F2C078"},
+        {"name": "arm_right", "role": "arm_right", "x": 48, "y": 28, "width": 4, "height": 14, "color": "#F2C078"},
+        {"name": "leg_left", "role": "leg_left", "x": 20, "y": 44, "width": 8, "height": 20, "color": "#30384A"},
+        {"name": "leg_right", "role": "leg_right", "x": 36, "y": 44, "width": 8, "height": 20, "color": "#30384A"},
     ],
     "tall": [
-        {"name": "head", "role": "head", "x": 14, "y": 0, "width": 4, "height": 5, "color": "#F2C078"},
-        {"name": "torso", "role": "torso", "x": 12, "y": 7, "width": 8, "height": 8, "color": "#3366FF"},
-        {"name": "arm_left", "role": "arm_left", "x": 9, "y": 8, "width": 2, "height": 7, "color": "#F2C078"},
-        {"name": "arm_right", "role": "arm_right", "x": 21, "y": 8, "width": 2, "height": 7, "color": "#F2C078"},
-        {"name": "leg_left", "role": "leg_left", "x": 11, "y": 17, "width": 3, "height": 15, "color": "#30384A"},
-        {"name": "leg_right", "role": "leg_right", "x": 18, "y": 17, "width": 3, "height": 15, "color": "#30384A"},
+        {"name": "head", "role": "head", "x": 28, "y": 0, "width": 8, "height": 10, "color": "#F2C078"},
+        {"name": "torso", "role": "torso", "x": 24, "y": 14, "width": 16, "height": 16, "color": "#3366FF"},
+        {"name": "arm_left", "role": "arm_left", "x": 18, "y": 16, "width": 4, "height": 14, "color": "#F2C078"},
+        {"name": "arm_right", "role": "arm_right", "x": 42, "y": 16, "width": 4, "height": 14, "color": "#F2C078"},
+        {"name": "leg_left", "role": "leg_left", "x": 22, "y": 34, "width": 6, "height": 30, "color": "#30384A"},
+        {"name": "leg_right", "role": "leg_right", "x": 36, "y": 34, "width": 6, "height": 30, "color": "#30384A"},
     ],
 }
 
@@ -145,6 +156,13 @@ HEIGHT_PHRASES: dict[str, str] = {
     "average": "average human proportions",
     "tall": "tall and slender build, elf-like proportions",
 }
+
+# Reinforces IP-Adapter/Canny identity anchoring in every animation branch prompt;
+# text alone cannot guarantee this, but it measurably reduces drift in practice.
+ANIMATION_IDENTITY_LOCK = (
+    "(identical character in every frame, same face, same hair, same outfit, "
+    "same proportions, same colors, do not change identity between poses:1.3)"
+)
 
 # The concept render always uses a flat, single-color background so it can be
 # key-flattened deterministically in _flatten_background(); the animation
@@ -183,10 +201,10 @@ PROJECTS_ROOT = DATA_ROOT / "projects"
 class Part(BaseModel):
     name: str = Field(min_length=1, max_length=64)
     role: Literal["head", "torso", "arm_left", "arm_right", "leg_left", "leg_right", "static"]
-    x: int = Field(ge=0, le=31)
-    y: int = Field(ge=0, le=31)
-    width: int = Field(ge=1, le=32)
-    height: int = Field(ge=1, le=32)
+    x: int = Field(ge=0, le=CHARACTER_CANVAS_SIZE - 1)
+    y: int = Field(ge=0, le=CHARACTER_CANVAS_SIZE - 1)
+    width: int = Field(ge=1, le=CHARACTER_CANVAS_SIZE)
+    height: int = Field(ge=1, le=CHARACTER_CANVAS_SIZE)
     color: str = Field(pattern=r"^#[0-9A-Fa-f]{6}$")
 
 
@@ -748,7 +766,7 @@ def _compose_animation_prompt(project: dict, group: dict) -> str:
     animation_project["view"] = group["view"]
     existing_notes = (project.get("positive_prompt") or "").strip()
     animation_project["positive_prompt"] = ", ".join(
-        note for note in (existing_notes, group["motion"]) if note
+        note for note in (existing_notes, group["motion"], ANIMATION_IDENTITY_LOCK) if note
     )
     return _compose_prompt(animation_project)
 
@@ -934,7 +952,27 @@ def _composite_rendered_frames(
         sheet.alpha_composite(frame, (index * CHARACTER_CANVAS_SIZE, 0))
     sheet_path = directory / "walk13_rendered.png"
     sheet.save(sheet_path)
+    _write_game_sheet(sheet, directory)
     return sheet_path, frame_paths
+
+
+def _write_game_sheet(sheet: Image.Image, directory: Path) -> Path:
+    # Box-filter supersampling: the game renders the 32x32 result 1:1, so the extra
+    # authoring detail lands as cleaner edges instead of runtime rescaling blur.
+    game_sheet = sheet.resize(
+        (sheet.width // GAME_DOWNSCALE, sheet.height // GAME_DOWNSCALE),
+        Image.Resampling.BOX,
+    )
+    alpha = game_sheet.getchannel("A").point(lambda value: 255 if value >= 128 else 0)
+    flattened = game_sheet.convert("RGB").quantize(
+        colors=PALETTE_LOCK_COLORS,
+        method=Image.Quantize.MEDIANCUT,
+        dither=Image.Dither.NONE,
+    ).convert("RGBA")
+    flattened.putalpha(alpha)
+    game_path = directory / "walk13_game.png"
+    flattened.save(game_path)
+    return game_path
 
 
 def _write_animation_quality_report(
@@ -1047,9 +1085,9 @@ def _write_animation_quality_report(
     ]
     checks = {
         "frame_count_is_13": len(frames) == 13,
-        "common_32px_canvas": all_canvas_sizes_match,
+        "common_authoring_canvas": all_canvas_sizes_match,
         "alpha_matches_geometry_masks": all_alpha_masks_match,
-        "feet_on_row_31": all_frames_anchor_to_baseline,
+        "feet_on_last_row": all_frames_anchor_to_baseline,
         "palette_locked_max_32_colors": len(total_palette) <= PALETTE_LOCK_COLORS,
         "walk_cycle_has_visible_pose_changes": len(walk_silhouettes) >= 2,
         "run_cycle_has_visible_pose_changes": len(run_silhouettes) >= 2,
@@ -1081,12 +1119,15 @@ def _write_animation_quality_report(
     }
     sprite_manifest = {
         "type": "character_animations",
-        "schema_version": 1,
-        "sheet": "walk13_rendered.png",
+        "schema_version": 2,
+        "sheet": "walk13_game.png",
+        "authoring_sheet": "walk13_rendered.png",
         "cols": 13,
         "rows": 1,
-        "cell_w": CHARACTER_CANVAS_SIZE,
-        "cell_h": CHARACTER_CANVAS_SIZE,
+        "cell_w": GAME_CANVAS_SIZE,
+        "cell_h": GAME_CANVAS_SIZE,
+        "authoring_cell_w": CHARACTER_CANVAS_SIZE,
+        "authoring_cell_h": CHARACTER_CANVAS_SIZE,
         "frame_ms": frame_duration_ms,
         "alpha": True,
         "direction_mode": "pre_rendered",
@@ -1101,7 +1142,13 @@ def _write_animation_quality_report(
                 "facing": POSE_SEQUENCE[index]["facing"],
                 "phase": POSE_SEQUENCE[index].get("phase", 0),
                 "file": filename,
-                "rect": [index * CHARACTER_CANVAS_SIZE, 0, CHARACTER_CANVAS_SIZE, CHARACTER_CANVAS_SIZE],
+                "rect": [index * GAME_CANVAS_SIZE, 0, GAME_CANVAS_SIZE, GAME_CANVAS_SIZE],
+                "authoring_rect": [
+                    index * CHARACTER_CANVAS_SIZE,
+                    0,
+                    CHARACTER_CANVAS_SIZE,
+                    CHARACTER_CANVAS_SIZE,
+                ],
             }
             for index, filename in enumerate(frame_files)
         ],
@@ -1599,6 +1646,69 @@ def get_animation_sprite_manifest(project_id: str) -> FileResponse:
     if not path.is_file():
         raise HTTPException(status_code=404, detail="Animation sprite manifest is missing")
     return FileResponse(path, media_type="application/json")
+
+
+def _register_pubspec_asset(slug: str) -> bool:
+    """Adds the published folder to the Flutter asset list. Returns True if changed."""
+    pubspec = REPO_ROOT / "app" / "pubspec.yaml"
+    entry = f"    - assets/images/characters/{slug}/"
+    lines = pubspec.read_text(encoding="utf-8").splitlines()
+    if any(line.rstrip() == entry for line in lines):
+        return False
+    anchors = [
+        index
+        for index, line in enumerate(lines)
+        if line.startswith("    - assets/images/characters/")
+    ]
+    if not anchors:
+        raise HTTPException(status_code=500, detail="pubspec.yaml has no character asset list")
+    lines.insert(anchors[-1] + 1, entry)
+    pubspec.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return True
+
+
+@app.post("/api/projects/{project_id}/publish")
+def publish_animation_to_game(project_id: str) -> dict:
+    project = _load_project(project_id)
+    animation = project.get("animation")
+    if not animation:
+        raise HTTPException(status_code=409, detail="Render an animation before publishing")
+
+    directory = _project_directory(project_id)
+    game_sheet = directory / "walk13_game.png"
+    manifest_name = animation.get("sprite_manifest")
+    if not game_sheet.is_file() or not manifest_name or Path(manifest_name).name != manifest_name:
+        raise HTTPException(status_code=409, detail="Re-render the animation to produce the game sheet")
+    manifest_path = directory / manifest_name
+    if not manifest_path.is_file():
+        raise HTTPException(status_code=409, detail="Re-render the animation to produce the game sheet")
+
+    slug = re.sub(r"[^a-z0-9_]+", "_", project["name"].lower()).strip("_") or "character"
+    target = REPO_ROOT / "app" / "assets" / "images" / "characters" / slug
+    target.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(game_sheet, target / "walk13_game.png")
+    shutil.copyfile(manifest_path, target / "walk13_sprite_manifest.json")
+    pubspec_updated = _register_pubspec_asset(slug)
+
+    logger.info("Published animation for project %s into %s", project_id, target)
+    return {
+        "character_id": slug,
+        "sheet_asset": f"characters/{slug}/walk13_game.png",
+        "manifest_asset": f"assets/images/characters/{slug}/walk13_sprite_manifest.json",
+        "pubspec_updated": pubspec_updated,
+        "note": "Restart the game to pick up a newly registered asset folder."
+        if pubspec_updated
+        else "Asset folder was already registered.",
+    }
+
+
+@app.get("/api/projects/{project_id}/animation/game-sheet")
+def get_animation_game_sheet(project_id: str) -> FileResponse:
+    _load_project(project_id)
+    path = _project_directory(project_id) / "walk13_game.png"
+    if not path.is_file():
+        raise HTTPException(status_code=404, detail="Game sheet is missing")
+    return FileResponse(path, media_type="image/png")
 
 
 @app.get("/api/projects/{project_id}/motion-reference/contact-sheet")

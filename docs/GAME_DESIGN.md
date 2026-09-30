@@ -191,7 +191,7 @@ Előre koreografált pályák, ahol a hős erőforrásait és D&D mentődobásai
 ## 3. RPG Rendszer: Statok és Multiclassing
 A DDO (Dungeons & Dragons Online) szabályaira épülő első képességtábla:
 
-- **Alapstatok:** STR (Parry/Sebzés), DEX (Dodge/Kritikus), CON (HP/Méreg-ellenállás), INT (Képzettség/Barrier tartósság), WIS (Spell Cooldown/Átok-ellenállás), CHA (Buffok ideje/Különleges képességek).
+- **Alapstatok:** STR (Parry/Sebzés), DEX (Dodge/Kritikus), CON (HP/Méreg-ellenállás/**DoT tick rate**), INT (Képzettség/Barrier tartósság/**környezet manipulálása**), WIS (Spell Cooldown/Átok-ellenállás/**gyenge pontok és rejtett útvonalak**), CHA (Buffok ideje/Különleges képességek/**csatlós-befolyásolás**).
 - **Kezdő képességek:** minden érték 8-ról indul, a játékos 28 pontos DDO point-buy keretből emelhet 18-ig. A költségek: `8=0, 9=1, 10=2, 11=3, 12=4, 13=5, 14=6, 15=8, 16=10, 17=13, 18=16`.
 - **Képességmódosító:** `floor((érték - 10) / 2)`, tehát a nyers érték mellett mindenhol a módosító kerül felhasználásra.
 - **Multiclass hatás:** a kasztok elsődleges képességei meghatározzák a támadás és a varázslás hatékonyságát; a karakter összszintje adja a proficiency bónuszt.
@@ -338,3 +338,262 @@ A közösségi kampány Pay-to-Win és drága fizikai jutalmak nélkül működi
 
 - **Statikus, csak olvasható core:** JSON vagy konstans Dart modellek tartalmazzák az `Abilities_DB`-t, az `Items_DB`-t és a kimerülő `Boss_Loot_Tables`-t.
 - **Dinamikus mentési core:** Lokális adatbázis, például Isar vagy Hive, legfeljebb 4 mentési slottal. Tárolja a hősök szintjét, az `Armory_DB` megszerzett tárgylistáját és az `Equipments_DB` 3x3-as rácsának mentett állapotát.
+
+---
+
+## 10. Motor-szintű Tervezési Szempontok
+
+Ez a fejezet azokat a technikai pilléreket rögzíti, amelyeket minden új rendszer tervezésekor figyelembe kell venni. A három pillér: a stat-vezérelt fizika, a komponensalapú architektúra és az adatvezérelt balanszolás.
+
+### 10.1. Fizika és Tömegkezelés: Flame + Forge2D
+
+**Döntés:** nem írunk saját fizikai motort. Az egyszerűség és a stabilitás kedvéért a Flame hivatalosan támogatott **Forge2D** motorjára (a Box2D Dart portja) építjük rá a D&D stat-számításokat. Az ütközésdetektálást, a lendületszámítást és az impulzusfeloldást a Forge2D végzi; a mi felelősségünk az, hogy a statokból helyes fizikai paramétereket származtassunk.
+
+**Statok leképezése Forge2D `Body` tulajdonságokra:**
+
+- **STR → dinamikus test-tömeg (`MassData`):** a Box2D minden testnek külön tömeget és tehetetlenségi nyomatékot (inertia) tart nyilván. Amikor a karakter felszerelést vesz fel vagy STR-t növel, a test tömegét közvetlenül újraszámoljuk — vagy a fixture `density` értékének módosításával és `resetMassData()`-val, vagy explicit `body.setMassData(...)` hívással.
+  - Ütközéskor (`beginContact`) a motor automatikusan az aktuális tömegek alapján osztja el a visszalökést: a magas STR karakter elsöpri a könnyebb ellenfelet, a gyenge karaktert viszont a fizika veti hátra.
+  - A célzott, képesség-alapú knockback továbbra is explicit `applyLinearImpulse()`, a STR-ből számolt impulzusértékkel.
+  - A tömegváltozás mindig a felszerelés- vagy stat-változás eseményéhez kötött, nem képkockánként futó számítás.
+- **DEX → lineáris sebesség, irányíthatóság és csillapítás:** a DEX szabja meg a `linearVelocity.x` plafonját, a mozgáserőt (`applyForce`) és a levegőben elérhető irányíthatóságot (air control), például szeles vagy viharos pályákon.
+  - A Box2D `friction` és `linearDamping` paramétereivel hangoljuk, hogy a magas DEX-es karakter milyen élesen fordul meg és fékez, illetve hogy az alacsony DEX-es karakter mennyire csúszik meg síkos vagy jeges pályán.
+  - A szezonális modifikátorok (pl. a téli jég) a talaj `friction` értékét módosítják, így a DEX értéke pályánként eltérő súlyt kap.
+- **CON → knockback-ellenállás:** a bejövő impulzust a CON-ból származó stagger-ellenállás csökkenti, illetve a `linearDamping` növelésével tompítjuk.
+- Páncél és felszerelés súlya hozzáadódik az effektív tömeghez, így a nehézpáncélos build lassabb, de nehezebben eltolható.
+
+**Kötelező tervezési szabályok:**
+
+- **Egy igazságforrás:** a Forge2D `Body` a pozíció és a sebesség egyetlen forrása. A komponensek nem írják felül kézzel a pozíciót, hanem erőt/impulzust alkalmaznak.
+- **Body típusok:** a karakterek és lövedékek `dynamic`, a pályageometria `static`, a mozgó platformok `kinematic` testek.
+- **Collision kategóriák és maszkok:** a hős, az ellenfél, a lövedék, a csapda és a terep külön kategóriában van; a hitbox és a hurtbox `isSensor` fixture-ként létezik, és sosem azonos a fizikai collision fixture-rel.
+- **Gyors lövedékek:** `bullet` flag-gel, hogy a continuous collision detection megakadályozza az átugrást (tunneling) a vékony falakon.
+- **Determinizmus:** a világot fix időlépéssel léptetjük, a renderelés interpolál. Ugyanaz a seed és bemenet ugyanazt a futamot adja eltérő FPS mellett is, ami a ranglisták hitelességének feltétele.
+- A D&D szabályok (kockadobás, sebzés, mentődobás) továbbra is a headless core-ban maradnak; a Forge2D réteg csak a mozgás és az ütközés fizikai következményeit kezeli.
+
+### 10.1.1. Komponensalapú architektúra (ECS-jelleg)
+
+A Flame `Component` rendszere adja a moduláris vázat:
+
+- Egy alap `CharacterComponent` hordozza a Forge2D testet, és külön csatolható hozzá a `StatComponent` (D&D statok és származtatott fizikai paraméterek), a cooldown- és erőforrás-figyelő timer komponens, valamint az animációs állapotkezelő.
+- A komponensek nem tartalmaznak D&D képleteket: intentet küldenek a core szolgáltatásoknak, és a visszakapott domain eredményt jelenítik meg vagy alakítják impulzussá.
+- Ugyanez a kompozíció használható bossokra, minionokra és lövedékekre is, így egy új kaszt vagy ellenfél összeállítás kérdése, nem új osztályhierarchiáé.
+
+### 10.1.2. INT → Környezetátlátás és Manipuláció (Tactical Commander)
+
+Az INT nem csak passzív bonusz: **a pálya interaktív felületét nyitja meg**, és ezzel taktikai parancsnokká teszi a játékost. Az INT a *külső világot* (környezet, pályaelemek) fordítja a játékos malmára; ennek párja a WIS, amely a *belső világot* (ellenfelek felépítése, rejtett útvonalak) látja át (lásd 10.1.5).
+
+- **Alacsony INT:** a világ lineáris, statikus akadálypálya. Az omladozó sziklafal, a felvonóhíd vagy a mágikus kristály csak díszlet; a karakternek nyers erővel és kitartással kell átverekednie magát.
+- **Magas INT:** a karakter „látja a rendszerben a hibát”. Odalép a háttérdekorációnak tűnő instabil oszlophoz, aktiválja, és egy leomló lavinával maga alá temeti az ellenfeleket, vagy átformálja a pályát a saját javára.
+- Ugyanaz a pálya így egy alacsony INT-jű, magas STR-es tanknak brutális közelharci daráló, egy magas INT-jű buildnek viszont **kreatív játszótér**, ahol a környezetet fordítja szembe a szörnyekkel.
+
+**Megvalósítás Flame + Forge2D alatt:**
+
+1. **`InteractiveEnvironmentComponent`:** minden olyan pályaelem, ami alacsony INT mellett puszta `SpriteComponent`, magas INT esetén kap egy Forge2D testet és egy `InteractionSensor` triggert. Az elem INT-küszöbét, a jutalmazó hatást és a fizikai paramétereket JSON írja le, nem kód.
+2. **Környezeti fizika (lavina / omlás):** aktiváláskor a test típusa `static`-ról `dynamic`-ra vált, így a gravitáció és a tömeg azonnal munkába áll: a sziklák lezúdulnak, ütköznek az ellenfelekkel, sebeznek és lökik őket. A sebzés ekkor is a core D&D szabályokból származik, a becsapódás ereje pedig a fizikai lendületből.
+3. **Észlelés és visszajelzés:** az interaktív elem csak akkor kap kiemelést (outline, tooltip), ha a hős INT-je eléri a küszöböt. Alacsony INT mellett az elem létezik, de nem jelzett és nem aktiválható.
+4. **Balansz és determinizmus:** a környezeti összeomlások a fix időlépéses világban futnak, így azonos seed és bemenet mellett a speedrun-futamok reprodukálhatók maradnak.
+5. **Anti-abuse:** minden interaktív elem egyszer használható futamonként (vagy számlált), hogy a környezet ne váljon végtelen sebzésforrássá.
+
+### 10.1.3. CON → Metabolizmus és DoT-időzítés
+
+A mérgek, átkok és folyamatos sebzések (*Damage over Time*) nem fix összsebzést jelentenek, hanem **időzítőhöz kötött tick-sorozatot**. A CON ezt az időzítőt hangolja:
+
+- **Alacsony CON:** a méreg gyorsan és sűrűn tickel (pl. másodpercenként), így a karakter hamar elvérzik.
+- **Magas CON:** a szervezet „lelassítja” a mérget — megnő a tickek közötti idő, és/vagy drasztikusan rövidül a hatás teljes időtartama (kevesebb összes tick).
+- **Passzív környezeti csillapítás:** a csapdasebzésnél a CON egyfajta páncélként működik, ami elnyeli a környezeti ütések élét; emellett továbbra is a knockback-ellenállást adja.
+- A tick rate, a tick-sebzés, az időtartam és a CON-skálázás görbéje JSON konfiguráció, és a DoT-időzítők a fix időlépéses szimulációban futnak, hogy a futamok reprodukálhatók maradjanak.
+- Az Attrition & Curse rendszer démoni átkai ugyanezt a tick-modellt használják, így egy magas CON build a dungeon büntető hatásait is tovább bírja.
+
+**A DoT nyilvántartása (`DamageOverTimeTracker`):**
+
+Minden entitás saját aktív DoT-nyilvántartást vezet; egy bejegyzés a következőket tárolja:
+
+| Mező | Jelentés |
+|:---|:---|
+| `sourceId` | Ki vagy mi okozta (boss, csapda, környezeti zóna, átok) |
+| `damageType` | Méreg, vérzés, tűz, void, átok — külön ellenállásokkal |
+| `tickDamage` | Egy tick nyers sebzése |
+| `tickInterval` | Tickek közötti idő (CON-skálázott) |
+| `remainingDuration` | Hátralévő idő (CON-skálázott) |
+| `elapsedSinceTick` | A következő tickig eltelt idő |
+| `stacks` / `stackRule` | Halmozódás: `refresh`, `stack`, `strongestWins` |
+| `revocable` | Dispel/gyógyítás eltávolíthatja-e |
+
+A CON-skálázás képletei (a konkrét együtthatók JSON-ból jönnek):
+
+$$\text{tickInterval} = \text{baseInterval} \times \left(1 + k_i \cdot \text{CONmod}\right)$$
+$$\text{duration} = \text{baseDuration} \times \left(1 - k_d \cdot \text{CONmod}\right)$$
+$$\text{tickDamage} = \max\left(1,\; \text{baseTick} - \text{CONmitigation}\right)$$
+
+Ahol a `CONmod` a szokásos `floor((CON - 10) / 2)` képességmódosító, az együtthatók pedig alsó/felső korláttal rendelkeznek (clamp), hogy egy szélsőséges CON build se tegye teljesen hatástalanná a mérgeket.
+
+**Működési szabályok:**
+
+- A tracker a fix időlépéses órán fut, és akár több ticket is végrehajthat egy hosszabb frame alatt (akkumulátor-minta), így az FPS nem befolyásolja az összsebzést.
+- A DoT-ok a **modifier pipeline** részei: ha futs közben változik a CON (felszerelés, buff, átok), a már aktív effektek `tickInterval` és `remainingDuration` értéke újraszámolódik a következő ticktől — a már megtörtént sebzés nem íródik vissza.
+- Eltérő `damageType`-ok külön bejegyzésként futnak; azonos típus és forrás a `stackRule` szerint egyesül.
+- A futam végén a tracker összesítést ad (összes DoT-sebzés típusonként, leghosszabb aktív átok), ami a scoreboard „elszenvedett átkok” metrikáját és a halál utáni visszajelzést táplálja.
+- A HUD minden aktív DoT-ot külön ikonnal, hátralévő idővel és tick-ütemmel mutat, hogy a játékos lássa a CON hatását.
+
+### 10.1.4. CHA → Harctéri Manipuláció és Lojális Csatlósok
+
+A csatlósok nem puszta ágyútöltelékek: a CHA egy aktív **befolyásolási küszöböt** (threshold) ad.
+
+- Ha egy minion HP-ja egy megadott százalék alá esik (pl. 25%) és kedvező helyzetben van (pl. sarokba szorult), a magas CHA-jú hős **Demoralize / Charm** fázist indíthat.
+- Siker esetén a csatlós nem öngyilkos rohamot indít, hanem átáll a hős oldalára, és a bosst támadja, amíg el nem pusztul.
+- A próba klasszikus D&D mentődobás: a hős CHA-alapú értéke a minion Will mentője ellen. Sikertelen dobásnál a minion enrage-elhet, tehát a kísérlet kockázatos.
+- Az átállt csatlós üj collision kategóriát és AI célpontot kap, de a játékos nem irányítja közvetlenül; élettartama korlátozott (charm duration), amit a CHA skáláz.
+- Bossonként korlátozott, hogy egyszerre hány csatlós fordulhat át, így a mechanika taktikai és nem végtelen hadsereg-építés.
+- A küszöbértékek, az időtartam, a párhuzamos limit és a kudarc következménye adatvezérelt JSON értékek.
+
+### 10.1.5. WIS → Gyenge Pontok és Rejtett Útvonalak
+
+Míg az INT a külső világot nyitja meg, a WIS a *belső felépítést* látja át: az ellenfelek szerkezetét és a pálya rejtett járatait.
+
+**1. Szörnyek gyenge pontjai (harci képesség):**
+
+- A magas WIS-ű karakter aktív fókuszálással (vagy passzív instinkt-triggerrel) észleli a páncél illesztéseit, a mutáns lény izomgyengeségét vagy a mechanikus boss belső áramkörét.
+- A célpont ekkor egy `WeakPointComponent` sávot kap: egy külön Forge2D sensor fixture, saját collision kategóriával. Az ide érkező találat extra (kritikus) sebzést kap, és meg is akaszthatja a szörny támadását (*interrupt*), az animációs állapot megszakításával.
+- Alacsony WIS mellett a gyenge pont rejtve marad: nincs kiemelés és nincs aktív sensor, a karakter csak a vastag páncélt püföli kevesebb eredménnyel.
+- A gyenge pont helye, mérete, sebzésszorzója, WIS-küszöbe és a fókusz cooldownja bossonkénti JSON adat. A kritikus sebzést továbbra is a core D&D szabályok számolják.
+
+**2. Csapda-kerülőutak (navigációs alternatíva):**
+
+- Egy mozgó fűrészekkel és tüskékkel teli folyosó, ami alacsony DEX vagy CON mellett rémálom, magas WIS-szel rejtett lehetőségeket tartogat.
+- A WIS „felfedezi” a falak mögötti szerelőjáratokat, a karbantartó alagutakat vagy a csapdaritmus holtterét, így a játékos teljesen kikerülheti a legveszélyesebb zónákat ahelyett, hogy átugrálna rajtuk.
+- Motor szinten ez egy `HiddenRouteComponent`: WIS-küszöb alatt zárt és jelöletlen geometria, küszöb felett kiemelt és járható útvonal (a blokkoló fixture kikapcsol vagy sensorré válik).
+- A kerülőút nem ingyen előny: jellemzően hosszabb vagy saját kihívást tartalmaz, hogy a speedrun-idő és a biztonság között valódi döntés legyen.
+
+### 10.1.6. Stat → Motor Összkép
+
+A hat alapstat egy-egy külön motor-rendszert vezérel, így a build metroidvania-szerűen más-más rétege nyitja meg a pályát:
+
+| Stat | Motor-rendszer | Hatás |
+|:---|:---|:---|
+| **STR** | Forge2D `MassData`, impulzus | Tömeg, lendület, knockback, átgázolás |
+| **DEX** | `linearVelocity`, `friction`, `linearDamping` | Sebesség, gyorsulás, air control, jeges/szeles pályák |
+| **CON** | DoT tick-időzítők, sebzéscsillapítás | Mérgek és átkok lassítása, csapdasebzés tompítása |
+| **INT** | `InteractiveEnvironmentComponent` | Környezeti elemek (lavina, híd, kristály) aktiválása |
+| **WIS** | `WeakPointComponent`, `HiddenRouteComponent` | Gyenge pontok feltárása és csapda-kerülőutak |
+| **CHA** | Minion influence threshold | Boss-csatlósok átállítása kritikus HP alatt |
+
+### 10.1.7. Modifier Pipeline: Folyamatos újraszámolás és Kikapcsolás
+
+A statok **soha nem közvetlenül** vezérlik a Forge2D testeket. Köztük egy determinista számítási lánc áll, így egy átok vagy környezeti hatás bármikor átírhatja vagy inaktívvá teheti az adott képességet:
+
+```text
+base stats -> modifier rétegek -> effective stats -> származtatott paraméterek -> Forge2D body / capability set
+```
+
+**A modifier rétegek rögzített sorrendben értékelődnek ki** (a determinizmus feltétele):
+
+1. base stats (point-buy + szint)
+2. felszerelés és szettbónuszok
+3. feat / enhancement
+4. aktív buffok
+5. átkok és debuffok (Attrition & Curse)
+6. környezeti és szezonális modifikátorok (jeges talaj, fojtogató nyar, void zóna)
+
+**Miert olcsó ez futas közben:**
+
+- **Eseményvezérelt, nem képkockánkénti:** az effective stat blokk csak akkor számítódik újra, ha egy modifier hozzáadódik, lejár vagy megváltozik (dirty flag). Közben a gyorsítótárazott értékeket olvassuk.
+- **Egy helyen dől el minden:** az újraszámolás után egyetlen `applyToBody()` lépés írja át a `MassData`-t, a `friction`-t, a `linearDamping`-et és a sebességplafont. Nincs szórt, több helyen kavaró stat-logika.
+- **Additív és multiplikatív részek külön:** a modifierek `+flat` és `×mult` mezőkben érkeznek, így a visszavonás nem lebegőpontos hibával történik, hanem a forrás eltávolításával és teljes újraértékeléssel.
+
+**Képességek kikapcsolása (capability set):**
+
+- A küszöbhöz kötött képességek (INT-es környezeti aktiválás, WIS-es gyenge pont és rejtett útvonal, CHA-s charm) nem állandóan futnak, hanem egy **capability set**-ből olódódnak fel, amit az effective statok újraszámolása frissít.
+- Ha egy átok lehuzza az INT-et a küszöb alá, az érintett `InteractiveEnvironmentComponent` azonnal elveszti a kiemelést és a sensorát — a pálya ugyanabban a pillanatban „bezárul” a játékos előtt.
+- A már elindított hatások viselkedése **expliciten deklarált**: a már leomlott szikla nem kerül vissza, de a már átállított minion charm-ideje a frissített CHA szerint rövidülhet. Ezt a szabályt minden képesség adata tartalmazza (`revocable: true/false`).
+- **Hiszterézis:** a küszöbök alá/fölé ingadozás (flapping) ellen a be- és kikapcsolási küszöb eltérő, illetve minimális tartási idő van, hogy egy pulzáló átok ne villogtassa a pályaelemeket.
+
+**Fizikai állapotátírás közben:**
+
+- A `MassData` és a fixture-paraméterek módosítása mindig a fizikai lépések között történik, sosem ütközés-callback (`beginContact`) belsejében — a változások egy várakozó sorba kerülnek és a step végén érvényesülnek.
+- A tartós DoT-ok és a mozgás paraméterei fix időlépéses órán futnak, így az átkok dinamikus be- és kikapcsolása sem rontja el a replay reprodukálhatóságát.
+- A UI mindig az effective statot és a ható modifierek listáját mutatja, hogy a játékos lássa, *miért* tűnt el egy képessége.
+
+### 10.1.8. Irányítási Pipeline: Stat- és Környezetfüggő Kontroll
+
+Az irányítás nem közvetlen gomb → mozgás leképezés. A nyers bemenet és a fizikai test között ugyanolyan rétegzett lánc áll, mint a statoknál, hogy minden külső hatás (átok, jeges talaj, void zóna, szél) becsatlakozhasson:
+
+```text
+nyers bemenet -> InputIntent -> ControlModifier rétegek -> EffectiveControl -> Forge2D erő/impulzus
+```
+
+**Rétegek és felelősségük:**
+
+1. **Bemeneti absztrakció:** billentyűzet, egér és kontroller egységes `InputIntent`-té alakul (`moveAxis`, `jump`, `attack`, `dodge`, `parry`, `interact`, `focus`, `tacticalPause`). A játéklogika soha nem lát nyers billentyűkódot, így a remapping és az új eszköztípus ködség nélkül hozzáadható.
+2. **Stat-alapú kontroll:** a DEX a gyorsulást, a fordulás élességét, a levegőbeli irányíthatóságot (air control) és a coyote/input buffer ablakot skálázza; a STR a tömeget, így a nehezebb karakter tehetetlenebbül indul és áll meg; a CON a stagger és a megszakítás utáni visszanyügvési időt.
+3. **Állapot-alapú korlátozás:** stun, fagyasztott, gyökérbe fogott, elmebontott (invertált irány), néma (képességtiltás), túlterhelt (encumbrance). Ezek nem önálló speciális ágak a kódban, hanem `ControlModifier` bejegyzések.
+4. **Környezeti és szezonális réteg:** jeges padló (csökkentett `friction`), szél (folyamatos oldalerő), sár és indák (sebességplafon), víz alatti közeg (más gravitáció és damping), void zóna (fordított vagy késleltetett bemenet).
+5. **Harci mód réteg:** a Manual és az Auto-Roll mód, valamint a Tactical Pause (RTwP) ugyanezen a láncon ül — auto módban a rendszer maga állít elő `dodge`/`parry` intentet a mentődobások alapján, de a végrehajtási út azonos.
+
+**Egy `ControlModifier` deklarált mezői:**
+
+| Mező | Jelentés |
+|:---|:---|
+| `source` | Átok, terep, időjárás, felszerelés, boss-képesség |
+| `priority` | Rögzített kiértékelési sorrend a determinizmus miatt |
+| `speedMult` / `accelMult` | Sebesség- és gyorsulásszorzó |
+| `frictionOverride` | Talajsúrlódás felülírása (jég, sár) |
+| `externalForce` | Állandó külső erő (szél, sodrás, vonzás) |
+| `axisTransform` | Iránytranszformáció: invertálás, tengelycsere, holttér |
+| `inputDelay` | Bemeneti késleltetés (elmebontó hatások) |
+| `blockedActions` | Letiltott intentek listája |
+| `duration` / `revocable` | Időtartam és eltávolíthatóság (dispel) |
+
+**Bővíthetőségi szabályok (kötelező):**
+
+- Új irányítást befolyásoló hatás **kizárólag** új `ControlModifier` adatbejegyzés lehet. Tilos a mozgáskódba ágazni (`if (isFrozen) ...`).
+- Az összes mező opcionális és alapértelmezett értékkel rendelkezik, így egy új mező hozzáadása nem töri a meglévő JSON adatokat (visszafelé kompatibilis sémabővítés).
+- A rétegek rögzített `priority` sorrendben értékelődnek ki, és az eredmény clamp-elve kerül a fizikára, hogy két egyszerre ható átok se okozzon játékképtelen állapotot (mindig marad minimális mozgásképesség, kivéve az expliciten teljes stunt).
+- Az `InputIntent` és az `EffectiveControl` szerializálható, így a debug replay a bemenetet is rögzíti — azonos seed és intent-sorozat azonos futamot ad.
+- A HUD jelzi az aktív kontroll-modifiereket (pl. „csúszik”, „fordított irány”), hogy a játékos ne „elromlott irányításként” élje meg a mechanikát.
+- Minden új kontroll-modifier típushoz headless teszt készül, amely intent-sorozattal ellenőrzi a származtatott mozgásparamétereket Flame renderelés nélkül.
+
+### 10.2. Animációs és Képkocka-kezelő (Sprite / Marionette Pipeline)
+
+A 12–14 képkockás marionett-váz animációkhoz a Flame beépített renderelő elemeit használjuk: alap esetben `SpriteAnimationComponent`, sok egyszerre mozgó ellenfélnél a nagy teljesítményű `SpriteBatch`, hogy az FPS a hordáknál is stabil maradjon.
+
+- **Sprite Sheet / Texture Atlas:** A textúrákat összefűzött atlaszokban töltjük memóriába, és batch-elt rajzolással jelenítjük meg, hogy a draw call-ok száma alacsony és az FPS stabil maradjon. Karakterenként/bossonként egy atlasz a cél.
+- **Frame-számláló logika:** Rugalmas időzítő, amely az animáció lejátszási sebességét a DEX-hez, a támadási sebességhez vagy az aktuális cselekvéshez igazítva gyorsítja/lassítja. Az animáció sebessége adat, nem hard-coded konstans.
+- **Animation events:** A képkockákhoz eseményeket kötünk (pl. a támadás aktív hitbox ablaka, a parry frame-ek, a lépészaj). A harci logika ezeket az eseményeket kapja meg, nem a nyers frame indexet.
+- A *marionette* réteg (papírbábu-szerű, csúszó-pattogó mozgás) ugyanezen a pipeline-on ül: a bábu transzformációi a Forge2D testhez vannak csatolva, a vizuális réteg sosem írja vissza a fizikai állapotot.
+- Hiányzó vagy hibás sprite esetén placeholder és fejlesztői figyelmeztetés jelenik meg; a játék nem omolhat össze.
+
+**Helyben animálás és valódi elmozdulás (locomotion):**
+
+A két dolog külön rétegben él: a sprite **helyben** jár, a karaktert a fizika viszi előre.
+
+- **Root motion nincs a kockákban.** Minden póz ugyanarra a függőleges tengelyre és ugyanarra a talajvonalra van igazítva, csak a végtagok mozognak. A vizuális elmozdulást kizárólag a Forge2D test pozíciója adja.
+- **Az animációs állapotot a test sebessége választja ki**, nem a lenyomott gomb: `|vx|` küszöbök alapján idle / walk / run, a függőleges sebesség és a ground sensor alapján jump / fall. Így a jégen csúszva vagy szélben felékelve is a tényleges mozgás látszik.
+- **Lépéshossz-szinkron a lábcsúszkálás ellen:** a lejátszási sebesség nem fix, hanem a tényleges sebességhez kötött:
+
+$$\text{stepTime} = \frac{\text{strideLength}}{\max(|v_x|,\; v_{min})}$$
+
+  Ahol a `strideLength` az adott animáció adatából jön (hány pixelt „lép” egy ciklus). Ez automatikusan megadja a 10.1.8-ban leírt DEX-függő animációsebességet is: a gyorsabb karakter gyorsabban szedi a lábát, mert ténylegesen gyorsabban halad.
+- **Irányváltás:** a sebesség előjelének váltásakor a turn kocka játszik le átkötésként (nem loop), majd az új irány walk/run ciklusa folytatódik. A turn nem szakítja meg a fizikai mozgást.
+- **A támadás, parry és dodge animációk felülírják a locomotion állapotot**, de a test továbbra is a fizika szerint mozog; az i-frame és a hitbox ablak animation event-ből jön, nem az állapotváltásból.
+
+### 10.3. Adatvezérelt Architektúra (Data-Driven Design)
+
+A 12 pálya és a havonta érkező új kasztok miatt folyamatos balanszolásra van szükség, ezért **tilos** a játékértékeket kódba égetni:
+
+- A D&D statok, fegyverek, képességek, cooldownok, a 12 pálya paraméterei, valamint a Forge2D-nek átadott fizikai paraméterek (sűrűség, súrlódás, restitúció, damping, gravitáció, gyorsulás, knockback-impulzus szorzók, i-frame hossz) külső konfigurációs fájlokból (**JSON**, szükség esetén TOML) töltődnek be.
+- Egyetlen érték átírásával azonnal tesztelhető a fizikai és harci változás, újrafordítás nélkül.
+- Minden konfigurációs fájl verziózott sémával (`_schema`) rendelkezik, és a `tooling/validate_data.ps1` ellenőrzi a biztonságos értéktartományokat.
+- Az animációs definíciók (frame-szám, sorrend, sebesség, loop, animation event-ek) szintén adatként léteznek, így új kaszt hozzáadása lehetőleg kódmódosítás nélkül történik.
+- Minden új konfigurációs értékhez headless teszt tartozik, amely rögzíti a várt viselkedést.
+
+### 10.4. Tervezési Ellenőrzőlista Új Rendszerekhez
+
+Új mechanika vagy boss tervezésekor végig kell menni ezen a listán:
+
+1. Milyen Forge2D body típus, fixture, sensor (hitbox/hurtbox) és collision kategória tartozik hozzá?
+2. Milyen tömeg-, impulzus- és knockback-viselkedést vár el, és melyik stat skálázza (STR/DEX/CON)?
+3. Van-e INT-küszöbhöz kötött interaktív környezeti alternatíva, és mi az alacsony INT-es brute-force útvonal?
+4. Determinista-e fix időlépés és azonos seed mellett?
+5. Milyen animációs állapotok és animation event-ek kellenek hozzá?
+6. Melyik JSON konfigurációs fájlba kerülnek a hangolható értékek, és van-e sémája?
+7. Van-e rá headless teszt a Flame renderelés nélkül?

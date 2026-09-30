@@ -1,0 +1,282 @@
+{
+  "type": "character_animations",
+  "schema_version": 2,
+  "sheet": "walk13_rendered.png",
+  "cols": 13,
+  "rows": 1,
+  "cell_w": 32,
+  "cell_h": 32,
+  "frame_ms": 100,
+  "alpha": true,
+  "direction_mode": "pre_rendered",
+  "animations": {
+    "idle_right": {
+      "frames": [
+        0
+      ],
+      "loop": true
+    },
+    "walk_right": {
+      "frames": [
+        1,
+        2
+      ],
+      "loop": true
+    },
+    "run_right": {
+      "frames": [
+        3,
+        4
+      ],
+      "loop": true
+    },
+    "turn": {
+      "frames": [
+        5,
+        6,
+        7
+      ],
+      "loop": false
+    },
+    "run_left": {
+      "frames": [
+        8,
+        9
+      ],
+      "loop": true
+    },
+    "walk_left": {
+      "frames": [
+        10,
+        11
+      ],
+      "loop": true
+    },
+    "idle_left": {
+      "frames": [
+        12
+      ],
+      "loop": true
+    },
+    "showcase_loop": {
+      "frames": [
+        6,
+        5,
+        0,
+        1,
+        2,
+        1,
+        2,
+        0,
+        5,
+        6,
+        7,
+        12,
+        11,
+        10,
+        11,
+        10,
+        12,
+        7
+      ],
+      "loop": true
+    }
+  },
+  "frames": [
+    {
+      "name": "frame_01",
+      "index": 0,
+      "pose": "idle_right",
+      "kind": "idle",
+      "facing": "right",
+      "phase": 0,
+      "file": "walk13_rendered.png",
+      "rect": [
+        0,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "frame_02",
+      "index": 1,
+      "pose": "walk_right_1",
+      "kind": "walk",
+      "facing": "right",
+      "phase": 1,
+      "file": "walk13_rendered.png",
+      "rect": [
+        32,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "frame_03",
+      "index": 2,
+      "pose": "walk_right_2",
+      "kind": "walk",
+      "facing": "right",
+      "phase": -1,
+      "file": "walk13_rendered.png",
+      "rect": [
+        64,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "frame_04",
+      "index": 3,
+      "pose": "run_right_1",
+      "kind": "run",
+      "facing": "right",
+      "phase": 1,
+      "file": "walk13_rendered.png",
+      "rect": [
+        96,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "frame_05",
+      "index": 4,
+      "pose": "run_right_2",
+      "kind": "run",
+      "facing": "right",
+      "phase": -1,
+      "file": "walk13_rendered.png",
+      "rect": [
+        128,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "frame_06",
+      "index": 5,
+      "pose": "turn_front_1",
+      "kind": "turn",
+      "facing": "front",
+      "phase": 1,
+      "file": "walk13_rendered.png",
+      "rect": [
+        160,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "frame_07",
+      "index": 6,
+      "pose": "front",
+      "kind": "front",
+      "facing": "front",
+      "phase": 0,
+      "file": "walk13_rendered.png",
+      "rect": [
+        192,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "frame_08",
+      "index": 7,
+      "pose": "turn_left_1",
+      "kind": "turn",
+      "facing": "left",
+      "phase": -1,
+      "file": "walk13_rendered.png",
+      "rect": [
+        224,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "frame_09",
+      "index": 8,
+      "pose": "run_left_1",
+      "kind": "run",
+      "facing": "left",
+      "phase": -1,
+      "file": "walk13_rendered.png",
+      "rect": [
+        256,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "frame_10",
+      "index": 9,
+      "pose": "run_left_2",
+      "kind": "run",
+      "facing": "left",
+      "phase": 1,
+      "file": "walk13_rendered.png",
+      "rect": [
+        288,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "frame_11",
+      "index": 10,
+      "pose": "walk_left_1",
+      "kind": "walk",
+      "facing": "left",
+      "phase": -1,
+      "file": "walk13_rendered.png",
+      "rect": [
+        320,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "frame_12",
+      "index": 11,
+      "pose": "walk_left_2",
+      "kind": "walk",
+      "facing": "left",
+      "phase": 1,
+      "file": "walk13_rendered.png",
+      "rect": [
+        352,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "frame_13",
+      "index": 12,
+      "pose": "idle_left",
+      "kind": "idle",
+      "facing": "left",
+      "phase": 0,
+      "file": "walk13_rendered.png",
+      "rect": [
+        384,
+        0,
+        32,
+        32
+      ]
+    }
+  ]
+}

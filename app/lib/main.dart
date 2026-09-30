@@ -100,11 +100,13 @@ class _GameScreenState extends State<GameScreen> {
             right: 16,
             child: IconButton.filledTonal(
               tooltip: 'Karakterkép- és animációs műhely',
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => const CharacterWorkshopScreen(),
-                ),
-              ),
+              onPressed: () => Navigator.of(context)
+                  .push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const CharacterWorkshopScreen(),
+                    ),
+                  )
+                  .then((_) => _game.player.reloadCharacterSheet()),
               icon: const Icon(Icons.auto_awesome),
             ),
           ),

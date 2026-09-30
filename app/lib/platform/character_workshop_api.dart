@@ -82,6 +82,11 @@ class CharacterWorkshopApi {
     }, const Duration(minutes: 12)) as Map,
   );
 
+  Future<Map<String, dynamic>> publish(String id) async =>
+      Map<String, dynamic>.from(
+        await _request('POST', '/api/projects/$id/publish') as Map,
+      );
+
   Uri candidateImageUri(String id, String promptId, int revision) =>
       _uri('/api/projects/$id/jobs/$promptId/images/0?revision=$revision');
 
@@ -90,6 +95,9 @@ class CharacterWorkshopApi {
 
   Uri animationSheetUri(String id, int revision) =>
       _uri('/api/projects/$id/animation/sheet?revision=$revision');
+
+  Uri animationGameSheetUri(String id, int revision) =>
+      _uri('/api/projects/$id/animation/game-sheet?revision=$revision');
 
   Uri animationContactSheetUri(String id, int revision) =>
       _uri('/api/projects/$id/animation/contact-sheet?revision=$revision');

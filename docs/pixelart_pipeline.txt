@@ -1,3 +1,21 @@
+[SUPERSEDED 2026-10-03 - read this before anything below]
+This document is historical research notes for a ComfyUI + Canny ControlNet
++ IP-Adapter pipeline. That approach was actually built and tested
+(tooling/run_openpose_fighter.py, now deleted) and, for this project, proved
+unreliable even after multiple fixes: character-sheet/grid artifacts, weak
+pose-following, and view (front/back/side) confusion that a single shared
+prompt could not resolve. The project has since moved to a different
+approach: a real rigged 3D character (`fighter.blend`, Blender) is posed and
+rendered, then converted to 2D pixel art with a deterministic (non-AI)
+downscale + palette-quantize + outline step
+(`tooling/stylize_blender_renders_to_pixelart.py`). See the "DIRECTION
+CHANGE" section in the `character_workshop` repo memory for the full
+rationale and current status.
+The animation-state breakdown below (idle/walk/run/turn/jump/fall/die
+timing and phase descriptions) is still useful reference material for
+authoring Blender poses and is not itself invalidated - only the
+"ComfyUI generates every frame" execution plan is.
+
 Cél: Játékfejlesztési asset-pipeline kialakítása, amely ComfyUI-alapú generatív modellekkel (Canny ControlNet + IP-Adapter) hoz létre konzisztens, stílushelyes pixel art karakter animációkat és sprite sheeteket koncepcióképek alapján.A probléma: A generatív modellek természetükből adódóan instabilak (rángatózó törzs, változó végtaghossz, színvillogás képkockáról képkockára).A megoldás: Determinisztikus, rácsalapú, Inverz Kinematikát (IK) és fix törzset (vagy előre meghatározott vertikális íveket) használó vázgeneráló modul, amely stabil, hibamentes Canny kontrollképeket biztosít a ComfyUI számára.2. Moduláris Architektúra és FájlstruktúraA framework az alábbi moduláris felépítés szerint épül be a repository-ba:Plaintextframework/
 ├── skeleton/            # 1. Modul: Váz és IK motor
 │   ├── ik_solver.py     # 2-csontos IK matematikai logika

@@ -62,7 +62,10 @@ try {
             $archive = Join-Path $reference 'source.tar'
             git archive --format=tar "-o$archive" $BaseRef app/lib tooling/code_quality/lib tooling/code_quality/bin
             if ($LASTEXITCODE -ne 0) { throw 'Cannot export merge-base sources' }
-            tar -xf $archive -C $reference
+            $tar = if ($env:OS -eq 'Windows_NT') {
+                Join-Path $env:SystemRoot 'System32\tar.exe'
+            } else { 'tar' }
+            & $tar -xf $archive -C $reference
             if ($LASTEXITCODE -ne 0) { throw 'Cannot read merge-base sources' }
             $checkerArgs += @('--reference-root', $reference)
         }

@@ -1,6 +1,6 @@
 [WORKSHOP REMOVAL 2026-10-04]
 The old AI Character Workshop generator, API, workflows and startup tasks have
-been deleted. Its UI is replaced by an Equipment Workshop with a 3x3 storage
+been deleted. Its UI is replaced by an Equipment Workshop with a 3x3 typed body-slot
 grid (9 slots); see EQUIPMENT_WORKSHOP.md. Existing exported art and the
 Blender/Godot deterministic render tools are retained. Historical AI research
 below is not a supported setup guide.
@@ -18,8 +18,11 @@ equipment attachment and swapping mechanism.
 The Flutter training arena now uses a pre-rendered side-view bridge from that
 fighter: 13 transparent 64px cells (rest + 12 walk poses), fixed root at (32, 54).
 See tooling/godot_fighter_preview/export_flutter_sheet.gd and its README.
-This bridge is still 2D: it does not embed Godot or provide runtime equipment
-swapping. Jump/fall/flight currently hold a stride pose pending dedicated clips.
+This bridge is still 2D: it does not embed Godot. The Flutter workshop now
+supports runtime visual equipment swapping via baked, frame-synchronized
+helmet/chest/sword layers. These samples do not apply combat-stat modifiers;
+arbitrary future armor still requires validated export/composition.
+Jump/fall/flight currently hold a stride pose pending dedicated clips.
 
 [SUPERSEDED 2026-10-03 - read this before anything below]
 This document is historical research notes for a ComfyUI + Canny ControlNet

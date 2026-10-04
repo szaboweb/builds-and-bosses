@@ -5,8 +5,10 @@
 The shared Dart AST/size/import/format gate is implemented in
 `tooling/code_quality`. The local pre-commit hook checks an isolated index
 snapshot without changing the working tree or index. PR CI runs the same gate,
-full analysis/tests and a web release build; a tooling workflow runs Ruff,
-PSScriptAnalyzer and ShellCheck. Existing Gitleaks CI is retained.
+full analysis/tests and a web release build by workflow definition; a tooling
+workflow is configured for Ruff, PSScriptAnalyzer and ShellCheck. These checks
+passed locally; remote workflow results have not yet been inspected.
+Existing Gitleaks CI is retained; no new local Gitleaks result is claimed.
 GitHub branch protection is still intentionally inactive: these workflows do
 not themselves make merging impossible when checks fail.
 
@@ -75,9 +77,9 @@ decision, and architecture documentation only for enduring contracts.
 This is a shared algorithm, not a guarantee that agents estimate identically;
 the measured gate and review resolve disagreements.
 
-## Ratchet Implementation Contract
+## Ratchet Contract
 
-Implement one shared checker for editor feedback, hooks and CI:
+The implemented shared checker is callable from an editor task, hooks and CI:
 
 - New/compliant production files: enforce 800; 700 emits a required review signal.
   A counter cannot decide responsibility; require explicit decision evidence.
@@ -85,9 +87,9 @@ Implement one shared checker for editor feedback, hooks and CI:
   prohibit regression. Improvement elsewhere does not offset a regression.
 - New methods in grandfathered files still follow normal complexity limits.
 - Measure Dart methods/complexity with a pinned AST parser, not regex.
-- Initial proposed method/complexity thresholds: 80 physical lines per method,
+- Enforced method/complexity thresholds: 80 physical lines per method,
   cyclomatic 15, cognitive 20, control-flow nesting 4, parameters 7.
-  Calibrate against a measured inventory and parser tests before enforcement.
+  An initial measured inventory and parser tests accompany enforcement.
   Flutter widget nesting is distinct from control-flow nesting.
 - Detect disallowed imports/cycles with resolved source/import relationships.
 - Baseline updates are explicit, reviewed and never automatic in a hook.
@@ -95,9 +97,10 @@ Implement one shared checker for editor feedback, hooks and CI:
 - Renames/moves must not erase debt. Missing tools/invalid baselines fail visibly.
 - Fast pre-commit checks use an isolated staged snapshot, including partial
   staging, without mutating/stashing/resetting the user's working files.
-- PR CI compares against the target merge-base and publishes a required status.
+- PR CI is configured to compare against the target merge-base and publish a status.
   Branch protection must actually be configured before calling it mandatory.
-- Full analysis/tests belong in pre-push/CI; keep the commit gate inexpensive.
+- Full analysis/tests run locally on demand and are configured in CI; no
+  pre-push hook is installed. Keep the commit gate inexpensive.
 
 ## Enforced Profiles and Commands
 
@@ -206,10 +209,14 @@ A timeout does not cancel an OS/platform future. A timed-out durable write
 may finish later; do not imply exactly-once persistence or automatically retry
 it. Tests cover these failure boundaries, not every possible engine/SDK hang.
 
-Godot/Aseprite batch commands check exit codes and bounded completion.
-Godot also checks error output and required validation evidence because it
+The Godot preview launcher and Aseprite export script check exit codes and
+bounded completion. The Godot validation launcher also checks error output
+and required validation evidence because it
 can report script errors with exit 0. Sprite exports validate fresh temporary
-outputs before replacing old assets; zero exports fail. The process wrapper
+outputs before replacing old assets; zero Aseprite exports fail.
+This is not a blanket guarantee for all tools: the Python stylizer still
+reports zero input PNG files as a successful zero-output run.
+The process wrapper
 terminates its specific child PID, not unrelated processes. It is not a general
 process-tree/job-object supervisor.
 

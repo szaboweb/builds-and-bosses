@@ -268,11 +268,14 @@ pwsh -NoProfile -File tooling/validate_architecture.ps1
 
 The validator is also a required GitHub Actions step. The local Git hook is installed by `setup.sh`.
 
-Current validators check selected source patterns and data constraints, not
-full semantic dependencies or complexity. The AST-based quality ratchet and
-PR-required status described in [CODE_QUALITY.md](CODE_QUALITY.md) are planned;
-do not report them as enforced until their implementation and CI configuration
-have been verified.
+The PowerShell validators check selected source patterns and data constraints.
+The implemented AST gate additionally measures size/complexity and resolves
+source import/export paths for layer boundaries and cycles; it is not a full
+type-resolved semantic dependency analysis.
+The staged commit hook and local checks have passed. PR workflows are defined,
+but their remote results have not yet been inspected. Required merge statuses
+are not enforced while branch protection remains inactive.
+See [CODE_QUALITY.md](CODE_QUALITY.md) for commands and limitations.
 
 ## Data Naming and Schemas
 
@@ -303,8 +306,9 @@ pwsh -NoProfile -File tooling/validate_data.ps1
 
 Combat runs use a configurable Dice seed and can be represented by a JSON
 `DebugReplaySnapshot` containing the ruleset, hero, boss, action pipeline, and
-outcome. A failing run can therefore be reproduced from the same seed instead
-of relying on a live browser session.
+outcome. The same seed can reproduce dice results when the same rule calls
+occur in the same order. The snapshot is not a complete input/physics replay
+runner and does not guarantee reproduction of an entire failing gameplay run.
 
 The replay model lives in `app/lib/core/debug/`; it must remain independent of
 Flutter rendering and Flame components.

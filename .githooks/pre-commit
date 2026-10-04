@@ -2,11 +2,9 @@
 set -eu
 
 if command -v pwsh >/dev/null 2>&1; then
-  pwsh -NoProfile -File tooling/validate_architecture.ps1
-  pwsh -NoProfile -File tooling/validate_data.ps1
+  pwsh -NoProfile -File tooling/validate_quality.ps1 -Staged -BaseRef HEAD
 elif command -v powershell.exe >/dev/null 2>&1; then
-  powershell.exe -NoProfile -ExecutionPolicy Bypass -File tooling/validate_architecture.ps1
-  powershell.exe -NoProfile -ExecutionPolicy Bypass -File tooling/validate_data.ps1
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -File tooling/validate_quality.ps1 -Staged -BaseRef HEAD
 else
   echo "Architecture hook requires pwsh or powershell.exe" >&2
   exit 1

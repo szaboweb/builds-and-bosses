@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../dnd/character_stats.dart';
-import '../dnd/combat_engine.dart';
+import '../dnd/combat_result.dart';
 import '../actions/game_action.dart';
 import '../errors/game_error.dart';
 

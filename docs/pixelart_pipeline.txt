@@ -1,3 +1,26 @@
+[WORKSHOP REMOVAL 2026-10-04]
+The old AI Character Workshop generator, API, workflows and startup tasks have
+been deleted. Its UI is replaced by an Equipment Workshop with a 3x3 storage
+grid (9 slots); see EQUIPMENT_WORKSHOP.md. Existing exported art and the
+Blender/Godot deterministic render tools are retained. Historical AI research
+below is not a supported setup guide.
+
+[EXPERIMENT 2026-10-04 - modular equipment]
+Many independently interchangeable armor pieces and weapons are now a requirement.
+A standalone Godot runtime-3D pixelart viewer is being evaluated in
+tooling/godot_fighter_preview/ (see its README.md for controls and validation).
+It reuses the Blender fighter rig and walk, with bone-attached sample equipment,
+an orthographic camera, and low-resolution nearest-neighbor presentation.
+This is NOT an engine migration or a replacement of the deterministic 2D export
+pipeline below. Runtime-3D visual quality still needs user approval. Production
+armor may require skinning and body-region hiding; rigid samples only test the
+equipment attachment and swapping mechanism.
+The Flutter training arena now uses a pre-rendered side-view bridge from that
+fighter: 13 transparent 64px cells (rest + 12 walk poses), fixed root at (32, 54).
+See tooling/godot_fighter_preview/export_flutter_sheet.gd and its README.
+This bridge is still 2D: it does not embed Godot or provide runtime equipment
+swapping. Jump/fall/flight currently hold a stride pose pending dedicated clips.
+
 [SUPERSEDED 2026-10-03 - read this before anything below]
 This document is historical research notes for a ComfyUI + Canny ControlNet
 + IP-Adapter pipeline. That approach was actually built and tested
@@ -142,7 +165,3 @@ Miért van az, hogy mégsem találsz egyetlen "kész, dobozos" keretrendszert?
 Azért, mert a vázgenerálás logikája (az IK, a te saját rácsméreted, a karaktered anatómiája) minden játéknál egyedi. Egy 64x64-es akció-RPG (mint a te Builds & Bosses jellegű koncepciód) teljesen más arányokat és pózokat igényel, mint egy oldalnéztes platformer vagy egy top-down stratégiás bábú.
 
 Ezért a legokosabb megközelítés az, amit most csinálsz: a vázgeneráló / IK logikát te írod meg Pythonban (hiszen ez a te játékod egyedi motorja/eszköze), a vizuális generáláshoz meg a Hugging Face-es nyílt forráskódú modelleket (ControlNet + IP-Adapter) használod fel. Ezzel a hibrid módszerrel éred el a legstabilabb, legprofibb eredményt anélkül, hogy újra kellene találnod a spanyolviaszt a diffúziós modellek terén!
-
-
-
-

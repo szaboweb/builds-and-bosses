@@ -1,5 +1,6 @@
+param([string]$SourceRoot)
 $ErrorActionPreference = 'Stop'
-$root = Split-Path -Parent $PSScriptRoot
+$root = if ($SourceRoot) { $SourceRoot } else { Split-Path -Parent $PSScriptRoot }
 $project = Join-Path $root 'app'
 $violations = @()
 

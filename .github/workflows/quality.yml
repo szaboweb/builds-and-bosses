@@ -1,0 +1,70 @@
+name: Code quality
+
+on:
+  pull_request:
+  push:
+    branches: [main, dev]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality-gate:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.5'
+          channel: stable
+          cache: true
+      - name: Restore app and pinned checker dependencies
+        shell: pwsh
+        run: |
+          Push-Location app
+          flutter pub get
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Pop-Location
+          Push-Location tooling/code_quality
+          dart pub get --enforce-lockfile
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Pop-Location
+      - name: Quality and changed-source format ratchet
+        shell: pwsh
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if ($env:BASE_SHA -and $env:BASE_SHA -notmatch '^0+$') {
+            $base = git merge-base HEAD $env:BASE_SHA
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            ./tooling/validate_quality.ps1 -BaseRef $base
+          } else {
+            ./tooling/validate_quality.ps1
+          }
+      - name: Architecture and data
+        shell: pwsh
+        run: |
+          ./tooling/validate_architecture.ps1
+          ./tooling/validate_data.ps1
+          ./tooling/test_checked_process.ps1
+      - name: Checker tests and analysis
+        working-directory: tooling/code_quality
+        shell: pwsh
+        run: |
+          dart analyze
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dart test
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Full application analysis
+        working-directory: app
+        run: flutter analyze
+      - name: Full application tests
+        working-directory: app
+        run: flutter test
+      - name: Web release build
+        working-directory: app
+        run: flutter build web --release

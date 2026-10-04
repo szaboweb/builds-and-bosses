@@ -2,27 +2,31 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "Start ComfyUI (AMD DirectML)",
+			"label": "Check code quality ratchet",
 			"type": "shell",
-			"command": "/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe",
-			"args": [
-				"-NoProfile",
-				"-File",
-				"C:\\Users\\mrsza\\tools\\ComfyUI-directml\\StartComfyUI.ps1"
-			],
-			"isBackground": true,
+			"command": "powershell.exe",
+			"args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}\\tooling\\validate_quality.ps1", "-Dart", "C:\\src\\flutter\\bin\\dart.bat"],
 			"problemMatcher": []
 		},
 		{
-			"label": "Start Character Workshop API",
+			"label": "Inspect training arena in Chrome",
 			"type": "shell",
-			"command": "/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe",
+			"command": "C:\\src\\flutter\\bin\\flutter.bat",
+			"options": {
+				"cwd": "${workspaceFolder}\\app",
+				"shell": {
+					"executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+					"args": ["-NoProfile", "-Command"]
+				}
+			},
 			"args": [
-				"-NoProfile",
-				"-ExecutionPolicy",
-				"Bypass",
-				"-File",
-				"C:\\Users\\mrsza\\workspace\\builds-and-bosses\\tooling\\character_workshop\\start.ps1"
+				"run",
+				"-d",
+				"chrome",
+				"--web-port",
+				"7357",
+				"--target",
+				"lib\\main.dart"
 			],
 			"isBackground": true,
 			"problemMatcher": []

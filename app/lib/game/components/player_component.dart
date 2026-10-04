@@ -1,5 +1,5 @@
+import 'dart:async';
 import 'dart:math';
-import 'dart:ui' as ui;
 
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +8,8 @@ import '../../core/actions/game_action.dart';
 import '../../core/dnd/character_stats.dart';
 import '../../core/dnd/combat_engine.dart';
 import '../../core/dnd/dice.dart';
+import '../../core/inventory/inventory.dart';
+import '../equipment_appearance.dart';
 import 'arena_map_component.dart';
 import 'dummy_enemy_component.dart';
 import 'floating_combat_text.dart';
@@ -41,25 +43,59 @@ class PlayerComponent extends PositionComponent with HasGameReference {
   VoidCallback? _onPlanFinished;
 
   // Visuals & Animation
-  static const double _spriteFrameSize = 32;
+  static const String godotFighterSheetPath =
+      'characters/fighter_godot/walk13_fighter.png';
+  double _spriteFrameSize = 32;
+  bool _usesGodotFighter = false;
 
-  /// Swap to `characters/<published_id>/walk13_game.png` to use a Character
-  /// Workshop character instead of the built-in stickman reference.
-  static String characterSheetPath =
-      'characters/stickman_13/walk13_rendered.png';
+  /// Bundled character atlas, selectable from the character builder.
+  static String characterSheetPath = godotFighterSheetPath;
 
-  /// Set by the workshop right after publishing so the freshly rendered sheet is
-  /// playable without the rebuild a new bundled asset folder would require.
-  static ui.Image? runtimeSheetImage;
-  static String? runtimeSheetLabel; // Right-facing frames of the 13-pose sheet; left is produced by flipping.
   static const List<int> _idleFrames = [0];
   static const List<int> _walkFrames = [1, 2];
   static const List<int> _runFrames = [3, 4];
+  static const List<int> _fighterWalkFrames = [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+  ];
   // Pixels covered by one full two-frame cycle, used to sync steps to real speed.
   static const double _walkStrideLength = 26;
   static const double _runStrideLength = 44;
+  static const double _fighterStrideLength = 96;
   Sprite? sprite;
   List<Sprite> _animationFrames = const [];
+  final EquipmentAppearance _appearance = EquipmentAppearance();
+
+  List<EquipmentItem> get equippedItems => _appearance.items;
+
+  List<Sprite> get equipmentSprites {
+    if (!_usesGodotFighter || sprite == null) return const [];
+    final frame = (sprite!.srcPosition.x / 64).round();
+    return _appearance.spritesAt(frame);
+  }
+
+  void cancelEquipmentUpdate() => _appearance.cancelPending();
+
+  Future<void> setEquipment(List<EquipmentItem> items) async {
+    final requested = List<EquipmentItem>.unmodifiable(items);
+    if (requested.isNotEmpty && (!_usesGodotFighter || sprite == null)) {
+      throw StateError(
+        'A mintafelszerelés csak a Godot fighterhez használható.',
+      );
+    }
+    await _appearance.applyAtlas(requested, game.images.load);
+  }
+
   double _animationPhase = 0.0;
   bool isFacingLeft = false;
   static final Paint _pixelArtPaint = Paint()
@@ -82,13 +118,32 @@ class PlayerComponent extends PositionComponent with HasGameReference {
     await reloadCharacterSheet();
   }
 
-  /// Rebuilds the frame list from [characterSheetPath]; call after switching
-  /// to a published Character Workshop sheet.
+  @override
+  void onRemove() {
+    cancelPlan();
+    cancelEquipmentUpdate();
+    super.onRemove();
+  }
+
+  /// Rebuilds the frame list after switching bundled character atlases.
   Future<void> reloadCharacterSheet() async {
     try {
-      final image =
-          runtimeSheetImage ?? await game.images.load(characterSheetPath);
-      final frameCount = (image.width / _spriteFrameSize).floor();
+      final usesGodotFighter = characterSheetPath == godotFighterSheetPath;
+      final frameSize = usesGodotFighter ? 64.0 : 32.0;
+      final image = await game.images.load(characterSheetPath);
+      final frameCount = (image.width / frameSize).floor();
+      if (image.height != frameSize ||
+          image.width % frameSize != 0 ||
+          frameCount < (usesGodotFighter ? 13 : 5)) {
+        throw StateError(
+          'Invalid character atlas $characterSheetPath: '
+          '${image.width}x${image.height}, expected a row of '
+          '${frameSize.toInt()}px cells.',
+        );
+      }
+      _usesGodotFighter = usesGodotFighter;
+      _spriteFrameSize = frameSize;
+      _animationPhase = 0;
       _animationFrames = [
         for (var index = 0; index < frameCount; index++)
           Sprite(
@@ -98,7 +153,12 @@ class PlayerComponent extends PositionComponent with HasGameReference {
           ),
       ];
       sprite = _animationFrames.isEmpty ? null : _animationFrames.first;
-    } catch (_) {
+    } catch (error) {
+      CombatLogger.instance.logWarning(
+        'ANIMATION',
+        'Unable to load character sheet $characterSheetPath: $error. '
+            'Using procedural character.',
+      );
       _animationFrames = const [];
       sprite = null;
     }
@@ -111,10 +171,18 @@ class PlayerComponent extends PositionComponent with HasGameReference {
       return;
     }
     // velocity.x is a normalised input direction, not pixels per second.
-    final speed = velocity.x.abs() * moveSpeed;
+    final speed = isExecutingPlan && _moveTarget != null
+        ? moveSpeed * (_currentQueue[_executingIndex] is DashAction ? 3.8 : 2.4)
+        : velocity.x.abs() * moveSpeed;
     final List<int> cycle;
     final double strideLength;
-    if (!isOnGround) {
+    if (_usesGodotFighter) {
+      // Jump/fall/flight clips are not authored yet; hold a stride in the air.
+      cycle = !isOnGround
+          ? const [4]
+          : (speed < 8 ? _idleFrames : _fighterWalkFrames);
+      strideLength = isOnGround && speed >= 8 ? _fighterStrideLength : 0;
+    } else if (!isOnGround) {
       cycle = _runFrames;
       strideLength = 0;
     } else if (speed < 8) {
@@ -184,6 +252,19 @@ class PlayerComponent extends PositionComponent with HasGameReference {
     _startCurrentAction();
   }
 
+  void cancelPlan() {
+    isExecutingPlan = false;
+    _currentQueue = [];
+    _onPlanFinished = null;
+    _moveTarget = null;
+    _executingIndex = 0;
+    _actionTimer = 0;
+    _slashVfxTimer = 0;
+    _slashTargetPos = null;
+    velocity.setZero();
+    verticalFlightInput = 0;
+  }
+
   void _startCurrentAction() {
     if (_executingIndex >= _currentQueue.length) {
       isExecutingPlan = false;
@@ -216,7 +297,7 @@ class PlayerComponent extends PositionComponent with HasGameReference {
       _slashTargetPos = action.targetPosition.clone();
       isFacingLeft = _slashTargetPos!.x < position.x;
       _slashVfxTimer = 0.35;
-      game.world.add(
+      _spawn(
         ProjectileComponent(
           position: position.clone(),
           targetPosition: action.targetPosition.clone(),
@@ -228,7 +309,7 @@ class PlayerComponent extends PositionComponent with HasGameReference {
     } else if (action is RangedAction) {
       _slashTargetPos = action.targetPosition.clone();
       isFacingLeft = _slashTargetPos!.x < position.x;
-      game.world.add(
+      _spawn(
         ProjectileComponent(
           position: position.clone(),
           targetPosition: action.targetPosition.clone(),
@@ -265,7 +346,7 @@ class PlayerComponent extends PositionComponent with HasGameReference {
         'COMBAT',
         '${stats.name} attempted a melee attack out of range.',
       );
-      game.world.add(
+      _spawn(
         FloatingCombatText(
           text: 'OUT OF RANGE',
           position: position.clone() + Vector2(0, -32),
@@ -297,7 +378,7 @@ class PlayerComponent extends PositionComponent with HasGameReference {
       targetEnemy.triggerStagger(stats.meleeStagger);
 
       if (result.isCritical) {
-        game.world.add(
+        _spawn(
           FloatingCombatText(
             text: 'CRIT! ${result.damageDealt}',
             position: targetEnemy.position.clone() + Vector2(0, -28),
@@ -305,7 +386,7 @@ class PlayerComponent extends PositionComponent with HasGameReference {
           ),
         );
       } else if (result.isHit) {
-        game.world.add(
+        _spawn(
           FloatingCombatText(
             text: '-${result.damageDealt}',
             position: targetEnemy.position.clone() + Vector2(0, -28),
@@ -313,7 +394,7 @@ class PlayerComponent extends PositionComponent with HasGameReference {
           ),
         );
       } else {
-        game.world.add(
+        _spawn(
           FloatingCombatText(
             text: 'MISS',
             position: targetEnemy.position.clone() + Vector2(0, -28),
@@ -329,7 +410,7 @@ class PlayerComponent extends PositionComponent with HasGameReference {
             '${stats.name} slashed at target coordinates $targetPos (No target in range)',
         data: {'targetX': targetPos.x, 'targetY': targetPos.y},
       );
-      game.world.add(
+      _spawn(
         FloatingCombatText(
           text: 'SWING!',
           position: targetPos.clone(),
@@ -413,7 +494,7 @@ class PlayerComponent extends PositionComponent with HasGameReference {
   }
 
   void _showCombatRangeMessage(String message) {
-    game.world.add(
+    _spawn(
       FloatingCombatText(
         text: message,
         position: position.clone() + Vector2(0, -32),
@@ -432,7 +513,7 @@ class PlayerComponent extends PositionComponent with HasGameReference {
       abilityName: 'Second Wind',
     );
 
-    game.world.add(
+    _spawn(
       FloatingCombatText(
         text: '+$healAmount HP',
         position: position.clone() + Vector2(0, -32),
@@ -440,6 +521,9 @@ class PlayerComponent extends PositionComponent with HasGameReference {
       ),
     );
   }
+
+  void _spawn(Component component) =>
+      unawaited(Future<void>.sync(() => game.world.add(component)));
 
   @override
   void update(double dt) {
@@ -578,16 +662,28 @@ class PlayerComponent extends PositionComponent with HasGameReference {
 
     if (sprite != null) {
       final spriteSize = Vector2(_spriteFrameSize, _spriteFrameSize);
+      // Fixed world-root projection: do not re-anchor individual walk frames.
+      final baseline = _usesGodotFighter ? 54.0 : _spriteFrameSize;
       sprite!.render(
         canvas,
-        position: Vector2((size.x - spriteSize.x) / 2, size.y - spriteSize.y),
+        position: Vector2((size.x - spriteSize.x) / 2, size.y - baseline),
         size: spriteSize,
         overridePaint: _pixelArtPaint,
       );
+      for (final equipment in equipmentSprites) {
+        equipment.render(
+          canvas,
+          position: Vector2((size.x - 64) / 2, size.y - 54),
+          size: Vector2.all(64),
+          overridePaint: _pixelArtPaint,
+        );
+      }
     } else {
       _renderProceduralSideViewFighter(canvas);
     }
-    _renderClassWeapon(canvas);
+    if (!_usesGodotFighter || sprite == null || !_appearance.hasWeapon) {
+      _renderClassWeapon(canvas);
+    }
 
     canvas.restore();
 

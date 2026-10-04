@@ -13,11 +13,11 @@ import 'ui/combat_hotbar_overlay.dart';
 import 'ui/combat_outcome_overlay.dart';
 import 'ui/debug_info_overlay.dart';
 import 'ui/planning_hud.dart';
-import 'ui/character_workshop_screen.dart';
+import 'core/inventory/equipment_grid.dart';
+import 'ui/equipment_workshop_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await configureDesktopWindow();
   FlutterError.onError = (details) {
     FlutterError.presentError(details);
   };
@@ -26,6 +26,7 @@ Future<void> main() async {
     debugPrintStack(stackTrace: stack);
     return false;
   };
+  await configureDesktopWindow().timeout(const Duration(seconds: 10));
   runApp(const BuildsAndBossesApp());
 }
 
@@ -60,11 +61,20 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   late final TacticalModeGame _game;
+  final EquipmentGrid _equipmentGrid = EquipmentGrid();
+  int _equipmentRevision = 0;
 
   @override
   void initState() {
     super.initState();
     _game = TacticalModeGame();
+  }
+
+  @override
+  void dispose() {
+    _equipmentRevision++;
+    _game.combatCompletion.dispose();
+    super.dispose();
   }
 
   @override
@@ -99,15 +109,46 @@ class _GameScreenState extends State<GameScreen> {
             top: 84,
             right: 16,
             child: IconButton.filledTonal(
-              tooltip: 'Karakterkép- és animációs műhely',
-              onPressed: () => Navigator.of(context)
-                  .push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const CharacterWorkshopScreen(),
+              tooltip: 'Felszerelés workshop',
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => EquipmentWorkshopScreen(
+                    grid: _equipmentGrid,
+                    onEquipmentChanged: (items) async {
+                      final revision = ++_equipmentRevision;
+                      await _game.ready();
+                      if (revision != _equipmentRevision) {
+                        throw StateError('Equipment operation cancelled.');
+                      }
+                      await _game.player.setEquipment(items);
+                    },
+                    onCancelEquipmentUpdate: () {
+                      _equipmentRevision++;
+                      if (_game.isLoaded) {
+                        _game.player.cancelEquipmentUpdate();
+                      }
+                    },
+                  ),
+                ),
+              ),
+              icon: const Icon(Icons.inventory_2_outlined),
+            ),
+          ),
+
+          Positioned(
+            top: 132,
+            right: 16,
+            child: ValueListenableBuilder<String?>(
+              valueListenable: _game.combatCompletion.error,
+              builder: (context, error, _) => error == null
+                  ? const SizedBox.shrink()
+                  : Tooltip(
+                      message: error,
+                      child: const Chip(
+                        avatar: Icon(Icons.warning_amber),
+                        label: Text('Mentési/platformhiba – lásd a naplót'),
+                      ),
                     ),
-                  )
-                  .then((_) => _game.player.reloadCharacterSheet()),
-              icon: const Icon(Icons.auto_awesome),
             ),
           ),
 

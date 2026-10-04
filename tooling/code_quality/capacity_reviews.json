@@ -1,0 +1,23 @@
+{
+  "app/lib/game/components/player_component.dart": {
+    "sourceHash": "046876386beadf7febce18ee4a7425ad583d700125c3f1789209bc2aee6b0595",
+    "owner": "Player runtime orchestration; equipment appearance extracted",
+    "upperBound": 901,
+    "decision": "extract",
+    "reason": "Legacy 915 lines reduced to 901. Equipment atlas loading, atomic updates and deadlines moved to EquipmentAppearance. No remaining growth budget; further player responsibilities must be extracted."
+  },
+  "app/lib/game/tactical_game.dart": {
+    "sourceHash": "373da22e26117d93b0db4b31423c12f05fc1c1931de658c936bde9af2008196a",
+    "owner": "Game coordination and combat lifecycle",
+    "upperBound": 720,
+    "decision": "extract",
+    "reason": "Measured 700 lines, 100 capacity. Persistence lifecycle extracted to CombatCompletion; remaining delegation estimate at most 10 plus 10 uncertainty. No persistence implementation belongs in this coordinator."
+  },
+  "app/lib/ui/character_builder_overlay.dart": {
+    "sourceHash": "d66835e30b2402e91eab56b9d2b2c16197279a82070cd5f22d80ac8790084cf1",
+    "owner": "Character build editing and bundled sprite selection UI",
+    "upperBound": 750,
+    "decision": "extend",
+    "reason": "Measured 740 lines, 60 capacity. Existing async selection intent made explicit and callback extracted from the large build method. At most 5 helper lines plus 5 uncertainty; no new responsibility."
+  }
+}

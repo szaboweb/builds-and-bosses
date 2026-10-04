@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
@@ -23,6 +25,7 @@ import 'camera_follow_controller.dart';
 import 'lighting_controller.dart';
 import 'developer_mode_controller.dart';
 import 'developer_visualization_component.dart';
+import 'combat_completion.dart';
 
 enum GamePhase { realtime, planning, executing, cooldown }
 
@@ -56,6 +59,9 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
   late LightingController lightingController;
   late DeveloperModeController developerModeController;
   late DebugReplayRecorder replayRecorder;
+  late final CombatCompletion combatCompletion = CombatCompletion(
+    platformServices,
+  );
 
   final ActionQueue actionQueue = ActionQueue(maxAP: 100);
   final ActionCooldowns actionCooldowns = ActionCooldowns();
@@ -195,25 +201,26 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
       fromPhase: currentPhase.name.toUpperCase(),
       toPhase: outcome == CombatOutcome.victory ? 'VICTORY' : 'DEFEAT',
     );
-    if (outcome == CombatOutcome.victory) {
-      platformServices.unlockAchievement('training_golem_defeated');
-    }
+    player.cancelPlan();
     replayRecorder.complete(
       outcome == CombatOutcome.victory ? 'victory' : 'defeat',
     );
-    platformServices.syncCombatStatistics(
-      CombatStatistics(
-        runId: DateTime.now().microsecondsSinceEpoch.toString(),
-        completedAt: DateTime.now(),
-        heroName: player.stats.name,
-        bossId: 'training_golem',
-        outcome: outcome == CombatOutcome.victory ? 'victory' : 'defeat',
-        durationMs: combatTimerController.elapsed.inMilliseconds,
+    unawaited(
+      combatCompletion.record(
+        CombatStatistics(
+          runId: DateTime.now().microsecondsSinceEpoch.toString(),
+          completedAt: DateTime.now(),
+          heroName: player.stats.name,
+          bossId: 'training_golem',
+          outcome: outcome == CombatOutcome.victory ? 'victory' : 'defeat',
+          durationMs: combatTimerController.elapsed.inMilliseconds,
+        ),
       ),
     );
   }
 
   void restartCombat() {
+    player.cancelPlan();
     combatOutcomeNotifier.value = null;
     combatTimerController.reset();
     Dice.configureSeed(debugSeed);

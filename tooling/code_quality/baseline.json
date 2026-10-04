@@ -1,0 +1,4929 @@
+{
+  "version": 1,
+  "files": {
+    "app/lib/core/actions/action_cooldowns.dart": {
+      "lines": 39,
+      "symbols": {
+        "ActionCooldowns.remainingFor": {
+          "lines": 1,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "ActionCooldowns.remainingForAbility": {
+          "lines": 1,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "ActionCooldowns.canUse": {
+          "lines": 4,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "ActionCooldowns.start": {
+          "lines": 4,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "ActionCooldowns.update": {
+          "lines": 11,
+          "cyclomatic": 5,
+          "cognitive": 4,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "ActionCooldowns._decrement": {
+          "lines": 4,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 2
+        }
+      },
+      "fingerprints": {
+        "ActionCooldowns.remainingFor": "7709e4b088cb038caf18db565594da610eab68518988db3d083630a34596aa44",
+        "ActionCooldowns.remainingForAbility": "167866cd88822b5bf1ef8589870b3c773ff8c1a9e79431cda1bd0f2805037e68",
+        "ActionCooldowns.canUse": "134fb22ebbc0b8599f2fb6aa9bff18144a2f2db7d326765e36e37efbdf73fb62",
+        "ActionCooldowns.start": "d4b0b652a93fb2d21805d51e9a290bd0815c03d58e07b1731cace78f395865de",
+        "ActionCooldowns.update": "ce4f97a5a998dfa78041ed4386c320c642bb70502ae2991425151f5ed14a0bb1",
+        "ActionCooldowns._decrement": "6b33266255ac440de3dbe95b21eb5ef0033739b2949ee0c304db31714f90d998"
+      },
+      "sourceHash": "40e44df4917fc4bb7b3ffaca28f85acf68cd2fdea01b71d2f52ebb7c9dc5bb57"
+    },
+    "app/lib/core/actions/action_queue.dart": {
+      "lines": 59,
+      "symbols": {
+        "ActionQueue.constructor:new": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "ActionQueue.actions": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "ActionQueue.spentAP": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "ActionQueue.spentAP.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "ActionQueue.remainingAP": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "ActionQueue.isEmpty": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "ActionQueue.isNotEmpty": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "ActionQueue.count": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "ActionQueue.canAfford": {
+          "lines": 4,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "ActionQueue.tryAdd": {
+          "lines": 9,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "ActionQueue.undo": {
+          "lines": 7,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 0
+        },
+        "ActionQueue.removeAt": {
+          "lines": 7,
+          "cyclomatic": 3,
+          "cognitive": 2,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "ActionQueue.clear": {
+          "lines": 5,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        }
+      },
+      "fingerprints": {
+        "ActionQueue.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "ActionQueue.actions": "681bbda9d805ab783b674399db702c8a8f1fdc295dea00a23211f8463fa7d905",
+        "ActionQueue.spentAP": "655470d00404d7372550addba297f214008b04e73e2e59cb63adb0cb587ec42a",
+        "ActionQueue.spentAP.closure": "8e1ff5abae86ecd42d635080bee3e1996566fdb99061ee5df51bbb98252c1dcb",
+        "ActionQueue.remainingAP": "7fff8185e3243c85e5d1e4ee39bd9e134b1e68e484678f45b777d9579bc5bdf7",
+        "ActionQueue.isEmpty": "dbc14ab02dd075a8fdcc5d22988fc31921dbdd40631a386937ebdf1fa010de52",
+        "ActionQueue.isNotEmpty": "1d7ac5439771363dc273a3d2e15f5d3e55224924b480c91a70d4ed3d1478b2db",
+        "ActionQueue.count": "f7f02a5c8695303f2413c0a638a6d8f186b8c2bc642c41d3a715c3ea09675355",
+        "ActionQueue.canAfford": "d6b97b259eaa31296cb3bc4e35a08b991356471037b89a93f5ba2886c683f7ac",
+        "ActionQueue.tryAdd": "ea74b8651090e91441c6f29af7c59520a10de12560c22902298a395b4ef3286c",
+        "ActionQueue.undo": "a14a3e2958624893968d382e1836f0cc6519afeea488fcc5625fceb1bf2e9268",
+        "ActionQueue.removeAt": "08c5e7a134f185f9892e824487a8812ad97d3de70bac7898a4021ec9c8abfa79",
+        "ActionQueue.clear": "4d6fbbe48d8ca83b1c4afc38bbf8af52352adedd29c9b7bbd8a9b16656459dba"
+      },
+      "sourceHash": "03201672e5d1a9f6f69d52517b858789a2688a6d85b5c032ed353d8412625de4"
+    },
+    "app/lib/core/actions/game_action.dart": {
+      "lines": 103,
+      "symbols": {
+        "GameAction.constructor:new": {
+          "lines": 7,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 5
+        },
+        "MoveAction.constructor:new": {
+          "lines": 7,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "SlashAction.constructor:new": {
+          "lines": 8,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "SpellAction.constructor:new": {
+          "lines": 8,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "RangedAction.constructor:new": {
+          "lines": 8,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "DashAction.constructor:new": {
+          "lines": 8,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "HealAction.constructor:new": {
+          "lines": 8,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        }
+      },
+      "fingerprints": {
+        "GameAction.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "MoveAction.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "SlashAction.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "SpellAction.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "RangedAction.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "DashAction.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "HealAction.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4"
+      },
+      "sourceHash": "e356f19b4fb96ed56146574b296a9a67d63a272a729072c94acd3273947b48c3"
+    },
+    "app/lib/core/campaign/campaign_blueprint.dart": {
+      "lines": 113,
+      "symbols": {
+        "CampaignValidationResult.constructor:new": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "CampaignValidationResult.isValid": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CampaignBlueprint.constructor:new": {
+          "lines": 12,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 8
+        },
+        "CampaignBlueprint.totalClassLevels": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CampaignBlueprint.totalClassLevels.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "CampaignBlueprint.validate": {
+          "lines": 29,
+          "cyclomatic": 8,
+          "cognitive": 7,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "CampaignBlueprint.validate.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "CampaignProgression.constructor:new": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CampaignProgression.expectedHeroLevel": {
+          "lines": 8,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "CampaignProgression.firstBossBlueprint": {
+          "lines": 18,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 5
+        }
+      },
+      "fingerprints": {
+        "CampaignValidationResult.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "CampaignValidationResult.isValid": "bb68ba7c67fdd1173296a20fdca39e98bed86dcba187123c9cfcd576fd1f2516",
+        "CampaignBlueprint.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "CampaignBlueprint.totalClassLevels": "155a99645013435f80f82b6418aca7da658b9cf89d4f8c92930af4171fd108cc",
+        "CampaignBlueprint.totalClassLevels.closure": "f0fc2fa64a6a27ca4d2e4f8b6cd99b8503e2eb33d97a6c0b0f3650e823fc3c39",
+        "CampaignBlueprint.validate": "4d36061f6da81b591acfca178cdd4c430b9535c67d4db39a10f4dc8d7008e682",
+        "CampaignBlueprint.validate.closure": "60e30941e1b2b30d98ee8f7eaef8e55f5eeccee4422ac2f0ae22bcc49190a29b",
+        "CampaignProgression.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "CampaignProgression.expectedHeroLevel": "bed2abbb49f54332fc9d617b49d417df616bddcc4ef9200bb48cf558ad057085",
+        "CampaignProgression.firstBossBlueprint": "396d558297b0e03d14c040d3f3db8a97866336da374e3e924fc4e7af2a392146"
+      },
+      "sourceHash": "687d19993876b3e8d59fd6f3b0b6b1c3ec3b22e3c3760c65d44e2e07738c298e"
+    },
+    "app/lib/core/combat/combat_logger.dart": {
+      "lines": 338,
+      "symbols": {
+        "CombatLogEntry.constructor:new": {
+          "lines": 7,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 5
+        },
+        "CombatLogEntry.formattedTime": {
+          "lines": 7,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CombatLogEntry.toString": {
+          "lines": 5,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CombatLogger.constructor:_internal": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CombatLogger.constructor:createFresh": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CombatLogger.history": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CombatLogger.log": {
+          "lines": 24,
+          "cyclomatic": 3,
+          "cognitive": 2,
+          "nesting": 1,
+          "parameters": 4
+        },
+        "CombatLogger.logCombatAttack": {
+          "lines": 39,
+          "cyclomatic": 3,
+          "cognitive": 3,
+          "nesting": 2,
+          "parameters": 3
+        },
+        "CombatLogger.logCombatSpell": {
+          "lines": 40,
+          "cyclomatic": 6,
+          "cognitive": 9,
+          "nesting": 3,
+          "parameters": 3
+        },
+        "CombatLogger.logCombatRanged": {
+          "lines": 29,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 4
+        },
+        "CombatLogger.logCombatHeal": {
+          "lines": 23,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 3
+        },
+        "CombatLogger.logTacticalAction": {
+          "lines": 24,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 4
+        },
+        "CombatLogger.logPhaseChange": {
+          "lines": 9,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "CombatLogger.logWarning": {
+          "lines": 8,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 3
+        },
+        "CombatLogger.logError": {
+          "lines": 17,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 4
+        },
+        "CombatLogger.logGameException": {
+          "lines": 13,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "CombatLogger.logBuildChange": {
+          "lines": 32,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "CombatLogger.exportFormattedLog": {
+          "lines": 4,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CombatLogger.exportFormattedLog.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "CombatLogger.clear": {
+          "lines": 5,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        }
+      },
+      "fingerprints": {
+        "CombatLogEntry.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "CombatLogEntry.formattedTime": "2600a4bb63ea5d21092e477a94c7e06cde93ec0b810862b5b1c492878eb6013e",
+        "CombatLogEntry.toString": "eaa79b98926711746d6ccb9f2c3e59ee28859a8da43f8affa79a28540ee129b4",
+        "CombatLogger.constructor:_internal": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "CombatLogger.constructor:createFresh": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "CombatLogger.history": "39e149c79cad9c6d073579bdfb52e39b3c4d87553fd2b7286c94ba4265b21d5b",
+        "CombatLogger.log": "9f8c8489c09ad78daf6dc6c007bc19117126c9ce3982a14e34ce0d2b60a16718",
+        "CombatLogger.logCombatAttack": "8027f4b7107123105d95abcfc7befffdcee59ba722106bca2e5e16a570d989a5",
+        "CombatLogger.logCombatSpell": "18f3979c27650bdfa35b2159c7f2f8a9908c389d98deabf2256303114386b1f7",
+        "CombatLogger.logCombatRanged": "cbe16f8b07fd416dd5d30ea2c9bf73b25368e6c11da19869afcbbd62d07b5af2",
+        "CombatLogger.logCombatHeal": "8f398f5320af6fb4ee8e22f4ede93ebeff24bb8595fd6422564cd2693f8e50b0",
+        "CombatLogger.logTacticalAction": "7421de70910a47be363cae9c6fa520b81221e5fe60809d21dc0327351f340c1d",
+        "CombatLogger.logPhaseChange": "438d0f0b5926e829fe17e6cde5d5b468e5079905203d1cee503e1a4889dd2bff",
+        "CombatLogger.logWarning": "ae011fc13254545cfb600050c86239a4afd5d88cc53cf6f6cfd7cfb4ba29c66e",
+        "CombatLogger.logError": "6ca07e478b1e7e83298cf17551db7e4b508b7d538d993b44ee3cc2d41f7f7f9c",
+        "CombatLogger.logGameException": "7f413e3d06f9882cf6ba0d35862c2b2b02362e941520d608bd7b07dc78f311dc",
+        "CombatLogger.logBuildChange": "0759da6cb0cd1ba735d3a341344083e0e94576650e86fa2d0b3b68a924a780ea",
+        "CombatLogger.exportFormattedLog": "4fd2e423168b8c3fca3f969e3ca67098f9fd090705e521ab65565f6121412710",
+        "CombatLogger.exportFormattedLog.closure": "590151e5a784da326f0f50a82a20b79ae298ad9ba806cd7ab6bb13aa561b0cc3",
+        "CombatLogger.clear": "46cfec92da823a9b2343984ca961c269798a2b4b2bb80d059c6d4d920bed6a75"
+      },
+      "sourceHash": "843b6cbe3ebf25ef3551239a7fcf361b464f61b8e752f19a1ef78a529a4fe3c0"
+    },
+    "app/lib/core/combat/combat_timer_controller.dart": {
+      "lines": 28,
+      "symbols": {
+        "CombatTimerController.elapsed": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CombatTimerController.isRunning": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CombatTimerController.update": {
+          "lines": 6,
+          "cyclomatic": 3,
+          "cognitive": 2,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "CombatTimerController.pause": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CombatTimerController.resume": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CombatTimerController.reset": {
+          "lines": 4,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CombatTimerController.stop": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        }
+      },
+      "fingerprints": {
+        "CombatTimerController.elapsed": "97e98f7f26afd2745489528e51aaef512861299ed3afaf8433d2190327a2b3d3",
+        "CombatTimerController.isRunning": "0cd88991cb2117c1f288c19fbf75f7463258d0ba24b04c49c546fe8b379613a5",
+        "CombatTimerController.update": "ca1db9d05fbbae6cd5510468c93873757c1f4fd69fc900912457edb1da1fa2fc",
+        "CombatTimerController.pause": "dd7b539714d8cb5b914bc85aa1787e8a10658a96a8126da912eeae821315adfd",
+        "CombatTimerController.resume": "9831a93d4ff39180063ec58b4ee34da5d1cd4899327a708344e37d21e37b5c18",
+        "CombatTimerController.reset": "af8cc36d536d48a5242921fda07c4be95ab18a7acba0787ff567109595c11521",
+        "CombatTimerController.stop": "dd7b539714d8cb5b914bc85aa1787e8a10658a96a8126da912eeae821315adfd"
+      },
+      "sourceHash": "41ad0d28eaa4d6038410d721953ca33ebb6149bfe62d6e24268327f97e8ede76"
+    },
+    "app/lib/core/config/game_rules_config.dart": {
+      "lines": 497,
+      "symbols": {
+        "PhysicsConfig.constructor:new": {
+          "lines": 9,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 7
+        },
+        "PhysicsConfig.calculateJumpVelocity": {
+          "lines": 4,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "PhysicsConfig.calculateJumpHeight": {
+          "lines": 5,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "PhysicsConfig.calculateMoveSpeed": {
+          "lines": 7,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "PhysicsConfig.toJson": {
+          "lines": 9,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "PhysicsConfig.constructor:fromJson": {
+          "lines": 14,
+          "cyclomatic": 8,
+          "cognitive": 7,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "WeaponRangeConfig.constructor:new": {
+          "lines": 11,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 9
+        },
+        "WeaponRangeConfig.toJson": {
+          "lines": 11,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "WeaponRangeConfig.constructor:fromJson": {
+          "lines": 14,
+          "cyclomatic": 6,
+          "cognitive": 5,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "VisionConfig.constructor:new": {
+          "lines": 6,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 4
+        },
+        "VisionConfig.darkvisionRadiusFor": {
+          "lines": 10,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "VisionConfig.toJson": {
+          "lines": 6,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "VisionConfig.constructor:fromJson": {
+          "lines": 9,
+          "cyclomatic": 5,
+          "cognitive": 4,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "InventoryConfig.constructor:new": {
+          "lines": 5,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 3
+        },
+        "InventoryConfig.toJson": {
+          "lines": 5,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "InventoryConfig.constructor:fromJson": {
+          "lines": 6,
+          "cyclomatic": 4,
+          "cognitive": 3,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "CombatConfig.constructor:new": {
+          "lines": 62,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 12
+        },
+        "CombatConfig.weaponRangeFor": {
+          "lines": 2,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "CombatConfig.calculateMaxHp": {
+          "lines": 6,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 0,
+          "parameters": 3
+        },
+        "CombatConfig.toJson": {
+          "lines": 16,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CombatConfig.toJson.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "CombatConfig.constructor:fromJson": {
+          "lines": 28,
+          "cyclomatic": 13,
+          "cognitive": 12,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "CombatConfig.closure": {
+          "lines": 4,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "CooldownConfig.constructor:new": {
+          "lines": 8,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 6
+        },
+        "CooldownConfig.toJson": {
+          "lines": 8,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CooldownConfig.constructor:fromJson": {
+          "lines": 12,
+          "cyclomatic": 7,
+          "cognitive": 6,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "PointBuyConfig.constructor:new": {
+          "lines": 18,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 4
+        },
+        "PointBuyConfig.costForScore": {
+          "lines": 5,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "PointBuyConfig.calculateTotalSpent": {
+          "lines": 8,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "PointBuyConfig.remainingPoints": {
+          "lines": 4,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "PointBuyConfig.canIncrease": {
+          "lines": 9,
+          "cyclomatic": 3,
+          "cognitive": 2,
+          "nesting": 1,
+          "parameters": 2
+        },
+        "PointBuyConfig.canDecrease": {
+          "lines": 5,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "GameRulesConfig.constructor:new": {
+          "lines": 8,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 6
+        },
+        "GameRulesConfig.toJson": {
+          "lines": 7,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "GameRulesConfig.constructor:fromJson": {
+          "lines": 19,
+          "cyclomatic": 6,
+          "cognitive": 5,
+          "nesting": 1,
+          "parameters": 1
+        }
+      },
+      "fingerprints": {
+        "PhysicsConfig.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "PhysicsConfig.calculateJumpVelocity": "cb8c7b18fa8f849dd116c1aa22b5dd641189143e0cde30148004275a1b93df2e",
+        "PhysicsConfig.calculateJumpHeight": "28238d5b883f1003d45eae3f5d9ac4bdb160071d3463d78df69f119cdaf85862",
+        "PhysicsConfig.calculateMoveSpeed": "516c56d1cc4e7459b8d0a850c7ceced3c5a92d49d61f25d9a0e8f1134ddbb0ed",
+        "PhysicsConfig.toJson": "7ea8d13ac10a28234587fcd2268bca4149fdcdf28061cb1c05ff73a814ce5bde",
+        "PhysicsConfig.constructor:fromJson": "a8eaccbf09d1ae0a5f3ce3f4b5c031ead83c554359e49eaed0225a90c2ed60c7",
+        "WeaponRangeConfig.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "WeaponRangeConfig.toJson": "7dbdf9b962fad7880b9c7c6902fe2ce8b46fb02dafb5769482251a0002e023c4",
+        "WeaponRangeConfig.constructor:fromJson": "02b05df6c41518b30d2ec167e285831f5ea18fbf1e8279037d7b98e29bebc154",
+        "VisionConfig.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "VisionConfig.darkvisionRadiusFor": "1af608b70d3420885f1b5a192b0ecf0539180e6dc8f3556e7655b8d80e5a32b5",
+        "VisionConfig.toJson": "968ae519214bf07f27b01ed91d676f84d36eec23365d5f8740afb9fb4d907222",
+        "VisionConfig.constructor:fromJson": "26cd508209fe62c62730f9fa204728dbaacf58464042afb88c43cdd539d5381a",
+        "InventoryConfig.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "InventoryConfig.toJson": "c6f78327caa963327cd331d7d03821d2de54b75e9d8eec5a3d87ba33256c8bfd",
+        "InventoryConfig.constructor:fromJson": "6b21fd55dcbd1384233d0b3deaa824270f6d20e02242904ce796a13df89e996b",
+        "CombatConfig.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "CombatConfig.weaponRangeFor": "b15c2ddfbff4b4856af9e8baea4e1425b78cd463774c18fa531a8c50799cc167",
+        "CombatConfig.calculateMaxHp": "6c98116b87e05b66b8fcf8926f7d0e78bfa75d6707d0d80305e8de98a117dd36",
+        "CombatConfig.toJson": "0073863b998a4b34a0b2bc6ec878296de14d44cf4019ded331bada11d2d74500",
+        "CombatConfig.toJson.closure": "43fad27e67a4683c22ff8e3f42301ca5d1059e59e60533bb8b8f669f876a7ccf",
+        "CombatConfig.constructor:fromJson": "6760c8730f2a8e969741cfcb6fba7e906bbc95b1ef45f3d69265863aeb3ae292",
+        "CombatConfig.closure": "873385f323948256bfa8f122b2a433b459c3bec0a01b5ae2af5a2ae5991d01b0",
+        "CooldownConfig.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "CooldownConfig.toJson": "9371d5f3d279b9619b11197f510ecbbe967b32d806f665b51c389ffb60993daa",
+        "CooldownConfig.constructor:fromJson": "611b5d65a803e666acad0aad3b71aaa662bdc70b28ce827e989bfcaf3127f495",
+        "PointBuyConfig.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "PointBuyConfig.costForScore": "294f52ccfa262ec1a03b1e4b4ca398adcf37fca826bf1f4b52c66e601eb58a8d",
+        "PointBuyConfig.calculateTotalSpent": "5c89b2770ae4f166ac411a523d6823ea139b3785753d3f262cb7bccfadcf94e9",
+        "PointBuyConfig.remainingPoints": "0cd74b8beb949732ace49c97e32c8f1daf8c221af0fcd83615acec21e980148a",
+        "PointBuyConfig.canIncrease": "00c2eed5faf0180b5b586e586fe96d4bcc10ffb8430826dbc1cf4c002f98ea30",
+        "PointBuyConfig.canDecrease": "38b75ffef91516642cbfc611e014af00ea8c5d85e40ec46c83a0bb8aee0c9605",
+        "GameRulesConfig.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "GameRulesConfig.toJson": "07c079334b2b49ee4a9f69448cabd8042708f22e2f588d3989e7b3705b5a1324",
+        "GameRulesConfig.constructor:fromJson": "f5ee205ad4f7fae1dcc3bfc0e37544e4fda5953043eff3db942e634f6ea99cb3"
+      },
+      "sourceHash": "1e9ece37564c1cf769df5b5d8910435843eb192b1b018e61dfc7f4b08958b5ce"
+    },
+    "app/lib/core/debug/debug_replay.dart": {
+      "lines": 87,
+      "symbols": {
+        "DebugReplaySnapshot.constructor:new": {
+          "lines": 8,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 6
+        },
+        "DebugReplaySnapshot.toJson": {
+          "lines": 8,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "DebugReplaySnapshot.constructor:fromJson": {
+          "lines": 12,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "DebugReplaySnapshot.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "DebugReplayRecorder.constructor:new": {
+          "lines": 6,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 4
+        },
+        "DebugReplayRecorder.recordAction": {
+          "lines": 18,
+          "cyclomatic": 4,
+          "cognitive": 6,
+          "nesting": 3,
+          "parameters": 1
+        },
+        "DebugReplayRecorder.complete": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "DebugReplayRecorder.snapshot": {
+          "lines": 8,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        }
+      },
+      "fingerprints": {
+        "DebugReplaySnapshot.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "DebugReplaySnapshot.toJson": "b2691bb6d53837e099eadde33872425d19763d244378b7765b618e056961e4f8",
+        "DebugReplaySnapshot.constructor:fromJson": "f72eca5d4a6e6d2c03321649ae4860d5bd97288f7da9ca43f36d3f04dd51c969",
+        "DebugReplaySnapshot.closure": "6f559daccfd36e4b07fd3b0550dd508c79ad6a74edca895a33595d487cf3b7f2",
+        "DebugReplayRecorder.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "DebugReplayRecorder.recordAction": "9bbdfdd084fe8a6c5118050524dd56bfc16356559e0bf63d7ff74ec9e6266381",
+        "DebugReplayRecorder.complete": "7c8f73aff5635a15c5bef9e655eab70fbd13195a93230422bb55ac36a1cdaba6",
+        "DebugReplayRecorder.snapshot": "cfc47b8fe461095ff4bd376ce3b4ad032a9e81c837c3f831f2876aba6faf6d88"
+      },
+      "sourceHash": "30eb4ad48a139d2174648049282889cb33e08e1986d29d98a37065b0362835a4"
+    },
+    "app/lib/core/dnd/character_catalog.dart": {
+      "lines": 565,
+      "symbols": {
+        "constructor:new": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 3
+        },
+        "fromCode": {
+          "lines": 9,
+          "cyclomatic": 5,
+          "cognitive": 5,
+          "nesting": 2,
+          "parameters": 1
+        },
+        "fromLabel": {
+          "lines": 9,
+          "cyclomatic": 4,
+          "cognitive": 4,
+          "nesting": 2,
+          "parameters": 1
+        },
+        "AlignmentEquipmentSet.constructor:new": {
+          "lines": 7,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 5
+        },
+        "AlignmentEquipmentSet.isAllowedFor": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "AlignmentEquipmentSet.isAllowedForCode": {
+          "lines": 7,
+          "cyclomatic": 3,
+          "cognitive": 2,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "CharacterAbilityDefinition.constructor:new": {
+          "lines": 7,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 5
+        },
+        "CharacterRaceDefinition.constructor:new": {
+          "lines": 7,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 5
+        },
+        "CharacterClassDefinition.constructor:new": {
+          "lines": 7,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 5
+        },
+        "CharacterCatalog.equipmentSetsForAlignment": {
+          "lines": 7,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "CharacterCatalog.equipmentSetsForAlignment.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "CharacterCatalog.raceById": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "CharacterCatalog.raceById.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "CharacterCatalog.classById": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "CharacterCatalog.classById.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "CharacterCatalog.abilityById": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "CharacterCatalog.abilityById.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "CharacterCatalog.racialAbilities": {
+          "lines": 4,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "CharacterCatalog.racialAbilities.closure": {
+          "lines": 1,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "CharacterCatalog.classAbilities": {
+          "lines": 4,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "CharacterCatalog.classAbilities.closure": {
+          "lines": 1,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 0,
+          "parameters": 1
+        }
+      },
+      "fingerprints": {
+        "constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "fromCode": "8f34755a8e7a69dafb22e5d19116b13cfe507da3da9ddbf1efa9792ea1a18db7",
+        "fromLabel": "82267dfeb18e0b8f3dcc3427b2db43ab459c4336ecd9c0b098423a0013f5a823",
+        "AlignmentEquipmentSet.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "AlignmentEquipmentSet.isAllowedFor": "ee272f4bd96b4ec8505170fa0e19d7bce336d8ec6456e1c09d020d23e66478d0",
+        "AlignmentEquipmentSet.isAllowedForCode": "3614a4dfa269e853225570a5864c9215d458a23a3df902270b3e32bfbf961508",
+        "CharacterAbilityDefinition.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "CharacterRaceDefinition.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "CharacterClassDefinition.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "CharacterCatalog.equipmentSetsForAlignment": "523551d75a19ef22f69758fbf04e6471079d1b24542accbba858d1b6aa621075",
+        "CharacterCatalog.equipmentSetsForAlignment.closure": "a0d0c1f475c2fca0999eafae413cb15101596003a0b67c5c77d8ed7f619a1324",
+        "CharacterCatalog.raceById": "1d168d07236b588f60821a8a76c47683b0ec4946cddfe375f55cdd5e81268d58",
+        "CharacterCatalog.raceById.closure": "8ed20504fa204d14c519207c3ba3491e719100f425ad815c9e3fce456f34f4a4",
+        "CharacterCatalog.classById": "196d440e12b09ca8c75cb20af41311cb1669b7321835e089efb575f056141db6",
+        "CharacterCatalog.classById.closure": "6f8c863c312500192ba2169e05516643a7215744d15b1fa14970c803663bcee2",
+        "CharacterCatalog.abilityById": "5f1d30d30565cf8019f80882fbba74f97c85401423a1d0a91d3806997c10e466",
+        "CharacterCatalog.abilityById.closure": "1bc8d73196718d73239030bf2ab19f99bf286262f84e04b868f6e5867479f5cf",
+        "CharacterCatalog.racialAbilities": "aa7d0f96c94e773f9468e58245bbf8b224181d1321ce62ef24532f94c2a1ca78",
+        "CharacterCatalog.racialAbilities.closure": "28e49f0eec45dc79b87149c728d02575f5c23f715cfaca8f17bc2693243ad959",
+        "CharacterCatalog.classAbilities": "f0f887e9191e4f25a044e152f88d4ba4f8de6aa9b103e17755402bd0806edbc1",
+        "CharacterCatalog.classAbilities.closure": "484445942ceb70edbcd3c581b83ee262a0fe67041de72a7f27da299490315baa"
+      },
+      "sourceHash": "46422308c2de04f43584cf3ed43ce89c0b0f47ae589649a791d1f3181c8bc8c7"
+    },
+    "app/lib/core/dnd/character_stats.dart": {
+      "lines": 256,
+      "symbols": {
+        "CharacterStats.constructor:new": {
+          "lines": 19,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 17
+        },
+        "CharacterStats.strengthMod": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CharacterStats.dexterityMod": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CharacterStats.constitutionMod": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CharacterStats.intelligenceMod": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CharacterStats.wisdomMod": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CharacterStats.charismaMod": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CharacterStats.proficiencyBonus": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CharacterStats.meleeAttackBonus": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CharacterStats.weaponRange": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CharacterStats._rangeMultiplier": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CharacterStats.meleeRange": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CharacterStats.spellRange": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CharacterStats.meleeStagger": {
+          "lines": 4,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CharacterStats.rangedWeaponRange": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CharacterStats.rangedNormalRange": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CharacterStats.rangedLongRange": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CharacterStats.rangedKnockback": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CharacterStats.thrownNormalRange": {
+          "lines": 3,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 0
+        },
+        "CharacterStats.thrownLongRange": {
+          "lines": 3,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 0
+        },
+        "CharacterStats.spellcastingAbilityMod": {
+          "lines": 10,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 0
+        },
+        "CharacterStats.spellAttackBonus": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CharacterStats.jumpVelocity": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CharacterStats.maxJumpHeight": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CharacterStats.moveSpeed": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CharacterStats.darkvisionRadius": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CharacterStats.canWearEquipmentSet": {
+          "lines": 3,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "CharacterStats.isDead": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CharacterStats.takeDamage": {
+          "lines": 3,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "CharacterStats.heal": {
+          "lines": 3,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "CharacterStats.constructor:fighterProtagonist": {
+          "lines": 25,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "CharacterStats.constructor:trainingDummy": {
+          "lines": 17,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "CharacterStats.copyWith": {
+          "lines": 40,
+          "cyclomatic": 18,
+          "cognitive": 17,
+          "nesting": 0,
+          "parameters": 17
+        },
+        "CharacterStats.toJson": {
+          "lines": 18,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CharacterStats.constructor:fromJson": {
+          "lines": 27,
+          "cyclomatic": 18,
+          "cognitive": 17,
+          "nesting": 0,
+          "parameters": 2
+        }
+      },
+      "fingerprints": {
+        "CharacterStats.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "CharacterStats.strengthMod": "697928f5311422adb392c3c08a7dc477d5be5309554261a4f0efabea167f8cf9",
+        "CharacterStats.dexterityMod": "2157c215e4b369f5542c93f336312a00beb5a6ee6ac1615348d9f0f6f2ccb664",
+        "CharacterStats.constitutionMod": "46f88eecfea66034b90690713c291b39c90777f06a1008ed5076be272d88eda0",
+        "CharacterStats.intelligenceMod": "d3679f3e694a8dc5802a880b6132ed0b0e804c98dad6f62ffd25ed64b69d5e6b",
+        "CharacterStats.wisdomMod": "2fc018aca81fa3c4f26a477a07cf6662b7d541c4b4fc1bf2dff68f21af7f4f67",
+        "CharacterStats.charismaMod": "4619914035e42f924bf595b8f168938b85e0ebdf49e65eb79a9b5ec3c9d93045",
+        "CharacterStats.proficiencyBonus": "678ff8fbcf330ad94f9244d47d61c8260469cb117d530abe97a1a8c572769e53",
+        "CharacterStats.meleeAttackBonus": "3c442cef61e7ebb3c26d8e89235aa0415434ca72b7eab56378818957299b16a4",
+        "CharacterStats.weaponRange": "0e74ae4deb766b5ac2e1c3ca017bf4ad0c834f59eb9eba4553f15626d35c0290",
+        "CharacterStats._rangeMultiplier": "9f7a3c042bd550553c1e3b7e05d218370d7147e7dd92e97c89f0e24e286b0b2d",
+        "CharacterStats.meleeRange": "8102ebc2090ff97aadec947df31064fc996bc5161fc977f7897022dc870b790d",
+        "CharacterStats.spellRange": "f2df3f8726ca4fb88ea5fd0e46322e09ab117de31e8727494aeb07d224b8e502",
+        "CharacterStats.meleeStagger": "62abe0ee36636cf9ea4b292cde5b6fc6c253b83c2a3f1e4d969203f8ddd01462",
+        "CharacterStats.rangedWeaponRange": "bb96ca19d0ac7cf14500b33180896350a9bc9d06d535361fa1f93cf6d81063dd",
+        "CharacterStats.rangedNormalRange": "a82beab9b5e43f5bb2872860beb0c3902ce6cc5725c7745535d9ecf5f53a8a6b",
+        "CharacterStats.rangedLongRange": "c7e106ce9b353d403a78de087a4c25ea75d5cb3659a0b5bf70dd421ddc979c07",
+        "CharacterStats.rangedKnockback": "0fd5df3bb4712e5907f502e04aaf63818af6208f177fcd9246a270370c2a601c",
+        "CharacterStats.thrownNormalRange": "3300f32a9ed7c2a2d6d5412ae2f84b0a1005ea888abc94ab85a2eeeb2582c724",
+        "CharacterStats.thrownLongRange": "6f315356501ca54d3df487322adb52ca763e3501c879a81a9707a99c75e7f141",
+        "CharacterStats.spellcastingAbilityMod": "0718a432fd193e0404c24a6d070a794b746b4d74976c55e5e4a0aa7f5a6bbb89",
+        "CharacterStats.spellAttackBonus": "ee52037e91d502741180cb1dcdc96d26330bce6f27dd9bb4d9ae8f2ac9a92c03",
+        "CharacterStats.jumpVelocity": "7236c5a4025148aea19cd2be2f390afa9587c48854401bf139ea933274b07103",
+        "CharacterStats.maxJumpHeight": "307f8d400c5b4bd38c6679789721cffbb4e54b3b83959f5834ae89847e4d5154",
+        "CharacterStats.moveSpeed": "83f1e480e702a16450f552f3ec6a4793cde9b956ad1a4e1f836c66d6285b9e28",
+        "CharacterStats.darkvisionRadius": "7bc24256f606def834216f8d45851f613be2c78b2403c022a4b8fdcc9a914bce",
+        "CharacterStats.canWearEquipmentSet": "1bf8a7ac8add8f6a5b75bb2536b69577a171e70dc1ad3dd71e51c90f14cea1a6",
+        "CharacterStats.isDead": "e3c52e62f1fd4e50151baa4fe83a4df1017291b4a95e3490ad99e5fc52326774",
+        "CharacterStats.takeDamage": "6141a0b4671a4f4ad9e39cd1359e19ab6956a74091d1a5d275595043e209056f",
+        "CharacterStats.heal": "f3a9fa8a32bb88a86346596f3f17c45a309478d96c9f6ec47b6408a5d2f542a2",
+        "CharacterStats.constructor:fighterProtagonist": "144c8e5f92ba3d423d029cc945a6c75cef098ad427dcfb328306c7bcb6f97a82",
+        "CharacterStats.constructor:trainingDummy": "d6fb695fe8f52836b902dddb79258290a92acdf9c7eb059374191b9b63c5a64b",
+        "CharacterStats.copyWith": "f4366c39b64b1b820ee97b97647f5d4864f5d406086263016c2eb024b0d1264b",
+        "CharacterStats.toJson": "a75f136e5af7e5bfc37855f3b4668908fc64fd3a626ce8f37d9f0727a5ea7ffc",
+        "CharacterStats.constructor:fromJson": "9339c5e56aa1ab6af198c9e95c7518192dc7e47e14249b33d34cb0fdf5da574d"
+      },
+      "sourceHash": "3baffad5f163fe8a7377797fd15ab373831c3ee866c7e7e48d3fd6358f187c28"
+    },
+    "app/lib/core/dnd/combat_engine.dart": {
+      "lines": 234,
+      "symbols": {
+        "CombatEngine._validateCombatants": {
+          "lines": 29,
+          "cyclomatic": 3,
+          "cognitive": 2,
+          "nesting": 1,
+          "parameters": 2
+        },
+        "CombatEngine.resolveMeleeAttack": {
+          "lines": 84,
+          "cyclomatic": 4,
+          "cognitive": 6,
+          "nesting": 3,
+          "parameters": 6
+        },
+        "CombatEngine.resolveSpellAttack": {
+          "lines": 65,
+          "cyclomatic": 6,
+          "cognitive": 10,
+          "nesting": 3,
+          "parameters": 6
+        },
+        "CombatEngine.resolveRangedAttack": {
+          "lines": 42,
+          "cyclomatic": 10,
+          "cognitive": 13,
+          "nesting": 3,
+          "parameters": 5
+        }
+      },
+      "fingerprints": {
+        "CombatEngine._validateCombatants": "b7b50a88944c88bf37bb8c7bc713cc8551002cea18d6da7d1fadd7ed0bb4d514",
+        "CombatEngine.resolveMeleeAttack": "5a08290506c0040b1c29a727624e9ec74ccfbb332b4fda31eb9354312bd0087f",
+        "CombatEngine.resolveSpellAttack": "bb61173eb6021786f32402a4ed2b811baff87d5ac48143b1a4c1bb28363f52ea",
+        "CombatEngine.resolveRangedAttack": "104e4ad5496ced1870ce7b743eefcb5d897e7dacd4ad41ee6cac355e90417db2"
+      },
+      "sourceHash": "3525fcd4f70f771af38e3da1ee2d14d76630793f345881eb7d5e2250ab715879"
+    },
+    "app/lib/core/dnd/combat_result.dart": {
+      "lines": 25,
+      "symbols": {
+        "CombatResult.constructor:new": {
+          "lines": 10,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 8
+        },
+        "CombatResult.toString": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        }
+      },
+      "fingerprints": {
+        "CombatResult.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "CombatResult.toString": "22b7bf4b0e79bc09ff78e1838479168118f95c788f212ef9b2a12d196d9bc4d9"
+      },
+      "sourceHash": "90e6c714eeb746cf0c07919797acb3157c3da0de1ba3dfb3b497f27dc6e25d7c"
+    },
+    "app/lib/core/dnd/dice.dart": {
+      "lines": 51,
+      "symbols": {
+        "Dice.seed": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "Dice.configureSeed": {
+          "lines": 4,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "Dice.roll": {
+          "lines": 5,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "Dice.d20": {
+          "lines": 14,
+          "cyclomatic": 5,
+          "cognitive": 4,
+          "nesting": 1,
+          "parameters": 2
+        },
+        "Dice.rollMultiple": {
+          "lines": 8,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 2
+        },
+        "Dice.d4": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "Dice.d6": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "Dice.d8": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "Dice.d10": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "Dice.d12": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        }
+      },
+      "fingerprints": {
+        "Dice.seed": "2b1bc9c782ee6d8dcf926707455199fb9de97fe768f5e6fc7e3f64b761612156",
+        "Dice.configureSeed": "1c253891cd8580194c8095fdf13e084daaa1153489d2fa0ec5294d892b667047",
+        "Dice.roll": "20bbd94f4a92e1619acb3ba2acaa4347d07f8707107f92fc105455a1fab4fde2",
+        "Dice.d20": "3552984d423f38ec4909b25192dc86a7d68ffcfc9b97b61ac7fcb8a0a8f89b37",
+        "Dice.rollMultiple": "82d95bc4a424b215cb599c494a98e72c4c9dbee68a00a9655dd0923cc6420305",
+        "Dice.d4": "0b79e5eb88d8dd95e42d57279066250f25388e8137ff77e62d9c63981a9a5256",
+        "Dice.d6": "12e6777e544695529b806aa24f54369f9fa0cdf6f48f24af796c948baece9a95",
+        "Dice.d8": "ccd974ea370448569a8fc1677f11f1eda10b932c94e29ba316bf50dc43ce06df",
+        "Dice.d10": "cbdb09c8c7042fa06f9566acea37f1a42052e04f5c66448eb25cf5af06e57c90",
+        "Dice.d12": "022ed678355b85ddaaa3499e532248373a57b2c495f20ae612cf704af3504d8d"
+      },
+      "sourceHash": "7e95e8cdfc36f8fa443bd7a9e582275fd1006fff48f1a59e179fd23bc191d072"
+    },
+    "app/lib/core/errors/game_error.dart": {
+      "lines": 49,
+      "symbols": {
+        "constructor:new": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "toString": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "GameException.constructor:new": {
+          "lines": 7,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 4
+        },
+        "GameException.toString": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        }
+      },
+      "fingerprints": {
+        "constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "toString": "570783fee000cc982af3eb0c90afd84fb42699f5afb36b22701a8ccbeba4a10c",
+        "GameException.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "GameException.toString": "df41865ee368d34708644674ddab135897b046874d75995e38ecb723354abe16"
+      },
+      "sourceHash": "3b2c621a3cd1c49e018f59de4d92caf781e99a577eb03cefe921f01da32cab78"
+    },
+    "app/lib/core/inventory/equipment_grid.dart": {
+      "lines": 80,
+      "symbols": {
+        "EquipmentGrid.itemAt": {
+          "lines": 4,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "EquipmentGrid.occupiedCount": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "EquipmentGrid.slotAt": {
+          "lines": 4,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "EquipmentGrid.slots": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "EquipmentGrid.fits": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "EquipmentGrid.replaceAll": {
+          "lines": 11,
+          "cyclomatic": 5,
+          "cognitive": 5,
+          "nesting": 2,
+          "parameters": 1
+        },
+        "EquipmentGrid.place": {
+          "lines": 9,
+          "cyclomatic": 3,
+          "cognitive": 2,
+          "nesting": 1,
+          "parameters": 2
+        },
+        "EquipmentGrid.move": {
+          "lines": 18,
+          "cyclomatic": 5,
+          "cognitive": 4,
+          "nesting": 1,
+          "parameters": 2
+        },
+        "EquipmentGrid.remove": {
+          "lines": 8,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        }
+      },
+      "fingerprints": {
+        "EquipmentGrid.itemAt": "9520626f59633b79416fbd1f70a369a6279dd884b66908964fa529df35dbebad",
+        "EquipmentGrid.occupiedCount": "8acf55bd0475534d18f9cc505982d09481c03119e86891a4708e3b83dc61edb3",
+        "EquipmentGrid.slotAt": "1fa5dcb888625acd1ede48c38bc92eb3d265dc76b5a1b55a03eb4bffbe9ed264",
+        "EquipmentGrid.slots": "f449ce92d1dae4cba3d3316fae9294e5d77b8e3f30eff3e9e576372834f8d945",
+        "EquipmentGrid.fits": "ed7e3adfe8c87ecc53a8a778996cfb249a031431dbf8b016f93924932057aeff",
+        "EquipmentGrid.replaceAll": "517607b80d81e01e41d9c200675f829247af256dedbd989fe5385696957cf581",
+        "EquipmentGrid.place": "4fa3877bcc81aa36e44591b1caea20628159853231e9bc48d53c0e584118f061",
+        "EquipmentGrid.move": "efb448ffaa5c2deec85cebc711174228e6721de086e5c2e43445c3d5ab9c4a05",
+        "EquipmentGrid.remove": "cd4b9d226635a77b6ebd90c69f2bfe4ee2d43295877f6068bb5d2c4966350b74"
+      },
+      "sourceHash": "ed00115f5b74061aa60ec14a3b23fc8dc9bb33e13b36fb1ec389a9a91a6c3f8e"
+    },
+    "app/lib/core/inventory/equipment_slot.dart": {
+      "lines": 15,
+      "symbols": {
+        "constructor:new": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        }
+      },
+      "fingerprints": {
+        "constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4"
+      },
+      "sourceHash": "6480c6d125f76c0ba2216a981621c39c07169d80f8bac8b9edc731a546d7ac61"
+    },
+    "app/lib/core/inventory/godot_sample_equipment.dart": {
+      "lines": 40,
+      "symbols": {},
+      "fingerprints": {},
+      "sourceHash": "6c9dcee3e6b352e65d8a8dea3ba27955febd3cf122ed55e4681bf92e58f299cf"
+    },
+    "app/lib/core/inventory/inventory.dart": {
+      "lines": 129,
+      "symbols": {
+        "EquipmentItem.constructor:new": {
+          "lines": 9,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 7
+        },
+        "EquipmentItem.constructor:fromJson": {
+          "lines": 15,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "EquipmentItem.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "EquipmentSet.constructor:new": {
+          "lines": 7,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 5
+        },
+        "EquipmentSet.constructor:fromJson": {
+          "lines": 15,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "EquipmentSet.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "EquipmentSet.closure#2": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "InventoryState.constructor:new": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "InventoryState.canAdd": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "InventoryState.add": {
+          "lines": 4,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "ArmoryState.constructor:new": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "ArmoryState.canEquip": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "ArmoryState.equip": {
+          "lines": 4,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "EquipmentDatabase.constructor:new": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "EquipmentDatabase.constructor:fromJson": {
+          "lines": 16,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "EquipmentDatabase.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "EquipmentDatabase.closure#2": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "EquipmentDatabase.closure#3": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "EquipmentDatabase.setsFor": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "EquipmentDatabase.setsFor.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        }
+      },
+      "fingerprints": {
+        "EquipmentItem.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "EquipmentItem.constructor:fromJson": "5241bfd388b0ce77b11f3fac18da919e3729b616a17bb4cee77e6bbeccbe0e2a",
+        "EquipmentItem.closure": "594e51743e6954c1db39729d17f7c324cdc40ebe6529375aa06f56610ffb900f",
+        "EquipmentSet.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "EquipmentSet.constructor:fromJson": "f1068c8aaea2be7d9b5659681e9f68a83ed5b472ae23c8cb43ac66116700a9a2",
+        "EquipmentSet.closure": "133dc3ea5769fae008cf3e7c1f1cee96b4eafd20e4efee442a34784464b9545a",
+        "EquipmentSet.closure#2": "594e51743e6954c1db39729d17f7c324cdc40ebe6529375aa06f56610ffb900f",
+        "InventoryState.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "InventoryState.canAdd": "6e0f4897c323fa2e908cffb9f52603852b249f39e3337bf224a893cee8327954",
+        "InventoryState.add": "5f047b864cc7e7a0cba8a4b85efbb735f1a74f123beb6cb29f14dc6721514048",
+        "ArmoryState.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "ArmoryState.canEquip": "5e01f49a8afbb157fca17645947ba9d36adcf2da9924202dce4daa573faa7103",
+        "ArmoryState.equip": "1f7dad8b93790830ca5ed4b1b97fea2c3a2057553e42be700604c3d93ae5eb10",
+        "EquipmentDatabase.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "EquipmentDatabase.constructor:fromJson": "91845715c745f898f5cd15541deaa20b846a1473594c178f0a6a09916a067ac7",
+        "EquipmentDatabase.closure": "b23c2ea39a549568cc5c9002020b8a9604b98bc524ef3442eb33438fe0bc7101",
+        "EquipmentDatabase.closure#2": "027a60fc7ae7736ee882d8b419b5f8dccb0263ecfd83af7b3c86c649c78f6d49",
+        "EquipmentDatabase.closure#3": "15ae96345851c9dae614cc725eba499469f333e1cf186322ade4f613d863c1f7",
+        "EquipmentDatabase.setsFor": "bcee5a199404ed5d1be31815280650c31f0a6b68d1c1d0597abfa516e3d20242",
+        "EquipmentDatabase.setsFor.closure": "e747e10a5d4c4a3359252f5f352aa5d792bc244648372cf768386bfa3badbbcb"
+      },
+      "sourceHash": "78550074394aee27e12e62c509c92011dab8e327cf14e0de1fb5186d3a677b6b"
+    },
+    "app/lib/core/platform/platform_services.dart": {
+      "lines": 40,
+      "symbols": {
+        "CombatStatistics.constructor:new": {
+          "lines": 8,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 6
+        },
+        "CombatStatistics.toJson": {
+          "lines": 8,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "PlatformServices.isAvailable": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "PlatformServices.unlockAchievement": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "PlatformServices.saveCloudData": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "PlatformServices.loadCloudData": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "PlatformServices.syncCombatStatistics": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "PlatformServices.loadPendingCombatStatistics": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        }
+      },
+      "fingerprints": {
+        "CombatStatistics.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "CombatStatistics.toJson": "5ea0f78059e70c5ffa0c1fa9cec6fd8d747dea2a2334da0ddf906f992cfb3612",
+        "PlatformServices.isAvailable": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "PlatformServices.unlockAchievement": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "PlatformServices.saveCloudData": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "PlatformServices.loadCloudData": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "PlatformServices.syncCombatStatistics": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "PlatformServices.loadPendingCombatStatistics": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4"
+      },
+      "sourceHash": "32353dd54af09b6aed8825f6007faab6789aa58d9b8dd65ef0b8dc3425c7e165"
+    },
+    "app/lib/game/camera_follow_controller.dart": {
+      "lines": 69,
+      "symbols": {
+        "CameraFollowController.constructor:new": {
+          "lines": 7,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 5
+        },
+        "CameraFollowController.update": {
+          "lines": 22,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CameraFollowController._nextCenter": {
+          "lines": 23,
+          "cyclomatic": 5,
+          "cognitive": 5,
+          "nesting": 2,
+          "parameters": 5
+        }
+      },
+      "fingerprints": {
+        "CameraFollowController.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "CameraFollowController.update": "017bfe4153211fe18dea9ea36fd6d530bf8d556b8a59c8c3a76588ae1c9d8c78",
+        "CameraFollowController._nextCenter": "ea6f27c0fbd51e71e6ad69f59c59b5a4c80eea6a2d3c211d8e7a7b9d38ec4bba"
+      },
+      "sourceHash": "1a47ff462b004ebd6b8b90bfe9e609036421cb645d19280596da87f146377fb6"
+    },
+    "app/lib/game/combat_completion.dart": {
+      "lines": 52,
+      "symbols": {
+        "CombatCompletion.constructor:new": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "CombatCompletion.record": {
+          "lines": 12,
+          "cyclomatic": 4,
+          "cognitive": 3,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "CombatCompletion.record.closure": {
+          "lines": 3,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CombatCompletion.record.closure#2": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CombatCompletion._perform": {
+          "lines": 12,
+          "cyclomatic": 3,
+          "cognitive": 2,
+          "nesting": 1,
+          "parameters": 2
+        },
+        "CombatCompletion._report": {
+          "lines": 5,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 2
+        },
+        "CombatCompletion.dispose": {
+          "lines": 4,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        }
+      },
+      "fingerprints": {
+        "CombatCompletion.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "CombatCompletion.record": "0ae66d3012067a2f386d89739f2d9292f78280a7a0ac06c0d0d89492d27397b0",
+        "CombatCompletion.record.closure": "2436e7528140b20f7bbf6ce5166dd789221b2f9eb3aa4f8749ff2e980d32cd1b",
+        "CombatCompletion.record.closure#2": "c970a2225ef5f5b9ece88ef7c3680018239188d0ac319b7c3067c595c3c2af91",
+        "CombatCompletion._perform": "71b93982bff951d1a4e002bad4a579883ceafaed7933f1d38f830b5d43b5b586",
+        "CombatCompletion._report": "53313d92eaf2190c6f23cf6b76d39fbe91ce9082ad7ed23f7ec47a62a439d23f",
+        "CombatCompletion.dispose": "206fdbe15b907a70f9568d19cdbae43c4c7ce729b266904a9abec2aa11bff54f"
+      },
+      "sourceHash": "8e04e898ab7a5bcaf636d45992839a838b5509fd967e55bc52742cad5ae09d04"
+    },
+    "app/lib/game/components/arena_map_component.dart": {
+      "lines": 270,
+      "symbols": {
+        "ArenaMapComponent.constructor:new": {
+          "lines": 7,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "ArenaMapComponent.groundY": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "ArenaMapComponent.leftWallX": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "ArenaMapComponent.rightWallX": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "ArenaMapComponent.platforms": {
+          "lines": 11,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "ArenaMapComponent.playableBounds": {
+          "lines": 6,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "ArenaMapComponent.update": {
+          "lines": 5,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "ArenaMapComponent.getSurfaceYBelow": {
+          "lines": 12,
+          "cyclomatic": 6,
+          "cognitive": 8,
+          "nesting": 3,
+          "parameters": 1
+        },
+        "ArenaMapComponent.render": {
+          "lines": 23,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "ArenaMapComponent._renderBackgroundArchitecture": {
+          "lines": 46,
+          "cyclomatic": 3,
+          "cognitive": 2,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "ArenaMapComponent._renderTorches": {
+          "lines": 37,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "ArenaMapComponent._renderPlatforms": {
+          "lines": 46,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "ArenaMapComponent._renderGround": {
+          "lines": 31,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "ArenaMapComponent._renderWalls": {
+          "lines": 17,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        }
+      },
+      "fingerprints": {
+        "ArenaMapComponent.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "ArenaMapComponent.groundY": "2d4359b08c30a162702898f9198fe17eac44072804ca13a0dc3ea8b07cb0a14a",
+        "ArenaMapComponent.leftWallX": "0d42d00e07e289e719cb183e35384a8c5c426bc8abdcdd87ce51bcfcd8008583",
+        "ArenaMapComponent.rightWallX": "05403239ee883f4a7d77b2bbcaead1be0203a5e355a15decd82b0abd614b540f",
+        "ArenaMapComponent.platforms": "182570c50e846502b6acd6a0dec0270ead3469eab4c1800ceb3355e1361fd37e",
+        "ArenaMapComponent.playableBounds": "babbb7703dafe0a438025f5888497a274896cf42eb4a2c5405df2eea0566f79b",
+        "ArenaMapComponent.update": "a5c62f37658d52e84b16a08b8df2a56f801e4356ab5e04a00803806e2bc55363",
+        "ArenaMapComponent.getSurfaceYBelow": "8c469d214e70967624dae4fe57c1ef95719d6b198ca804de086f4c5149325f76",
+        "ArenaMapComponent.render": "dd3427eda8d61617ded7cb6bea9fbfdde3fac347ca456dbe228619041145bc97",
+        "ArenaMapComponent._renderBackgroundArchitecture": "fb2ef26e79cf90aa8982bad8a5977f8a0c021749170048f97d78e435796148d9",
+        "ArenaMapComponent._renderTorches": "fceb97941a9b01d4eba1367c8caaa95617efd4b23bef63fbee94675c3f959291",
+        "ArenaMapComponent._renderPlatforms": "9349913a710dc128e28d0b1aac557cb51b65a51c25f927430818b97afb9748a8",
+        "ArenaMapComponent._renderGround": "746000cde9a53f15eab462101bc71ade11185b51ed5fc602ee2fc4a73467296f",
+        "ArenaMapComponent._renderWalls": "2a7f6050071cadc2bde5b239c91e339053a11bda77d6b5eb8e0dafb860ae5036"
+      },
+      "sourceHash": "544ba3d483c4a0403b61b2ddab91575e98297595ded3570d68a6474130257cab"
+    },
+    "app/lib/game/components/dummy_enemy_component.dart": {
+      "lines": 174,
+      "symbols": {
+        "DummyEnemyComponent.constructor:new": {
+          "lines": 10,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 3
+        },
+        "DummyEnemyComponent.triggerHitReaction": {
+          "lines": 3,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "DummyEnemyComponent.triggerStagger": {
+          "lines": 4,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "DummyEnemyComponent.update": {
+          "lines": 10,
+          "cyclomatic": 3,
+          "cognitive": 2,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "DummyEnemyComponent.render": {
+          "lines": 68,
+          "cyclomatic": 7,
+          "cognitive": 8,
+          "nesting": 2,
+          "parameters": 1
+        },
+        "DummyEnemyComponent._renderHealthBar": {
+          "lines": 52,
+          "cyclomatic": 4,
+          "cognitive": 4,
+          "nesting": 2,
+          "parameters": 1
+        },
+        "DummyEnemyComponent.onTapDown": {
+          "lines": 5,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        }
+      },
+      "fingerprints": {
+        "DummyEnemyComponent.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "DummyEnemyComponent.triggerHitReaction": "202f547b90d4c42c8815496db128e22fda8dc1f6128e61c9eb88fdf065ce62a4",
+        "DummyEnemyComponent.triggerStagger": "2668139cde476dec5d5fa2501b6a9903fb8ae97b2aaa38b6e7891bc56e1b507d",
+        "DummyEnemyComponent.update": "53e2a0d517fe1fa535fab480232fbf963f5b71c9720058f1a338cca3c1611fcd",
+        "DummyEnemyComponent.render": "9c3e31de133b120139ea9b53b34dd86de991aa6527545e9c9cf26a2f31c0b185",
+        "DummyEnemyComponent._renderHealthBar": "e8f010e171b47bc74f8c8c5d2035e8a89ff97225bbf21200bfa2ca695923efbf",
+        "DummyEnemyComponent.onTapDown": "820f8a94b72de62b33e3b2a54f815ad6177d3c279b4959c0365928db3355fab7"
+      },
+      "sourceHash": "0659b3fd645b78f81478ec1e98c13a46e0970b16182a044330fb000341c7f308"
+    },
+    "app/lib/game/components/floating_combat_text.dart": {
+      "lines": 84,
+      "symbols": {
+        "FloatingCombatText.constructor:new": {
+          "lines": 23,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 3
+        },
+        "FloatingCombatText._getColor": {
+          "lines": 14,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "FloatingCombatText.update": {
+          "lines": 10,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "FloatingCombatText.render": {
+          "lines": 15,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        }
+      },
+      "fingerprints": {
+        "FloatingCombatText.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "FloatingCombatText._getColor": "ec48a5a631ada89bc5eb2f37819843c5b2a1c07b628b991e8a7c59d24f7ccc52",
+        "FloatingCombatText.update": "340a86b67a14344a6547313b4bccf8fc6d880f45598119769b49f29ddc566281",
+        "FloatingCombatText.render": "05f17273d97f8bdc42d671a906dfeb9c8d0ba8c9eb0f972e8ff9264aa90a65ee"
+      },
+      "sourceHash": "e782706d3451987cb0c828ab5296a9bcafc659369e9d9c9ab9d781f7fdf112d7"
+    },
+    "app/lib/game/components/ghost_preview_component.dart": {
+      "lines": 164,
+      "symbols": {
+        "GhostPreviewComponent.constructor:new": {
+          "lines": 4,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "GhostPreviewComponent.update": {
+          "lines": 5,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "GhostPreviewComponent.render": {
+          "lines": 137,
+          "cyclomatic": 10,
+          "cognitive": 14,
+          "nesting": 3,
+          "parameters": 1
+        }
+      },
+      "fingerprints": {
+        "GhostPreviewComponent.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "GhostPreviewComponent.update": "0476c8e2012f282895909dd19b5e7e02a7e4b98a5dbd8663d4da20eb241191ab",
+        "GhostPreviewComponent.render": "35d6ea131471a18c5435d2cd751a175525348f6bba86fa1e9103679549c02486"
+      },
+      "sourceHash": "8b3bbb96dc4c3071512f192b3745e4a58044b2375846461c411328137ecab258"
+    },
+    "app/lib/game/components/player_component.dart": {
+      "lines": 901,
+      "symbols": {
+        "PlayerComponent.moveSpeed": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "PlayerComponent.jumpVelocity": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "PlayerComponent.gravity": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "PlayerComponent.equippedItems": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "PlayerComponent.equipmentSprites": {
+          "lines": 5,
+          "cyclomatic": 3,
+          "cognitive": 2,
+          "nesting": 1,
+          "parameters": 0
+        },
+        "PlayerComponent.cancelEquipmentUpdate": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "PlayerComponent.setEquipment": {
+          "lines": 9,
+          "cyclomatic": 4,
+          "cognitive": 3,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "PlayerComponent.constructor:new": {
+          "lines": 6,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 3
+        },
+        "PlayerComponent.onLoad": {
+          "lines": 5,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "PlayerComponent.onRemove": {
+          "lines": 6,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "PlayerComponent.reloadCharacterSheet": {
+          "lines": 38,
+          "cyclomatic": 8,
+          "cognitive": 8,
+          "nesting": 2,
+          "parameters": 0
+        },
+        "PlayerComponent._updateLocomotionFrame": {
+          "lines": 43,
+          "cyclomatic": 15,
+          "cognitive": 25,
+          "nesting": 4,
+          "parameters": 1
+        },
+        "PlayerComponent.updateStats": {
+          "lines": 4,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "PlayerComponent.jump": {
+          "lines": 9,
+          "cyclomatic": 3,
+          "cognitive": 2,
+          "nesting": 1,
+          "parameters": 0
+        },
+        "PlayerComponent.dropDown": {
+          "lines": 13,
+          "cyclomatic": 5,
+          "cognitive": 5,
+          "nesting": 2,
+          "parameters": 0
+        },
+        "PlayerComponent.executePlan": {
+          "lines": 14,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 2
+        },
+        "PlayerComponent.cancelPlan": {
+          "lines": 12,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "PlayerComponent._startCurrentAction": {
+          "lines": 56,
+          "cyclomatic": 8,
+          "cognitive": 22,
+          "nesting": 6,
+          "parameters": 0
+        },
+        "PlayerComponent._clampTargetToArena": {
+          "lines": 17,
+          "cyclomatic": 4,
+          "cognitive": 3,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "PlayerComponent._resolveSlash": {
+          "lines": 79,
+          "cyclomatic": 8,
+          "cognitive": 11,
+          "nesting": 3,
+          "parameters": 1
+        },
+        "PlayerComponent.canReachMelee": {
+          "lines": 6,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "PlayerComponent._resolveSpell": {
+          "lines": 33,
+          "cyclomatic": 8,
+          "cognitive": 9,
+          "nesting": 2,
+          "parameters": 2
+        },
+        "PlayerComponent._resolveRanged": {
+          "lines": 31,
+          "cyclomatic": 8,
+          "cognitive": 9,
+          "nesting": 2,
+          "parameters": 1
+        },
+        "PlayerComponent._showCombatRangeMessage": {
+          "lines": 9,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "PlayerComponent._resolveSecondWind": {
+          "lines": 18,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "PlayerComponent._spawn": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "PlayerComponent._spawn.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "PlayerComponent.update": {
+          "lines": 19,
+          "cyclomatic": 4,
+          "cognitive": 3,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "PlayerComponent._updatePlatformerPhysics": {
+          "lines": 69,
+          "cyclomatic": 18,
+          "cognitive": 23,
+          "nesting": 4,
+          "parameters": 1
+        },
+        "PlayerComponent._updateExecution": {
+          "lines": 30,
+          "cyclomatic": 7,
+          "cognitive": 11,
+          "nesting": 3,
+          "parameters": 1
+        },
+        "PlayerComponent.render": {
+          "lines": 55,
+          "cyclomatic": 10,
+          "cognitive": 11,
+          "nesting": 2,
+          "parameters": 1
+        },
+        "PlayerComponent._renderClassWeapon": {
+          "lines": 84,
+          "cyclomatic": 7,
+          "cognitive": 6,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "PlayerComponent._renderDynamicShadow": {
+          "lines": 26,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "PlayerComponent._renderProceduralSideViewFighter": {
+          "lines": 84,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        }
+      },
+      "fingerprints": {
+        "PlayerComponent.moveSpeed": "c53221b996d100c7c17755da20366aacc3413d0304d7de79636bcac2e7df6c61",
+        "PlayerComponent.jumpVelocity": "8446a11d4f30c9d0f648dbf65f43a349adb7e0aa18dcb9b256ad8c7a2dd846a6",
+        "PlayerComponent.gravity": "0b8e7938a0f7be4c78bd9e008a83b9f1e627eb7a692949e11f9895d425ccfb5c",
+        "PlayerComponent.equippedItems": "b6ae61f2d93fc7468bf8da2d41d271ef93997eb5e70e428a04a8ea9a1055e379",
+        "PlayerComponent.equipmentSprites": "4de196346817ee4f42c32a5acdd89865a32d80e670223b44a814e12167970620",
+        "PlayerComponent.cancelEquipmentUpdate": "64e46f80af443433a518a769946e035e846985dc52fef0a494952ae7a64fbc29",
+        "PlayerComponent.setEquipment": "4dac9893ca4a14f8d8672a82028d7c5a0b147a6bb3ef1b4fc9a896e71efe219b",
+        "PlayerComponent.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "PlayerComponent.onLoad": "cea6bf928e0d92580da9aae92d8ac3906fc13815ea3de9af84f110c047322066",
+        "PlayerComponent.onRemove": "b33c20b00ffa7f6262018824449d141cd411556644abf3369dc294344692f4c5",
+        "PlayerComponent.reloadCharacterSheet": "fe3a3c4f2950cf24e4963d08b1ad9089ac9d67e8b2f9529d32216bc4990f35aa",
+        "PlayerComponent._updateLocomotionFrame": "0fbbf5e9a9618b826c26d6958aa2b130a11d6cb38902c38fda19ec5fe7aa21fb",
+        "PlayerComponent.updateStats": "92b5be32a5736e106e5aef316752088c06968c8b966753d0d84539c899eaeac7",
+        "PlayerComponent.jump": "40a3835477bb409f123fd13bbd8ae53df20b9dd15fa9a713f4f25b9e52a57ef7",
+        "PlayerComponent.dropDown": "b116c9b58546620001c2c883654eda3cec90d742cce4f77f8166f394687de8d5",
+        "PlayerComponent.executePlan": "7586f3c147662a090c06cbb171630d8ac3481454eff31fac4441b982bd678c8b",
+        "PlayerComponent.cancelPlan": "b67f3ff6f45e4cd5bbac85e00ae511dad15b90ddcd08d78d167c1692eb0b58da",
+        "PlayerComponent._startCurrentAction": "1967e49f5c807ae2b41643f19fe634febbb38cb6105e1bfee7f3c364ec36c484",
+        "PlayerComponent._clampTargetToArena": "85c8bd719c5f65dad235429464b619e1efdd15c980e1cab137ba239bd33f1c2b",
+        "PlayerComponent._resolveSlash": "04c4cae58e74a8174c654f6b0f85f66ed756fe45fef72b2ac735a6c736ebe8b2",
+        "PlayerComponent.canReachMelee": "dc6bc0c2b794560380d5db5851a5c42abacca3f8939de7d4b3ac2bd052c8f545",
+        "PlayerComponent._resolveSpell": "9fcd67efe84a103442e8afc410b76036709e25424e0fdc46b4006a41bddc1a1c",
+        "PlayerComponent._resolveRanged": "c691e3ba6f752086bf692a392a52a0e7f0c5ac31d828368e724f0522fba89dc8",
+        "PlayerComponent._showCombatRangeMessage": "98fc731ffe3d8e87729626158971f870ce2ab6ea06259cb1b27ce8c141dcd6fc",
+        "PlayerComponent._resolveSecondWind": "ce27decae09625dcf8d814f83e8739eb62094960d613a50fb33c0595b2e7a350",
+        "PlayerComponent._spawn": "e9df10b514c44a855f9ba95cfa90e7c3bab90754b6266051df0929ec08827f5e",
+        "PlayerComponent._spawn.closure": "55a99c583fd77aecc29de399723305355d703703183b56b0f8c8be84ca6de5cd",
+        "PlayerComponent.update": "5b43e1cc672aaa3d5c528ef21045bffb06e8e6ee4755f32f68fa5d198e36e64e",
+        "PlayerComponent._updatePlatformerPhysics": "e3988b3cd1e25f96646ad03e379c1b86117fa10a41a7ea18acc470f3e908dcd3",
+        "PlayerComponent._updateExecution": "49e6f183cd6b467d9780514420a19a1e59b2dcb13fbdb4607130ac1d9c459f05",
+        "PlayerComponent.render": "bc7df0abe5b60f73e2477fd5635f01221c42b5c288c97dceca627f5482871c0c",
+        "PlayerComponent._renderClassWeapon": "afaba6b3edd384ffe1101d51be93ac19e185609e9e2c4eaf168d9bfa91e39038",
+        "PlayerComponent._renderDynamicShadow": "fc1de8865345059e685a44d7f7d471809dcefdc287b1b1db68954f5feedf7af1",
+        "PlayerComponent._renderProceduralSideViewFighter": "5773f61391103ae4b9b074e086a4da84131353d28fef80fd05b7ebfce619e212"
+      },
+      "sourceHash": "046876386beadf7febce18ee4a7425ad583d700125c3f1789209bc2aee6b0595"
+    },
+    "app/lib/game/components/projectile_component.dart": {
+      "lines": 38,
+      "symbols": {
+        "ProjectileComponent.constructor:new": {
+          "lines": 6,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 4
+        },
+        "ProjectileComponent.update": {
+          "lines": 12,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "ProjectileComponent.render": {
+          "lines": 9,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        }
+      },
+      "fingerprints": {
+        "ProjectileComponent.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "ProjectileComponent.update": "1d2936a73f90ac83d7a5d7592e0fee21f7881c3f628c4e844d9132d219eab04e",
+        "ProjectileComponent.render": "c65b27b5a56dd09e4502afc6727921a0adac618f728e73a5aa9784243a7f4aec"
+      },
+      "sourceHash": "3381a3a8b03ac971c8116837ef9a38158dd6aebdc65daaeb7fecbfe69ef58464"
+    },
+    "app/lib/game/components/wizard_animation_controller.dart": {
+      "lines": 160,
+      "symbols": {
+        "WizardAnimationController.constructor:new": {
+          "lines": 6,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "WizardAnimationController.loadManifest": {
+          "lines": 47,
+          "cyclomatic": 8,
+          "cognitive": 7,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "WizardAnimationController.onRemove": {
+          "lines": 8,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "WizardAnimationController._buildAnimations": {
+          "lines": 29,
+          "cyclomatic": 4,
+          "cognitive": 4,
+          "nesting": 2,
+          "parameters": 5
+        },
+        "WizardAnimationController._sprite": {
+          "lines": 26,
+          "cyclomatic": 10,
+          "cognitive": 9,
+          "nesting": 1,
+          "parameters": 5
+        },
+        "WizardAnimationController._stateForManifestKey": {
+          "lines": 11,
+          "cyclomatic": 11,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        }
+      },
+      "fingerprints": {
+        "WizardAnimationController.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "WizardAnimationController.loadManifest": "47ed40e9a950f701af541e6ea2e5964bba13b0b2615be700ea00f60a73fd51af",
+        "WizardAnimationController.onRemove": "471d355aea5b7ddc55b91c70f90aa1ab99fa560ff7b6902d5486c6259ff245ec",
+        "WizardAnimationController._buildAnimations": "2401d5cd1ccb4a72561fa27f273045caad02644e8f0cf68fd78e9d17e2761f13",
+        "WizardAnimationController._sprite": "889f0cfaa1335aaf14ec71fa01daeca5121070a4ca9c12b76c218c31bbc73408",
+        "WizardAnimationController._stateForManifestKey": "4887024b0f54eb1965eb4c25fce249223bcce20383ba5023d4e2e8945f5bcb0f"
+      },
+      "sourceHash": "ec05e965c0572dc9635f5a82e7bd1031411d47199593090f1fd5da5b5f05c7df"
+    },
+    "app/lib/game/developer_mode_controller.dart": {
+      "lines": 10,
+      "symbols": {
+        "DeveloperModeController.constructor:new": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "DeveloperModeController.toggle": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        }
+      },
+      "fingerprints": {
+        "DeveloperModeController.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "DeveloperModeController.toggle": "e7263cf9381a7b325a0dcd11734539d1fc4d1495af9b249c90098d005a03d0e1"
+      },
+      "sourceHash": "8c3b02f83461b99fe6a791bc4f9d3eb2041eb5932d2f1975d0cd687cbdda8b98"
+    },
+    "app/lib/game/developer_visualization_component.dart": {
+      "lines": 111,
+      "symbols": {
+        "DeveloperVisualizationComponent.constructor:new": {
+          "lines": 5,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 3
+        },
+        "DeveloperVisualizationComponent.render": {
+          "lines": 65,
+          "cyclomatic": 3,
+          "cognitive": 2,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "DeveloperVisualizationComponent._drawRange": {
+          "lines": 13,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 5
+        },
+        "DeveloperVisualizationComponent._drawTargetTrigger": {
+          "lines": 12,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 3
+        }
+      },
+      "fingerprints": {
+        "DeveloperVisualizationComponent.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "DeveloperVisualizationComponent.render": "94d68fcf82bb7f8a6f5915d964342c035e182348f5f91558bae62cfa550a633e",
+        "DeveloperVisualizationComponent._drawRange": "1c600b76926e5397e45fa1fbcaca5c5ae6b81fd93846a1a8cb0e46ba0515e54c",
+        "DeveloperVisualizationComponent._drawTargetTrigger": "2f1c408a0dc57a59665c4a8741c4c578103c00144f74fe9f7d7dc3c06030b89b"
+      },
+      "sourceHash": "9a9ac40549b8f0891640b399aa8f763181abaf97b30f46038cbdc832acf92b7d"
+    },
+    "app/lib/game/equipment_appearance.dart": {
+      "lines": 86,
+      "symbols": {
+        "EquipmentAppearance.hasWeapon": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "EquipmentAppearance.spritesAt": {
+          "lines": 4,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "EquipmentAppearance.cancelPending": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "EquipmentAppearance.applyAtlas": {
+          "lines": 17,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "EquipmentAppearance.applyAtlas.closure": {
+          "lines": 14,
+          "cyclomatic": 3,
+          "cognitive": 2,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "EquipmentAppearance.apply": {
+          "lines": 33,
+          "cyclomatic": 4,
+          "cognitive": 4,
+          "nesting": 2,
+          "parameters": 3
+        },
+        "EquipmentAppearance.apply.closure": {
+          "lines": 13,
+          "cyclomatic": 6,
+          "cognitive": 7,
+          "nesting": 2,
+          "parameters": 0
+        }
+      },
+      "fingerprints": {
+        "EquipmentAppearance.hasWeapon": "53750ba546fbb17c175cc6187c9ad4c3f0e4f30a256afec87634315a82175778",
+        "EquipmentAppearance.spritesAt": "670fe08452f08e763c22c0125c54f3d983bb16d19e230cda9dc8a6b71cb93084",
+        "EquipmentAppearance.cancelPending": "0e263da7d37124321d95b254ab8f93deb6d376c048269899b6a20badcd9c3de1",
+        "EquipmentAppearance.applyAtlas": "69ed2c8d5a8db2c5986e453246341d6dc8e95b42a18c04df82db914b432c262d",
+        "EquipmentAppearance.applyAtlas.closure": "40e47e432ee4d9db2ab817bd2bf0cc583d6b3feefcf7629e1de404d0b921c221",
+        "EquipmentAppearance.apply": "6fe1b5c8084139402d1f0a61a5846cc5ddff101be251d54a80823fb3d90150db",
+        "EquipmentAppearance.apply.closure": "83a097cb2e104b3b1d15e1a2dd5dc66e78f8be36a90da8dfacac5c46482b5c1a"
+      },
+      "sourceHash": "daa829d070d3b78236b60cabcf8dc8bf0a285828255f4705f9e092f836d946c2"
+    },
+    "app/lib/game/lighting_controller.dart": {
+      "lines": 68,
+      "symbols": {
+        "LightingController.constructor:new": {
+          "lines": 7,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 5
+        },
+        "LightingController.setDarkness": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "LightingController.render": {
+          "lines": 45,
+          "cyclomatic": 6,
+          "cognitive": 6,
+          "nesting": 2,
+          "parameters": 1
+        }
+      },
+      "fingerprints": {
+        "LightingController.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "LightingController.setDarkness": "65d4e97d2feb820c7a2a052ce7b29c1b243ebca645dec8aca467b2c1d760fb5c",
+        "LightingController.render": "9d658c63cc307aba2f1d8cfc6920b528fa0acd533db8e598930284718ba8e15f"
+      },
+      "sourceHash": "05676cade6a2938d963471caec7efbb2decd8b656d543dd1d3cdeadf20aad04e"
+    },
+    "app/lib/game/tactical_game.dart": {
+      "lines": 700,
+      "symbols": {
+        "TacticalModeGame.constructor:new": {
+          "lines": 9,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "TacticalModeGame.combatTimerNotifier": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "TacticalModeGame.debugHudEnabled": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "TacticalModeGame.currentPhase": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "TacticalModeGame.selectHotbarSlot": {
+          "lines": 5,
+          "cyclomatic": 4,
+          "cognitive": 3,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "TacticalModeGame.backgroundColor": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "TacticalModeGame.onLoad": {
+          "lines": 63,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "TacticalModeGame.onLoad.closure": {
+          "lines": 5,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 0
+        },
+        "TacticalModeGame.update": {
+          "lines": 12,
+          "cyclomatic": 4,
+          "cognitive": 3,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "TacticalModeGame._checkCombatOutcome": {
+          "lines": 37,
+          "cyclomatic": 8,
+          "cognitive": 8,
+          "nesting": 2,
+          "parameters": 0
+        },
+        "TacticalModeGame.restartCombat": {
+          "lines": 19,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "TacticalModeGame.toggleDarkness": {
+          "lines": 3,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "TacticalModeGame.startPlanning": {
+          "lines": 13,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 0
+        },
+        "TacticalModeGame.cancelPlanning": {
+          "lines": 11,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 0
+        },
+        "TacticalModeGame.executePlan": {
+          "lines": 27,
+          "cyclomatic": 4,
+          "cognitive": 3,
+          "nesting": 1,
+          "parameters": 0
+        },
+        "TacticalModeGame.executePlan.closure": {
+          "lines": 8,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "TacticalModeGame.startAutoCombat": {
+          "lines": 30,
+          "cyclomatic": 5,
+          "cognitive": 4,
+          "nesting": 1,
+          "parameters": 0
+        },
+        "TacticalModeGame.startAutoCombat.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "TacticalModeGame.openCharacterBuilder": {
+          "lines": 8,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "TacticalModeGame.closeCharacterBuilder": {
+          "lines": 7,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "TacticalModeGame.applyHeroBuild": {
+          "lines": 11,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "TacticalModeGame.queueAttackOnEnemy": {
+          "lines": 5,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 0
+        },
+        "TacticalModeGame.triggerSlashHotkey": {
+          "lines": 23,
+          "cyclomatic": 5,
+          "cognitive": 4,
+          "nesting": 1,
+          "parameters": 0
+        },
+        "TacticalModeGame.triggerSlashHotkey.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "TacticalModeGame.triggerSpellHotkey": {
+          "lines": 19,
+          "cyclomatic": 4,
+          "cognitive": 3,
+          "nesting": 1,
+          "parameters": 0
+        },
+        "TacticalModeGame.triggerSpellHotkey.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "TacticalModeGame.triggerRangedHotkey": {
+          "lines": 19,
+          "cyclomatic": 4,
+          "cognitive": 3,
+          "nesting": 1,
+          "parameters": 0
+        },
+        "TacticalModeGame.triggerRangedHotkey.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "TacticalModeGame.cycleCombatMode": {
+          "lines": 5,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "TacticalModeGame.triggerSelectedCombatHotkey": {
+          "lines": 17,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 0
+        },
+        "TacticalModeGame.queueActionAt": {
+          "lines": 38,
+          "cyclomatic": 4,
+          "cognitive": 3,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "TacticalModeGame.selectAbilityTargetAt": {
+          "lines": 5,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "TacticalModeGame._tryAddAction": {
+          "lines": 16,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "TacticalModeGame.undoLastAction": {
+          "lines": 11,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 0
+        },
+        "TacticalModeGame.onTapDown": {
+          "lines": 10,
+          "cyclomatic": 3,
+          "cognitive": 2,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "TacticalModeGame.onKeyEvent": {
+          "lines": 136,
+          "cyclomatic": 48,
+          "cognitive": 61,
+          "nesting": 3,
+          "parameters": 2
+        },
+        "TacticalModeGame._hotbarSlotForKey": {
+          "lines": 16,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        }
+      },
+      "fingerprints": {
+        "TacticalModeGame.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "TacticalModeGame.combatTimerNotifier": "6d194de491d3dee11ccce6778371d378df9ef10d337c5825f65a14abb277b95d",
+        "TacticalModeGame.debugHudEnabled": "91cbe39a86aa4de5c887fbbb07a6bce11ccdeb459d8554de24c4812adad00c5c",
+        "TacticalModeGame.currentPhase": "858ec6d78e446d792309885df69e0b84d87928911b507a16a14bb12d37353efc",
+        "TacticalModeGame.selectHotbarSlot": "d5fbb9fc66960719288e00df1053245f9c981ca3758c41e359f5941adceea195",
+        "TacticalModeGame.backgroundColor": "0db7a716379ba5bb8b6e85dbef508d8ca4d31e969df380a055ae8166bd0b4ba3",
+        "TacticalModeGame.onLoad": "cd010979c96addf24e43b590a936325c7ecebf1244de0f673df290ab32345b77",
+        "TacticalModeGame.onLoad.closure": "12ff4cd6b096a371cc82f09df52eb7eb0c3365ea94c1133ff97f21d23c72bc88",
+        "TacticalModeGame.update": "f0555d8ea9178dde6bea4cb7f42faa4308cb38ca92864c5161c03173bf28a0e9",
+        "TacticalModeGame._checkCombatOutcome": "3c05929e0db60219f28bbb1721d4e876bd30a16ec6fe58194ce98a5b06c079e2",
+        "TacticalModeGame.restartCombat": "6e89ef916ef1f3c167d4b1b1e2b8fb8ad50279dcae75d46db98d74ac2b57fef8",
+        "TacticalModeGame.toggleDarkness": "245fc7235aefa7a4060f61f868e4613700140cd8de9b79b515b8a2141ad9ba96",
+        "TacticalModeGame.startPlanning": "8df971db38f5996f8ae67515d1d4ffc4e46b49584ab54ee3ae42263172f56e53",
+        "TacticalModeGame.cancelPlanning": "e0f9d51952abfdec121f42c29293f2e108d290cfad76eed9c4af157597cafbbb",
+        "TacticalModeGame.executePlan": "6139a433743c46fda049bf28d945e66bbb0ca35e588a22e3c30b6c0f3b98fab9",
+        "TacticalModeGame.executePlan.closure": "61ecd64bd6a3d7be77c7d96a6cafe76e64942ba8d0f9213df75e0ab15fa0284b",
+        "TacticalModeGame.startAutoCombat": "f1bc8777e25bcae1422751ce01afd1df8698a1f0295f527bdcb7d6d3b37b058a",
+        "TacticalModeGame.startAutoCombat.closure": "4a813e05b167a750556f07a6c60c36707394a6ce0fafaefb6d2ce19966547942",
+        "TacticalModeGame.openCharacterBuilder": "fba1f61845a348da19f474b4a98d328304baf4b1ec8c064afb79f2dee0496b21",
+        "TacticalModeGame.closeCharacterBuilder": "77474e7c79be3704c5f5338c0d5576b68c9e40cd6da31d8a191cdbd1578ae23a",
+        "TacticalModeGame.applyHeroBuild": "f60a0bb35e790a4b12ce6fa2dcf07e9d56bb89d905806dff7c20fdf7497d0dac",
+        "TacticalModeGame.queueAttackOnEnemy": "f59ea6af74405a87d70893310e27455af6acd3b223a64e8bff62cdc751236281",
+        "TacticalModeGame.triggerSlashHotkey": "e374f3c899aff51c3fe517e599046a44123024f3448b31ff81fa1e41813ab03a",
+        "TacticalModeGame.triggerSlashHotkey.closure": "4a813e05b167a750556f07a6c60c36707394a6ce0fafaefb6d2ce19966547942",
+        "TacticalModeGame.triggerSpellHotkey": "6a09c03c27b9d22c498e3de873eb0ef70ac64fa3084e30fbba710b9ac1838040",
+        "TacticalModeGame.triggerSpellHotkey.closure": "4a813e05b167a750556f07a6c60c36707394a6ce0fafaefb6d2ce19966547942",
+        "TacticalModeGame.triggerRangedHotkey": "67fdc87275189ccd0f2760cf8832fad56d7f8648c901e25dfbc91a1b84a94498",
+        "TacticalModeGame.triggerRangedHotkey.closure": "4a813e05b167a750556f07a6c60c36707394a6ce0fafaefb6d2ce19966547942",
+        "TacticalModeGame.cycleCombatMode": "a06536578f8b0704d10465d0e9d474d08dd2a62c739f31b0aa8c0850830a9e92",
+        "TacticalModeGame.triggerSelectedCombatHotkey": "1747b603bba6ebd16e97a86a04048797aa192e3577c899d54972a0637acb311b",
+        "TacticalModeGame.queueActionAt": "c556573425e767d8b74ee1a89fb327a1aaa5a8e37cfcbdca7720546e0a3c84f2",
+        "TacticalModeGame.selectAbilityTargetAt": "c62dc59f4e10c275e1a150b2baa82601c4b55f8ed1d43774783c8ef89d5a70c9",
+        "TacticalModeGame._tryAddAction": "45dcb8762e792be5cc7b3524147ad956761ec1d04f89a6eaaa9b6663a35c1460",
+        "TacticalModeGame.undoLastAction": "e1543591d05d325477d7b2f59a8f6f8a83a4732b0db34e6c01ba6b1b51146371",
+        "TacticalModeGame.onTapDown": "d2a71e3e49cea0a456ec1edc09bf3c8f37a4da4949e8839d83f11958ba4f68fd",
+        "TacticalModeGame.onKeyEvent": "3bf4cb7682cf7720967e36b5ee5df05c6008e88211aa30f374e4d6039a078b59",
+        "TacticalModeGame._hotbarSlotForKey": "96853b67700e2576559edd7d813a63d5a7c262854743ef523cb7943b46c53b12"
+      },
+      "sourceHash": "373da22e26117d93b0db4b31423c12f05fc1c1931de658c936bde9af2008196a"
+    },
+    "app/lib/main.dart": {
+      "lines": 185,
+      "symbols": {
+        "main": {
+          "lines": 13,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "main.closure": {
+          "lines": 3,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "main.closure#2": {
+          "lines": 5,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "BuildsAndBossesApp.constructor:new": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "BuildsAndBossesApp.build": {
+          "lines": 17,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "GameScreen.constructor:new": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "GameScreen.createState": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_GameScreenState.initState": {
+          "lines": 5,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_GameScreenState.dispose": {
+          "lines": 6,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_GameScreenState.build": {
+          "lines": 105,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_GameScreenState.build.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "_GameScreenState.build.closure#2": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "_GameScreenState.build.closure#3": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "_GameScreenState.build.closure#4": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "_GameScreenState.build.closure#5": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "_GameScreenState.build.closure#6": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "_GameScreenState.build.closure#7": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "_GameScreenState.build.closure#8": {
+          "lines": 21,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_GameScreenState.build.closure#9": {
+          "lines": 17,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_GameScreenState.build.closure#10": {
+          "lines": 8,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "_GameScreenState.build.closure#11": {
+          "lines": 6,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 0
+        },
+        "_GameScreenState.build.closure#12": {
+          "lines": 9,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 3
+        },
+        "_GameScreenState.build.closure#13": {
+          "lines": 18,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 3
+        }
+      },
+      "fingerprints": {
+        "main": "e9f61ca9095a3e405c7f55cd8e32e7b5cf3e964d03f36774f124673f8005e7e9",
+        "main.closure": "be7fd432ca7a2b89dcfe234833c318403d59cb12bcb58d07303dd0b6c69a18fe",
+        "main.closure#2": "914fe02b5a8ff2ef6ee026c6c861cb33cba357a1795af0f8823e1c3e1a9b77a6",
+        "BuildsAndBossesApp.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "BuildsAndBossesApp.build": "3e7dfafc91d1f67f82e085b9df64021602b5261437ad973637f5a4232c8e45d5",
+        "GameScreen.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "GameScreen.createState": "f08aaa57359f4b718ca98f80d4439139eeda31c4574264a9717983149a378796",
+        "_GameScreenState.initState": "6af54ab3c8a96e218d88e3726d49452d2457b274f7f2b7c42552987bafe6efbe",
+        "_GameScreenState.dispose": "0a8ff5d230836815a71b5d0662364c087aed57e3c500ce8f442a6f1ad8b548ba",
+        "_GameScreenState.build": "9c16fd834af6f894d79e2fc460ae9e65661d723cd08048969cfa8048a921e4ae",
+        "_GameScreenState.build.closure": "46b6182b019b3e8752d21d994cc2d679c1f37ad51fb223017fe4223210ede749",
+        "_GameScreenState.build.closure#2": "27f3f5d59032b6f9c4b90a050e16bf972d6eccfa3259f1435e33cf9ca1c27f99",
+        "_GameScreenState.build.closure#3": "e358f127f11bfd22b306cfc1408793b20174f2aa569d153445e7b1834c4aaba0",
+        "_GameScreenState.build.closure#4": "e8c195e6a1807b967599fe547a702e2a15bfa960316b43e27cfbc35a030fae92",
+        "_GameScreenState.build.closure#5": "2599b42bf068c4dfce51af0723048fc3a97668880dcdd257812596238180478d",
+        "_GameScreenState.build.closure#6": "af15e7548c1d1f65aaf959366739834d37f4db2860e435bd17ca5553101dfedf",
+        "_GameScreenState.build.closure#7": "f881f9428823ae17b37471aba8c7aad892986bf489d0234ee7250166b9858d8d",
+        "_GameScreenState.build.closure#8": "f0e784b0c8bb05bd5ef7f7d2bd1e7a6eae303f0d895b16d5fcc605e4556c2d1f",
+        "_GameScreenState.build.closure#9": "1e000fb34078813c8d491f5c65783df1387b89370475925578c1061f03ca9d17",
+        "_GameScreenState.build.closure#10": "d13118ead515c95e29438d100ad50732c974fe40a6b070dc81c237c7104952a0",
+        "_GameScreenState.build.closure#11": "8c9e12920337a498a4cc2bc708057962d9b04ead42ca149b1a45cabb7767cf11",
+        "_GameScreenState.build.closure#12": "08c1bffbbbeed0efecff8ae6e296c333e06f91c06544a590f5e1372d056ab382",
+        "_GameScreenState.build.closure#13": "26f25a245b14694dc83e6f48c03ab960e544091c8ec0b4f33b13d998552958c9"
+      },
+      "sourceHash": "488af079fa3d3f5d561723b650cdaee6c0f1481c77a7aa86ae9a88e7c40514be"
+    },
+    "app/lib/platform/desktop_window.dart": {
+      "lines": 2,
+      "symbols": {},
+      "fingerprints": {},
+      "sourceHash": "d7608c3bc5af4893c7e6170327dbb87bff8c9fab6c76fd514a3d08e9559de02b"
+    },
+    "app/lib/platform/desktop_window_io.dart": {
+      "lines": 20,
+      "symbols": {
+        "configureDesktopWindow": {
+          "lines": 15,
+          "cyclomatic": 4,
+          "cognitive": 3,
+          "nesting": 1,
+          "parameters": 0
+        },
+        "configureDesktopWindow.closure": {
+          "lines": 4,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        }
+      },
+      "fingerprints": {
+        "configureDesktopWindow": "7cdc2401367fd872968e798e9fde60610b5359d7252c871dfa6be17ecda189b2",
+        "configureDesktopWindow.closure": "69221f6f2cbd9de9f216376e3d8befd48e8b2208bb0f840ffced94d877b5d2ca"
+      },
+      "sourceHash": "0cc4f61eee36a79b03125796fd1a5e3204ebc5224ed5c5e549dd90e965853bdf"
+    },
+    "app/lib/platform/desktop_window_stub.dart": {
+      "lines": 1,
+      "symbols": {
+        "configureDesktopWindow": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        }
+      },
+      "fingerprints": {
+        "configureDesktopWindow": "b22058ca6216eb0ad74dd808da493016696dfeca0a53c56a53286c88ce6a7aa6"
+      },
+      "sourceHash": "5e380ae003fac5959118b6a8117e3d0830df36876de6f9e9af455a11ee83f30b"
+    },
+    "app/lib/platform/local_platform_services.dart": {
+      "lines": 85,
+      "symbols": {
+        "LocalPlatformServices.constructor:new": {
+          "lines": 4,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "LocalPlatformServices._getPreferences": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "LocalPlatformServices.isAvailable": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "LocalPlatformServices.unlockAchievement": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "LocalPlatformServices.saveCloudData": {
+          "lines": 8,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 2
+        },
+        "LocalPlatformServices.loadCloudData": {
+          "lines": 8,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "LocalPlatformServices.syncCombatStatistics": {
+          "lines": 21,
+          "cyclomatic": 3,
+          "cognitive": 2,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "LocalPlatformServices.loadPendingCombatStatistics": {
+          "lines": 16,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "LocalPlatformServices.loadPendingCombatStatistics.closure": {
+          "lines": 11,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        }
+      },
+      "fingerprints": {
+        "LocalPlatformServices.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "LocalPlatformServices._getPreferences": "c8f77f2fd39637c9a820991631e4920266995317c1e26c67aca32810f2896204",
+        "LocalPlatformServices.isAvailable": "6d003c65e0d6ff20ca40444e0d1d567d722e160f2757996d092b68104508442b",
+        "LocalPlatformServices.unlockAchievement": "b22058ca6216eb0ad74dd808da493016696dfeca0a53c56a53286c88ce6a7aa6",
+        "LocalPlatformServices.saveCloudData": "a34d93454cd974b8abea43ccbbe0f8437bd369fc53687410e2058c4af7be9f77",
+        "LocalPlatformServices.loadCloudData": "84a1af57801b491e8d88fbf88b0a65e3454c7a87b9e5557672114915a7b0e6cf",
+        "LocalPlatformServices.syncCombatStatistics": "5b3facd70b5d099c24500fdc72bfc4ff3fe68ab264b76ea3d46c91f012db2e27",
+        "LocalPlatformServices.loadPendingCombatStatistics": "5208f5fafb221ac08772b9166bf77d2bf597db1e2aae3fd680558a57593a569a",
+        "LocalPlatformServices.loadPendingCombatStatistics.closure": "05de71edf5d3b87e82fc6c0681ec82cf7e990c749bb3497ad5445c55b3332584"
+      },
+      "sourceHash": "dde66d474e0e697ac270335712434c6875ad247e1998b84d6f566479b7eb5c76"
+    },
+    "app/lib/ui/action_bar_overlay.dart": {
+      "lines": 323,
+      "symbols": {
+        "ActionBarOverlay.constructor:new": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "ActionBarOverlay.build": {
+          "lines": 252,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "ActionBarOverlay.build.closure": {
+          "lines": 238,
+          "cyclomatic": 6,
+          "cognitive": 5,
+          "nesting": 1,
+          "parameters": 2
+        },
+        "ActionBarOverlay.build.closure#2": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "ActionBarOverlay.build.closure#3": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "ActionBarOverlay.build.closure#4": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "ActionBarOverlay.build.closure#5": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "ActionBarOverlay.build.closure#6": {
+          "lines": 5,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "ActionBarOverlay.build.closure#7": {
+          "lines": 27,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "ActionBarOverlay.build.closure#8": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "ActionBarOverlay.build.closure#9": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "ActionBarOverlay.build.closure#10": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "ActionBarOverlay.build.closure#11": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "ActionBarOverlay._buildSkillCard": {
+          "lines": 56,
+          "cyclomatic": 7,
+          "cognitive": 6,
+          "nesting": 1,
+          "parameters": 6
+        }
+      },
+      "fingerprints": {
+        "ActionBarOverlay.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "ActionBarOverlay.build": "300010fc2479f57dbccc7d4df6bb900aa63c9409863bf9b5f91d5b9e7f8cd7ac",
+        "ActionBarOverlay.build.closure": "c5b7a2bbb2eb09fccf75185826af5e2389a905ad99ddb62f397f6e15df772665",
+        "ActionBarOverlay.build.closure#2": "decfa1af27554ff4b17b9ae771a2c5e6cad053c51a26eb01f61fb2c0d4d7f813",
+        "ActionBarOverlay.build.closure#3": "d49283b7b5f2cca6ededc833de80d0e3e65ba740322561c335dde35e92ee5917",
+        "ActionBarOverlay.build.closure#4": "590ddd60ed21548dd66671231d209fe956611a68005e90a1940477906d98fe94",
+        "ActionBarOverlay.build.closure#5": "2b0ee7fdfcefd4a2604fa7597bb8b2aa47f0e588ea89c6d4ea12d327116334c0",
+        "ActionBarOverlay.build.closure#6": "2ad29dfb8a34f50c459f64667e614e50d40947295ff324660b1fd7c0771a822c",
+        "ActionBarOverlay.build.closure#7": "023ce6936d8faf2aa85272a1e1fc5b28ab89bb4e0f7f415707864248fcdecc8f",
+        "ActionBarOverlay.build.closure#8": "d3cc2fb6ead7acbefc436b27358956bf32719ac0562c62c66b6b627bcb3cf9b0",
+        "ActionBarOverlay.build.closure#9": "371906998d4898b75e10d0e891b83acc94602fdc4abd758212e5be094ff01b62",
+        "ActionBarOverlay.build.closure#10": "448fd82591d43628187ae3c86c4aa0ca5959cd9bc215f8594576670163c41aca",
+        "ActionBarOverlay.build.closure#11": "dd3604839c18f232aea924e3582d5efc97a80edcea64fc1a929fcc129aa4dddb",
+        "ActionBarOverlay._buildSkillCard": "e0ef90de8c50652df0b63e38666adbefd62693aa87868fb43dfc9dfdb7f31a1c"
+      },
+      "sourceHash": "d8129721c25bf8ef6e8bd9497616ea9e67a85defb8a7ac678530fb49fd5525f7"
+    },
+    "app/lib/ui/character_builder_overlay.dart": {
+      "lines": 737,
+      "symbols": {
+        "CharacterBuilderOverlay.constructor:new": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "CharacterBuilderOverlay.createState": {
+          "lines": 3,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_CharacterBuilderOverlayState._heroLevel": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_CharacterBuilderOverlayState.initState": {
+          "lines": 16,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_CharacterBuilderOverlayState._loadCharacterSheets": {
+          "lines": 17,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 0
+        },
+        "_CharacterBuilderOverlayState._loadCharacterSheets.closure": {
+          "lines": 4,
+          "cyclomatic": 3,
+          "cognitive": 2,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_CharacterBuilderOverlayState._loadCharacterSheets.closure#2": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_CharacterBuilderOverlayState._loadCharacterSheets.closure#3": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_CharacterBuilderOverlayState._selectCharacterSheet": {
+          "lines": 18,
+          "cyclomatic": 4,
+          "cognitive": 3,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "_CharacterBuilderOverlayState._selectCharacterSheet.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_CharacterBuilderOverlayState._remainingPoints": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_CharacterBuilderOverlayState._buildPreviewStats": {
+          "lines": 32,
+          "cyclomatic": 7,
+          "cognitive": 6,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_CharacterBuilderOverlayState._increment": {
+          "lines": 7,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "_CharacterBuilderOverlayState._increment.closure": {
+          "lines": 3,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_CharacterBuilderOverlayState._decrement": {
+          "lines": 7,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "_CharacterBuilderOverlayState._decrement.closure": {
+          "lines": 3,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_CharacterBuilderOverlayState._resetToDefault": {
+          "lines": 12,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_CharacterBuilderOverlayState._resetToDefault.closure": {
+          "lines": 10,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_CharacterBuilderOverlayState._applyBuild": {
+          "lines": 14,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 0
+        },
+        "_CharacterBuilderOverlayState.build": {
+          "lines": 436,
+          "cyclomatic": 10,
+          "cognitive": 10,
+          "nesting": 2,
+          "parameters": 1
+        },
+        "_CharacterBuilderOverlayState.build.closure": {
+          "lines": 7,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_CharacterBuilderOverlayState.build.closure#2": {
+          "lines": 5,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 0
+        },
+        "_CharacterBuilderOverlayState.build.closure#3": {
+          "lines": 3,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_CharacterBuilderOverlayState.build.closure#4": {
+          "lines": 4,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "_CharacterBuilderOverlayState._buildAttributeRow": {
+          "lines": 74,
+          "cyclomatic": 7,
+          "cognitive": 6,
+          "nesting": 1,
+          "parameters": 2
+        },
+        "_CharacterBuilderOverlayState._buildAttributeRow.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_CharacterBuilderOverlayState._buildAttributeRow.closure#2": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_CharacterBuilderOverlayState._buildPreviewStatTile": {
+          "lines": 52,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 5
+        }
+      },
+      "fingerprints": {
+        "CharacterBuilderOverlay.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "CharacterBuilderOverlay.createState": "1af818501371b61842f41aa0ada3ebd5418baddfadfbd6e9a3766cb31ad36b63",
+        "_CharacterBuilderOverlayState._heroLevel": "0e43f8cd1d66f46953197adb17ee9fb1ed20423c1fda432b5ce3f5558e379234",
+        "_CharacterBuilderOverlayState.initState": "a8b03f6043a87cdb8944cd301c99935e2b4be50965ae385e00d7d2fbb8a5c154",
+        "_CharacterBuilderOverlayState._loadCharacterSheets": "c03ea780950ab2421534117c181de24f7b1117823ed181e43ecbcd5c549d32fa",
+        "_CharacterBuilderOverlayState._loadCharacterSheets.closure": "669954192efed4d8604e3166f785be6a77bda8cf7174fb1661c5433f41d6deb7",
+        "_CharacterBuilderOverlayState._loadCharacterSheets.closure#2": "ed695b7ac04497cea37b1c17336c3f3fb870a3949b6e0fa93bcdb2a3465ecfb3",
+        "_CharacterBuilderOverlayState._loadCharacterSheets.closure#3": "55a17c97e829820a5b10a405d15df8ab5301601ee0d72075fffd3d8e23097426",
+        "_CharacterBuilderOverlayState._selectCharacterSheet": "08e211349096e71ec548f18db37bab07ca2906d736874bc928a781b9daa46c6f",
+        "_CharacterBuilderOverlayState._selectCharacterSheet.closure": "257c1be96ae69f4b01c2c69bdb6d78605f59175819fb007d0bf245bf48444c4a",
+        "_CharacterBuilderOverlayState._remainingPoints": "c5387b3cf3ed919167eba54bcd8afcbd1c49010c3ae4e798df98f79309135460",
+        "_CharacterBuilderOverlayState._buildPreviewStats": "e8420302c893827e3083ae8f3c53cb780ba98054439ab0ce7bfab78ecdb0e2e7",
+        "_CharacterBuilderOverlayState._increment": "550f28b7d09670bf7ab4a049036cf99ed9c23eddac33e47ba2e9fac6b5dd3345",
+        "_CharacterBuilderOverlayState._increment.closure": "bcd8fa675da41f3b02f00bceaed2304350afc0be32c9c8b3aa3d1d689e229a16",
+        "_CharacterBuilderOverlayState._decrement": "cc82bc45d44fed8bc2c112730a1e64ad1fbc275b8adf7e27d89863dd80eca96c",
+        "_CharacterBuilderOverlayState._decrement.closure": "9a03aa13a806eec12675179fa8e196f4f33bb284ce260923c9271a99a8a11a8e",
+        "_CharacterBuilderOverlayState._resetToDefault": "06409744277e083b2e4bfd2423ddc77ed71fa925f9d922109f54600fb7b5cbb5",
+        "_CharacterBuilderOverlayState._resetToDefault.closure": "3d58442045f9ca5bbffaf33f6ef0421656f46c905ab73da9df9b94d6f49be524",
+        "_CharacterBuilderOverlayState._applyBuild": "bda69779724b2d9155ad54dc9d6f2d511e008fab060d970f534249289bea02ac",
+        "_CharacterBuilderOverlayState.build": "0b16411dbcae06045211c505ca4fb8cc37d06b9cc64024d6344807f64f9b04ae",
+        "_CharacterBuilderOverlayState.build.closure": "ae8db5873647c1a3c25396d121a911f86ce1275957119ffc49ef154dc6188c21",
+        "_CharacterBuilderOverlayState.build.closure#2": "b473c94ca34f6aecb1b3cf4d28a36c70b16ca9efe6f121893f81791f049a1702",
+        "_CharacterBuilderOverlayState.build.closure#3": "7090c982fa89bf03c3ec554155ccba2d3d8c740b75f96164e8add5fc0a4011c5",
+        "_CharacterBuilderOverlayState.build.closure#4": "e657a126a6663f995456d66ab3a0c9c9194297f6e124e0dd7ec56c0325204a10",
+        "_CharacterBuilderOverlayState._buildAttributeRow": "083c2f88e6f61f94a3ab95d4bd2bb8fbbf01a2f6bcd7ee517a07f432ef5bb9a6",
+        "_CharacterBuilderOverlayState._buildAttributeRow.closure": "02f9bc415137b451f0178d2ffa3d0d17d98f4997da556529ff0ddc37544d1b45",
+        "_CharacterBuilderOverlayState._buildAttributeRow.closure#2": "6e9437d6c97437a9a85735852e0887f2e6fe1caacb8d24594c80cf23429224d9",
+        "_CharacterBuilderOverlayState._buildPreviewStatTile": "b17646f57a1a90e54607e78b629ef3c19408394450b0b02cb8b962da11bfa849"
+      },
+      "sourceHash": "b7526cf3e66daec6df9ecb508e4127eb0d4f5e63e6644d99e48dd6f8bdb37007"
+    },
+    "app/lib/ui/combat_hotbar_overlay.dart": {
+      "lines": 106,
+      "symbols": {
+        "CombatHotbarOverlay.constructor:new": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "CombatHotbarOverlay.build": {
+          "lines": 78,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "CombatHotbarOverlay.build.closure": {
+          "lines": 72,
+          "cyclomatic": 3,
+          "cognitive": 2,
+          "nesting": 1,
+          "parameters": 3
+        },
+        "CombatHotbarOverlay.build.closure#2": {
+          "lines": 58,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 3
+        },
+        "CombatHotbarOverlay.build.closure#3": {
+          "lines": 53,
+          "cyclomatic": 7,
+          "cognitive": 6,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "CombatHotbarOverlay.build.closure#4": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "CombatHotbarOverlay._iconFor": {
+          "lines": 16,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        }
+      },
+      "fingerprints": {
+        "CombatHotbarOverlay.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "CombatHotbarOverlay.build": "c16a646f081595bfb63d19a29aed87906a31e213922859bf701b1e6fda40c930",
+        "CombatHotbarOverlay.build.closure": "55e58e956d367b2f271bb2d82a3cb510e03951bd20d41d65a548a1753c52d78b",
+        "CombatHotbarOverlay.build.closure#2": "730507f4aa553a782bcb8127c953fb8c4ce3567b9dcb46b9d4de54e2ec40e812",
+        "CombatHotbarOverlay.build.closure#3": "e34a3fa2e79a1535440c9b88aea1f90d0d04cd411306e569d2bb82d1f453b53c",
+        "CombatHotbarOverlay.build.closure#4": "b35a58459794dd6f4a79ac922bf2f7662475bf617500236a491ea2a72c507fe2",
+        "CombatHotbarOverlay._iconFor": "72b75216a485535549366a2c87430b60c00ecc0e019035d54df8726bcdd6005e"
+      },
+      "sourceHash": "ae2f6f43154df3d90a15a6c8c40c59eb432d49e1d5d57c0ed11cafc52718b365"
+    },
+    "app/lib/ui/combat_log_overlay.dart": {
+      "lines": 133,
+      "symbols": {
+        "CombatLogOverlay.constructor:new": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "CombatLogOverlay.createState": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_CombatLogOverlayState.game": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_CombatLogOverlayState.initState": {
+          "lines": 5,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_CombatLogOverlayState._onNewEntry": {
+          "lines": 8,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 0
+        },
+        "_CombatLogOverlayState._onNewEntry.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_CombatLogOverlayState._onNewEntry.closure#2": {
+          "lines": 3,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 0
+        },
+        "_CombatLogOverlayState._onNewEntry.closure#3": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_CombatLogOverlayState.dispose": {
+          "lines": 6,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_CombatLogOverlayState.build": {
+          "lines": 88,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_CombatLogOverlayState.build.closure": {
+          "lines": 53,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 3
+        },
+        "_CombatLogOverlayState.build.closure#2": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_CombatLogOverlayState.build.closure#3": {
+          "lines": 11,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        }
+      },
+      "fingerprints": {
+        "CombatLogOverlay.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "CombatLogOverlay.createState": "14bdc8913429503679f1039a809ad465d64a20b388b8dc25f4fb111408a0b6c5",
+        "_CombatLogOverlayState.game": "5bd868e1120844892c1370b71f93eb6c75cc005d36aaaa4eadc86070d8c6b421",
+        "_CombatLogOverlayState.initState": "ab20ed377852c3d9ab5c8bb335bf46af2981a30a9d72d43d308f676375b9ad53",
+        "_CombatLogOverlayState._onNewEntry": "8a2915fc47e17b2003ef5fc4f3b97b5e8314775072d429b26ea6c0b3c929a478",
+        "_CombatLogOverlayState._onNewEntry.closure": "d89944ba5d2538bde6fe4fc4d631df28f0d147920a47bd86d9a39b251e3aaa6d",
+        "_CombatLogOverlayState._onNewEntry.closure#2": "06a98a8f27c107175307f453a38e03fdd01340df16589b4494cd5aa9754a7f28",
+        "_CombatLogOverlayState._onNewEntry.closure#3": "ae355cfc221fa3c8cd2aa3ea8481e88a93eaebec36b5cc441d76a9ecc17b166b",
+        "_CombatLogOverlayState.dispose": "406ee37d7c836998d2c8a76508541904b1f32d6ae09f1309987d6125a437fb3f",
+        "_CombatLogOverlayState.build": "24498c89c51f5d46ee09eb5bbcb67e91b562c232e63c946f2785091b3375cd9a",
+        "_CombatLogOverlayState.build.closure": "1deb36c70fa2cad6ac0ce10f27677ee3b8a4dedd0fc042457c72ca0182b81eaa",
+        "_CombatLogOverlayState.build.closure#2": "c517a0b3286261078698e3686e6232a13a369da87ba4b4c2336d326bd0011d5a",
+        "_CombatLogOverlayState.build.closure#3": "d74e973590f17c8cd656a9b9cf25cb405007362853dd9d8500a5e1f7fa1cca64"
+      },
+      "sourceHash": "6c173285e97dce7773071901ee7a2a92e9efeaa84d1d56c3944db88fac96a117"
+    },
+    "app/lib/ui/combat_outcome_overlay.dart": {
+      "lines": 63,
+      "symbols": {
+        "CombatOutcomeOverlay.constructor:new": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "CombatOutcomeOverlay.build": {
+          "lines": 53,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "CombatOutcomeOverlay.build.closure": {
+          "lines": 45,
+          "cyclomatic": 7,
+          "cognitive": 6,
+          "nesting": 1,
+          "parameters": 3
+        }
+      },
+      "fingerprints": {
+        "CombatOutcomeOverlay.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "CombatOutcomeOverlay.build": "8fffde578d3b05aaccfa3f11d291e188dfbe31da23196b2587f6b772c4904abe",
+        "CombatOutcomeOverlay.build.closure": "89d90b663c8080706721f264662ca450ed180fa42ab36b016242e18e0fd6c4ed"
+      },
+      "sourceHash": "ef60a6e2891d740558c227bc9ea83d2c57321c7efbd8e0993e909bfd102ac18d"
+    },
+    "app/lib/ui/debug_info_overlay.dart": {
+      "lines": 56,
+      "symbols": {
+        "DebugInfoOverlay.constructor:new": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "DebugInfoOverlay.build": {
+          "lines": 46,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "DebugInfoOverlay.build.closure": {
+          "lines": 40,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 3
+        }
+      },
+      "fingerprints": {
+        "DebugInfoOverlay.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "DebugInfoOverlay.build": "46a3811c94dd1d396546cb8dfd58671d8dd6ee0b0ccd43eb0e35db4e21e24b81",
+        "DebugInfoOverlay.build.closure": "3dbba8071e289f76dcb9913a42f3d9ae43fc9dfa3ce82ab7a055e049ab3199e1"
+      },
+      "sourceHash": "15198f9576676e564652aa04219cced8ee4a47077ef07ea140a70af2c16edf78"
+    },
+    "app/lib/ui/equipment_workshop_screen.dart": {
+      "lines": 535,
+      "symbols": {
+        "_EquipmentDrag.constructor:new": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "EquipmentWorkshopScreen.constructor:new": {
+          "lines": 8,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 6
+        },
+        "EquipmentWorkshopScreen.createState": {
+          "lines": 3,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_EquipmentWorkshopScreenState.dispose": {
+          "lines": 6,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_EquipmentWorkshopScreenState._validateSets": {
+          "lines": 9,
+          "cyclomatic": 3,
+          "cognitive": 3,
+          "nesting": 2,
+          "parameters": 0
+        },
+        "_EquipmentWorkshopScreenState.initState": {
+          "lines": 5,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_EquipmentWorkshopScreenState.didUpdateWidget": {
+          "lines": 12,
+          "cyclomatic": 3,
+          "cognitive": 2,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "_EquipmentWorkshopScreenState._changeSet": {
+          "lines": 7,
+          "cyclomatic": 3,
+          "cognitive": 2,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "_EquipmentWorkshopScreenState._changeSet.closure": {
+          "lines": 4,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_EquipmentWorkshopScreenState._notify": {
+          "lines": 5,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_EquipmentWorkshopScreenState._occupiedError": {
+          "lines": 3,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_EquipmentWorkshopScreenState._canDrop": {
+          "lines": 16,
+          "cyclomatic": 6,
+          "cognitive": 5,
+          "nesting": 1,
+          "parameters": 2
+        },
+        "_EquipmentWorkshopScreenState._apply": {
+          "lines": 32,
+          "cyclomatic": 11,
+          "cognitive": 10,
+          "nesting": 1,
+          "parameters": 2
+        },
+        "_EquipmentWorkshopScreenState._apply.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_EquipmentWorkshopScreenState._apply.closure#2": {
+          "lines": 4,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_EquipmentWorkshopScreenState._apply.closure#3": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_EquipmentWorkshopScreenState._applyError": {
+          "lines": 7,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "_EquipmentWorkshopScreenState._drop": {
+          "lines": 8,
+          "cyclomatic": 4,
+          "cognitive": 3,
+          "nesting": 1,
+          "parameters": 2
+        },
+        "_EquipmentWorkshopScreenState._itemVisual": {
+          "lines": 24,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_EquipmentWorkshopScreenState._draggable": {
+          "lines": 12,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "_EquipmentWorkshopScreenState._armory": {
+          "lines": 80,
+          "cyclomatic": 6,
+          "cognitive": 5,
+          "nesting": 1,
+          "parameters": 0
+        },
+        "_EquipmentWorkshopScreenState._armory.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_EquipmentWorkshopScreenState._armory.closure#2": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_EquipmentWorkshopScreenState._armory.closure#3": {
+          "lines": 26,
+          "cyclomatic": 7,
+          "cognitive": 6,
+          "nesting": 1,
+          "parameters": 2
+        },
+        "_EquipmentWorkshopScreenState._armory.closure#4": {
+          "lines": 3,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_EquipmentWorkshopScreenState._armory.closure#5": {
+          "lines": 3,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_EquipmentWorkshopScreenState._select": {
+          "lines": 10,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "_EquipmentWorkshopScreenState._select.closure": {
+          "lines": 3,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_EquipmentWorkshopScreenState.build": {
+          "lines": 238,
+          "cyclomatic": 3,
+          "cognitive": 2,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "_EquipmentWorkshopScreenState.build.closure": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_EquipmentWorkshopScreenState.build.closure#2": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_EquipmentWorkshopScreenState.build.closure#3": {
+          "lines": 138,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "_EquipmentWorkshopScreenState.build.closure#4": {
+          "lines": 94,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "_EquipmentWorkshopScreenState.build.closure#5": {
+          "lines": 3,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_EquipmentWorkshopScreenState.build.closure#6": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_EquipmentWorkshopScreenState.build.closure#7": {
+          "lines": 73,
+          "cyclomatic": 6,
+          "cognitive": 5,
+          "nesting": 1,
+          "parameters": 3
+        },
+        "_EquipmentWorkshopScreenState.build.closure#8": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_EquipmentWorkshopScreenState.build.closure#9": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_EquipmentWorkshopScreenState.build.closure#10": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_EquipmentWorkshopScreenState.build.closure#11": {
+          "lines": 5,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        }
+      },
+      "fingerprints": {
+        "_EquipmentDrag.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "EquipmentWorkshopScreen.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "EquipmentWorkshopScreen.createState": "4afa3b6f0b40ca3e6dc8569d727f3d52ed4d79aef76e89dbc8d59391735b5e4f",
+        "_EquipmentWorkshopScreenState.dispose": "81f54544f8f93ee8ecda83fd1502b1741f832e88738883d419e955fbd26033de",
+        "_EquipmentWorkshopScreenState._validateSets": "77b727317a5c3120865ec490b2e50a8837f205e3e5b4f176027d67e529d87b15",
+        "_EquipmentWorkshopScreenState.initState": "26f83e604a7bc3303355d024c0b3a31b73785bd7de95cc8b9cf11c5652d3afb5",
+        "_EquipmentWorkshopScreenState.didUpdateWidget": "0ddadb856d4cf5a0f92285f8123027cadd80a10e8b6c8e854c55c1fe070b004c",
+        "_EquipmentWorkshopScreenState._changeSet": "e61755242377f3cae2094527c64a1124760b0a669e0842beb0c5c4067a4e84ed",
+        "_EquipmentWorkshopScreenState._changeSet.closure": "53e30d3ab5678940bd5ad9b12176b2af72608676217aeb581efc07cf44aa1d16",
+        "_EquipmentWorkshopScreenState._notify": "719d7ec60e94c4a1aea9f8fae0e652093871151f3e621150dd7efee13e1a2a35",
+        "_EquipmentWorkshopScreenState._occupiedError": "fe40454466461450b749e2dd4b2626f168fe79534328b116827542ee1baa72ea",
+        "_EquipmentWorkshopScreenState._canDrop": "d46693a6b122f0eb8d3bde98ded41f70b5a15813793beff3dcbd6f80e615a813",
+        "_EquipmentWorkshopScreenState._apply": "7ae7cb753a8e8a8d7d1934fc64772ec07191724ca2fc129124c913c4327c58af",
+        "_EquipmentWorkshopScreenState._apply.closure": "afb50c5b63cdffd12c001363ce76b88e4605436f57799e21cf8d0be5d4df7150",
+        "_EquipmentWorkshopScreenState._apply.closure#2": "cda3e8538da804790ca0716b5327615ad17bbb38cef3b50ab7d3d14c97252e12",
+        "_EquipmentWorkshopScreenState._apply.closure#3": "4afd233e9deee5bc7f917ecaaa8f8f1c7cb56f448795a81733717f8dc351ff3b",
+        "_EquipmentWorkshopScreenState._applyError": "5a796af20332d2201990c0b772171698077a70e81538a5a443d804281ee17b4e",
+        "_EquipmentWorkshopScreenState._drop": "f5206a13ac906a8c1ef62cb777cce8d0314baa80f46eae4b131e965e4f42cd4b",
+        "_EquipmentWorkshopScreenState._itemVisual": "f6ecb676369c0ba5b53ffd147190d565aa77c8a51253a4245ed389ab23d99e72",
+        "_EquipmentWorkshopScreenState._draggable": "d7b1387907064a253f687a625fc56fedb92b5b97a3e92eb4d317350da2b010b8",
+        "_EquipmentWorkshopScreenState._armory": "83a3147141f0a0856f3a673657ad631bb74c790ebf10a3e8b3679ea5bbd027bf",
+        "_EquipmentWorkshopScreenState._armory.closure": "38df58786ead71995e604b28799b05892951898ab53df7b3ee70d5d1933430c1",
+        "_EquipmentWorkshopScreenState._armory.closure#2": "65768c4fc0d5c5214904aa30f7ac0bb20126459076edd1c486f8522f559e1e92",
+        "_EquipmentWorkshopScreenState._armory.closure#3": "b4d107d13827ac01b850e57ca47e4fb74ae24c8cb67a729007917dfe91d97c4d",
+        "_EquipmentWorkshopScreenState._armory.closure#4": "202fcc9270e355aaa0e7f724554a1d62fcf09d2ab78fb1b48f80146558d468ce",
+        "_EquipmentWorkshopScreenState._armory.closure#5": "3b26aa4817a8bf963fb24c239ba7e78037c0f568fa9b834718bef257578a2390",
+        "_EquipmentWorkshopScreenState._select": "b1f602aa544a56ab1e8df5cd7b4b468184c916cc10cb960ac057128392e97733",
+        "_EquipmentWorkshopScreenState._select.closure": "85f1999a8cb55f79a6478addfcb8a3750dfca30b2f5a0b23b6482c704f927da3",
+        "_EquipmentWorkshopScreenState.build": "8311119dcb7890f0eda22f9f7d8ae9381fd4cd66df9cc8b7f657b43f182fb2e9",
+        "_EquipmentWorkshopScreenState.build.closure": "38df58786ead71995e604b28799b05892951898ab53df7b3ee70d5d1933430c1",
+        "_EquipmentWorkshopScreenState.build.closure#2": "65768c4fc0d5c5214904aa30f7ac0bb20126459076edd1c486f8522f559e1e92",
+        "_EquipmentWorkshopScreenState.build.closure#3": "fcde05f26558818fde02632368470fe866babb49029332faaf59785aaadcae0c",
+        "_EquipmentWorkshopScreenState.build.closure#4": "567f3f6a29dde0a5db2cdcc9ab7fd0c8bb1f5e160119bf72f98a4e2e68b310db",
+        "_EquipmentWorkshopScreenState.build.closure#5": "5651ee551eb250688ace55a2e878e4b6052ddb615ad5537cd6964805309b0522",
+        "_EquipmentWorkshopScreenState.build.closure#6": "910efdbc5f67edf10a9348c3ec4de99305bba3df25c512f6ca843c3b3a096818",
+        "_EquipmentWorkshopScreenState.build.closure#7": "7185184fdbddfbd27e7eb9f2093c8dbbddeecd15e7046d9abf03a1c66150a2ae",
+        "_EquipmentWorkshopScreenState.build.closure#8": "83047b850fad459584e790409bdc35503d723d78db6908f2ccbb73cddf82397e",
+        "_EquipmentWorkshopScreenState.build.closure#9": "6395cf33d7a5d98c9b95c1617ce03558a63d069ec5d22b838d913bdfc14a68d3",
+        "_EquipmentWorkshopScreenState.build.closure#10": "54c7d87679ac4ec26a80c84cc7a2def6c7c33d9edd37979583173139bd65625d",
+        "_EquipmentWorkshopScreenState.build.closure#11": "c70e93e0b89ade7e004e20b42c112c91c6972d0f8e463cc6b58d0b8d9c402718"
+      },
+      "sourceHash": "f3166b2fc2c412c5f5b967d665aa8cc3f4b0d5bca99009c41aead54a16bd4105"
+    },
+    "app/lib/ui/planning_hud.dart": {
+      "lines": 437,
+      "symbols": {
+        "PlanningHUD.constructor:new": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "PlanningHUD.build": {
+          "lines": 139,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "PlanningHUD.build.closure": {
+          "lines": 128,
+          "cyclomatic": 3,
+          "cognitive": 2,
+          "nesting": 0,
+          "parameters": 3
+        },
+        "PlanningHUD.build.closure#2": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 3
+        },
+        "PlanningHUD.build.closure#3": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 3
+        },
+        "PlanningHUD.build.closure#4": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "PlanningHUD.build.closure#5": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "PlanningHUD.build.closure#6": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "PlanningHUD._buildPlayerCard": {
+          "lines": 89,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "PlanningHUD._buildEnemyCard": {
+          "lines": 77,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "PlanningHUD._buildCombatModeIndicator": {
+          "lines": 37,
+          "cyclomatic": 11,
+          "cognitive": 2,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "PlanningHUD._buildCombatTimer": {
+          "lines": 25,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "PlanningHUD._buildPhaseBanner": {
+          "lines": 53,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        }
+      },
+      "fingerprints": {
+        "PlanningHUD.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "PlanningHUD.build": "f33616eaee6d4c1b3045e8bc32ef63d82449dd062fd1634ca768e0b4a6b7abb8",
+        "PlanningHUD.build.closure": "4f420dc3a120ebb581e2e19d4d2fc9b462b40daf1c8e7361da5c66ed6240dfad",
+        "PlanningHUD.build.closure#2": "e8685047da9b9d6e077669d26c88295ab8dc5c68022f2547cbf4c4a54cc21f8a",
+        "PlanningHUD.build.closure#3": "8977e1569544e478a83563031ced4298b36052001a2dccb59874bdc96e2fd2e8",
+        "PlanningHUD.build.closure#4": "42fe9ed17017643a125fc990ead187ca1be6c3a78a8d08291ec6e4c4c1b08f3a",
+        "PlanningHUD.build.closure#5": "d76496799a64250227a5f19206ecb943e8efed939dc34774c3fdcb141d1d3866",
+        "PlanningHUD.build.closure#6": "d76496799a64250227a5f19206ecb943e8efed939dc34774c3fdcb141d1d3866",
+        "PlanningHUD._buildPlayerCard": "0618c350c0e8986f659d9ca09059730698a72b1a7614fbe25a8a73149fb2016b",
+        "PlanningHUD._buildEnemyCard": "6bec0032afe5b4f2175cc3eae568a040cc2fe0d2a5de56ccf858dead1a4fbe46",
+        "PlanningHUD._buildCombatModeIndicator": "057f0eba52748ad91c457ebde5efcece0e753be59ff710c580a58d4aa298268f",
+        "PlanningHUD._buildCombatTimer": "f6c77c720ec5d5d2be9085cf54d5ceadc5c76a7b427004f93497f5e92706f1d6",
+        "PlanningHUD._buildPhaseBanner": "2ef059639a9296f69366d441022da37a9f6af9ccfcdac067e119ae085b9bc180"
+      },
+      "sourceHash": "aabaf18f4f8c762ce02abd3625b99360f9c101e4704ae14bf924ee37768bf135"
+    },
+    "tooling/code_quality/lib/capacity_review.dart": {
+      "lines": 21,
+      "symbols": {
+        "validCapacityReview": {
+          "lines": 19,
+          "cyclomatic": 11,
+          "cognitive": 11,
+          "nesting": 2,
+          "parameters": 3
+        }
+      },
+      "fingerprints": {
+        "validCapacityReview": "503b2b64a0b2cb7bc3cf3b999c584b6948b6120cfe4d544b1ada243b2b12627c"
+      },
+      "sourceHash": "9568a331477cea199ac001964250fc976d8f1f023dcd5a8e9fa43dddcf4fd0c7"
+    },
+    "tooling/code_quality/lib/dependencies.dart": {
+      "lines": 66,
+      "symbols": {
+        "resolveDependency": {
+          "lines": 10,
+          "cyclomatic": 4,
+          "cognitive": 3,
+          "nesting": 1,
+          "parameters": 2
+        },
+        "_forbiddenCore": {
+          "lines": 13,
+          "cyclomatic": 4,
+          "cognitive": 3,
+          "nesting": 1,
+          "parameters": 2
+        },
+        "_forbiddenCore.closure": {
+          "lines": 1,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "dependencyViolations": {
+          "lines": 39,
+          "cyclomatic": 11,
+          "cognitive": 17,
+          "nesting": 3,
+          "parameters": 1
+        },
+        "dependencyViolations.walk": {
+          "lines": 12,
+          "cyclomatic": 4,
+          "cognitive": 3,
+          "nesting": 1,
+          "parameters": 1
+        }
+      },
+      "fingerprints": {
+        "resolveDependency": "2b284014b8eb5a5f757529e8b7960b0cf36db4da1b329be3e156351b314672e4",
+        "_forbiddenCore": "d614a18b43505e1abf12d2d32fa9fd577e5bf7e4f23c67d020695fd3778d1934",
+        "_forbiddenCore.closure": "25ae8e357fef18a3f7278a1ab03938bd9910d382b8e3c04de1ef03de5ad2c035",
+        "dependencyViolations": "e8b3f0d5053a04ef6fafd6dbb131d2c98498290615304d713031fb54d4ce8034",
+        "dependencyViolations.walk": "0aa06133c8a6b63237360c4db5d3add6da299186a42bc5d5f10347bfb35d6228"
+      },
+      "sourceHash": "20c919ec3dd3ebc8aec1c0f70c0318886c02a35920acc2e038789c41ea988b63"
+    },
+    "tooling/code_quality/lib/gate.dart": {
+      "lines": 93,
+      "symbols": {
+        "_previous": {
+          "lines": 19,
+          "cyclomatic": 4,
+          "cognitive": 3,
+          "nesting": 1,
+          "parameters": 4
+        },
+        "_previous.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_previous.closure#2": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_movedHistory": {
+          "lines": 25,
+          "cyclomatic": 3,
+          "cognitive": 3,
+          "nesting": 2,
+          "parameters": 2
+        },
+        "_movedHistory.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_movedHistory.closure#2": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "checkSources": {
+          "lines": 42,
+          "cyclomatic": 7,
+          "cognitive": 9,
+          "nesting": 2,
+          "parameters": 4
+        },
+        "checkSources.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        }
+      },
+      "fingerprints": {
+        "_previous": "cfa4b1c31b0fb4b5573e9760bb0a93dda714273d8f8a1992b31c3818249660cc",
+        "_previous.closure": "bc9f121cc66d8f1d3b4c43b091d67bd5b4dc5942a17a71fe9bb7b07ffa9786f9",
+        "_previous.closure#2": "6a151e6ff193cd0af074c51feb3e80c86e39e61b413f8a4a668169701382e3ac",
+        "_movedHistory": "fe45a2dd34af1575c4a006f697b793805a99dc981ac5b0262bd12488a934367d",
+        "_movedHistory.closure": "3b0f74e5d4e9a369e08739ece59bcaa4b1215a2d1b7868530b18e940a1e1b66c",
+        "_movedHistory.closure#2": "e306b3d6ccb14bcf8b29ab4f39b10b9d207bf7b4a4269298ed89f5538931d7ce",
+        "checkSources": "9901785fd7fb19816bf4853c35e07a624199e1a4d7dd137ad615103914c5a6a8",
+        "checkSources.closure": "4a9c456e9974228a02203459ab197ac1340e5bd90e70586ead86775feeff66d7"
+      },
+      "sourceHash": "2656d08be7f2a21d284b8ec2c40b857bf7826072ba9e73a5e56556ff838741ff"
+    },
+    "tooling/code_quality/lib/metrics.dart": {
+      "lines": 223,
+      "symbols": {
+        "SourceMetrics.constructor:new": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "SourceMetrics.toJson": {
+          "lines": 6,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "measure": {
+          "lines": 26,
+          "cyclomatic": 7,
+          "cognitive": 8,
+          "nesting": 2,
+          "parameters": 2
+        },
+        "_directiveUris": {
+          "lines": 14,
+          "cyclomatic": 9,
+          "cognitive": 6,
+          "nesting": 2,
+          "parameters": 1
+        },
+        "_Declarations.constructor:new": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        },
+        "_Declarations._owner": {
+          "lines": 16,
+          "cyclomatic": 7,
+          "cognitive": 10,
+          "nesting": 2,
+          "parameters": 1
+        },
+        "_Declarations._record": {
+          "lines": 28,
+          "cyclomatic": 5,
+          "cognitive": 5,
+          "nesting": 2,
+          "parameters": 4
+        },
+        "_Declarations._record.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_Declarations._record.closure#2": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 0
+        },
+        "_Declarations.visitMethodDeclaration": {
+          "lines": 10,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_Declarations.visitConstructorDeclaration": {
+          "lines": 10,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_Declarations.visitFunctionDeclaration": {
+          "lines": 10,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_Declarations.visitFunctionExpression": {
+          "lines": 12,
+          "cyclomatic": 3,
+          "cognitive": 2,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "_Complexity._branch": {
+          "lines": 8,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "_Complexity.visitIfStatement": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_Complexity.visitForStatement": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_Complexity.visitWhileStatement": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_Complexity.visitDoStatement": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_Complexity.visitConditionalExpression": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_Complexity.visitCatchClause": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_Complexity.visitSwitchStatement": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_Complexity.visitSwitchExpression": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_Complexity.visitSwitchCase": {
+          "lines": 5,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_Complexity.visitSwitchExpressionCase": {
+          "lines": 5,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_Complexity.visitBinaryExpression": {
+          "lines": 8,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "_Complexity.visitFunctionExpression": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_Complexity.visitFunctionDeclaration": {
+          "lines": 2,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        }
+      },
+      "fingerprints": {
+        "SourceMetrics.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "SourceMetrics.toJson": "e42729a457a2fa932e8d4d9f9f866f4e4f4afee3075cd6cdfb8bd66863787c16",
+        "measure": "d194f96154b6aa5d769d6d779372e068c155c1d3cedc857aedabe5d8eab8278d",
+        "_directiveUris": "85e2cd48c79b81c15b93a9e67cb0612b53e12fd26cc95a6a6edd7ce99c1ce41b",
+        "_Declarations.constructor:new": "41b805ea7ac014e23556e98bb374702a08344268f92489a02f0880849394a1e4",
+        "_Declarations._owner": "6dbea88508ef741e77b2009546198efe51eab389b7d59315ad047f270b4bc118",
+        "_Declarations._record": "827f5368a30a3596cf1eabd843ca981b3f1629e5271965cd2e76afc915441bcb",
+        "_Declarations._record.closure": "a31aca0c8b1e2d9c9f98c7f65b7f8fda00afa893c8d13e89c7585053b61cac0b",
+        "_Declarations._record.closure#2": "e306b3d6ccb14bcf8b29ab4f39b10b9d207bf7b4a4269298ed89f5538931d7ce",
+        "_Declarations.visitMethodDeclaration": "d79f5c04b20f32f8789f8be42f1cd43c39cc9c0a48883e3fef700eb3d02c6ff9",
+        "_Declarations.visitConstructorDeclaration": "726e0566e03cfe28f683902ac85a9a67b343ea51a66efdaac2b145c6e60e4a5b",
+        "_Declarations.visitFunctionDeclaration": "ed1d85d1954ee96d77b1b8982f05a17d965a4b4243ba8fbfda5f6eb6968e4332",
+        "_Declarations.visitFunctionExpression": "7513906e9cc70a75f1649bb9c49bc72762a95a39df7d5d9d7620cc1493659ba8",
+        "_Complexity._branch": "b801364a1b167b86b211fef5a704b08753b4c2bd84e7a4438134faa51d3e1566",
+        "_Complexity.visitIfStatement": "c9fa7d49373fa88f05c8b6b57cf749b1364eda18bf03c39dcbce8cf357cb62e9",
+        "_Complexity.visitForStatement": "c9fa7d49373fa88f05c8b6b57cf749b1364eda18bf03c39dcbce8cf357cb62e9",
+        "_Complexity.visitWhileStatement": "c9fa7d49373fa88f05c8b6b57cf749b1364eda18bf03c39dcbce8cf357cb62e9",
+        "_Complexity.visitDoStatement": "c9fa7d49373fa88f05c8b6b57cf749b1364eda18bf03c39dcbce8cf357cb62e9",
+        "_Complexity.visitConditionalExpression": "c9fa7d49373fa88f05c8b6b57cf749b1364eda18bf03c39dcbce8cf357cb62e9",
+        "_Complexity.visitCatchClause": "c9fa7d49373fa88f05c8b6b57cf749b1364eda18bf03c39dcbce8cf357cb62e9",
+        "_Complexity.visitSwitchStatement": "c9fa7d49373fa88f05c8b6b57cf749b1364eda18bf03c39dcbce8cf357cb62e9",
+        "_Complexity.visitSwitchExpression": "c9fa7d49373fa88f05c8b6b57cf749b1364eda18bf03c39dcbce8cf357cb62e9",
+        "_Complexity.visitSwitchCase": "995d5f1bd58d030d6256bdf006a55be4fc266f7512505c3457be16abd711c51c",
+        "_Complexity.visitSwitchExpressionCase": "a1907d724da338db764fc33a40401cdfaa932a96dd75631e9866efc2223f0ddb",
+        "_Complexity.visitBinaryExpression": "d6a3b0c17dc2d601d4ada7949b3eb608724ecd1c12536b87651520aa6eed10fd",
+        "_Complexity.visitFunctionExpression": "257c1be96ae69f4b01c2c69bdb6d78605f59175819fb007d0bf245bf48444c4a",
+        "_Complexity.visitFunctionDeclaration": "257c1be96ae69f4b01c2c69bdb6d78605f59175819fb007d0bf245bf48444c4a"
+      },
+      "sourceHash": "32bb4bbe460ee7037ecc08db3be21b00eb24d2307f61ca214d43b12238bdbb97"
+    },
+    "tooling/code_quality/lib/ratchet.dart": {
+      "lines": 83,
+      "symbols": {
+        "violations": {
+          "lines": 35,
+          "cyclomatic": 11,
+          "cognitive": 15,
+          "nesting": 3,
+          "parameters": 4
+        },
+        "_symbolBaseline": {
+          "lines": 19,
+          "cyclomatic": 5,
+          "cognitive": 4,
+          "nesting": 1,
+          "parameters": 4
+        },
+        "_symbolBaseline.closure": {
+          "lines": 1,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "_movedSymbol": {
+          "lines": 17,
+          "cyclomatic": 5,
+          "cognitive": 7,
+          "nesting": 3,
+          "parameters": 2
+        }
+      },
+      "fingerprints": {
+        "violations": "3ad8d78eed3030701cc1e1bc5c7fa3e3ded09102b932e04941734a26e23d2b65",
+        "_symbolBaseline": "dc9bfb38cbbcefa682a7675127cc317dab83cce7dec9c446c8debfafc14c3d35",
+        "_symbolBaseline.closure": "0e0f30e44df9a714d3ce95e09c0809d49a4a62df847fb895ed8958c33c8d6b04",
+        "_movedSymbol": "9a4383dd5aab7e2b31fe8c6f59f7c6fa323d60afb338b9ecbae915ceba8e8424"
+      },
+      "sourceHash": "bd04f2ab37a652b785338303ed7420655cec934690183b10dbd9a3f08f51b582"
+    },
+    "tooling/code_quality/lib/sources.dart": {
+      "lines": 31,
+      "symbols": {
+        "measureSources": {
+          "lines": 27,
+          "cyclomatic": 5,
+          "cognitive": 6,
+          "nesting": 2,
+          "parameters": 1
+        },
+        "measureSources.closure": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 1
+        },
+        "measureSources.closure#2": {
+          "lines": 1,
+          "cyclomatic": 1,
+          "cognitive": 0,
+          "nesting": 0,
+          "parameters": 2
+        }
+      },
+      "fingerprints": {
+        "measureSources": "327ca00f7cd03bc10528288fff1e256e5ac185c29dea197df390b29e3d493721",
+        "measureSources.closure": "780a69ce6c3dbc082734bb7aaca56132543c52438a8585d18c4a8dc89f988917",
+        "measureSources.closure#2": "61ee43c58e57938dc85a19a9a431925fefe780712b5a1653150a39c92a56c3e4"
+      },
+      "sourceHash": "ecf9355991196482dceffcfd3c6c6148b5e94f90a796212e45c642898e199cf6"
+    },
+    "tooling/code_quality/bin/check.dart": {
+      "lines": 111,
+      "symbols": {
+        "main": {
+          "lines": 14,
+          "cyclomatic": 4,
+          "cognitive": 3,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "run": {
+          "lines": 9,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "_validateArgs": {
+          "lines": 11,
+          "cyclomatic": 8,
+          "cognitive": 7,
+          "nesting": 1,
+          "parameters": 1
+        },
+        "_execute": {
+          "lines": 60,
+          "cyclomatic": 13,
+          "cognitive": 17,
+          "nesting": 3,
+          "parameters": 4
+        },
+        "readJsonObject": {
+          "lines": 6,
+          "cyclomatic": 2,
+          "cognitive": 1,
+          "nesting": 1,
+          "parameters": 1
+        }
+      },
+      "fingerprints": {
+        "main": "962954ac0182373407760d2621f415103a8518daffecc2b377f91335f9a5edd1",
+        "run": "feb7090664580f9eadc7e237d4035359c8536f1b31ca553682211ee5d5dd6271",
+        "_validateArgs": "c6f3694b9c3e4dbae9bf20c6ca55696b5f1e46806f16a2e2e5e8cfa9abf5a399",
+        "_execute": "982375c994000ac3b99f623a2fa283af6ce5060f3e71da7881d493b728c93428",
+        "readJsonObject": "b25be68b7bd7234afd42d10b76b25f7b86b8d19534d407d63e348587636551bc"
+      },
+      "sourceHash": "940d1db6f39a0923ddc0dee515474b6edb166a51f8f0eb28212cb9e2ec3ac778"
+    }
+  }
+}

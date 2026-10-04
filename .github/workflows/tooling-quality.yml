@@ -1,0 +1,33 @@
+name: Tooling quality
+on:
+  pull_request:
+  push:
+    branches: [main, dev]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  python-and-shell:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: tooling/requirements-quality.txt
+      - run: python -m pip install -r tooling/requirements-quality.txt
+      - run: python -m ruff check tooling
+      - name: Pinned ShellCheck
+        run: docker run --rm --volume "$PWD:/mnt" koalaman/shellcheck:v0.10.0 .githooks/pre-commit
+  powershell:
+    runs-on: windows-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - shell: pwsh
+        run: |
+          Install-Module PSScriptAnalyzer -RequiredVersion 1.24.0 -Scope CurrentUser -Force
+          ./tooling/validate_scripts.ps1
+          ./tooling/test_checked_process.ps1

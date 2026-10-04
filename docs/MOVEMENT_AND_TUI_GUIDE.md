@@ -4,8 +4,8 @@ Ez a dokumentum a Dungeon Slasher-jellegű, oldalnézetes karakter-, boss- és l
 
 ## 1. Grafikai alapértékek
 
-- Alap karakter-frame-méret a játékban: `32×32 px`, amit a motor 1:1-ben rajzol ki a `640×360` logikai felületen
-- Karakter authoring-felbontás: `64×64 px`. A Character Workshop (ComfyUI + Aseprite pipeline, lásd `docs/CHARACTER_WORKSHOP.md`) ezen a vásznon dolgozik, majd determinista 2:1 supersampling-gel állítja elő a játéknak szánt 32×32-es lapot. Futtatáskor **nincs** átméretezés, így a pixel art éles marad.
+- A Godotból renderelt fighter frame-mérete `64×64 px`; a régebbi beépített sprite-oké `32×32 px`. A motor ezeket 1:1-ben rajzolja ki a `640×360` logikai felületen.
+- A fighter exportja rögzített gyökérpontú, átlátszó képsorozat. A korábbi AI Character Workshop generátort eltávolítottuk; helyette [Felszerelés workshop](EQUIPMENT_WORKSHOP.md) érhető el 3×3-as tárolóráccsal. Futtatáskor nincs sprite-átméretezés.
 - Pixel-art skálázás: nearest-neighbor Flame sprite komponensekkel (`FilterQuality.none`)
 - Színtér: RGBA PNG átlátszó háttérrel
 - Tile-méret: `48×48 px`

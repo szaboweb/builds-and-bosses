@@ -1,5 +1,6 @@
+param([string]$SourceRoot)
 $ErrorActionPreference = 'Stop'
-$root = Split-Path -Parent $PSScriptRoot
+$root = if ($SourceRoot) { $SourceRoot } else { Split-Path -Parent $PSScriptRoot }
 $dataRoot = Join-Path $root 'data'
 $schemaRoot = Join-Path $root 'schemas'
 $violations = @()

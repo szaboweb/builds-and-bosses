@@ -1,4 +1,5 @@
 import '../config/game_rules_config.dart';
+import 'equipment_slot.dart';
 
 enum EquipmentRole { frontline, ranged, divineCaster, arcaneCaster }
 
@@ -7,12 +8,18 @@ class EquipmentItem {
   final String name;
   final EquipmentRole role;
   final Map<String, double> modifiers;
+  final String? iconAssetPath;
+  final EquipmentSlot? equipmentSlot;
+  final String? fighterLayerPath;
 
   const EquipmentItem({
     required this.id,
     required this.name,
     required this.role,
     required this.modifiers,
+    this.iconAssetPath,
+    this.equipmentSlot,
+    this.fighterLayerPath,
   });
 
   factory EquipmentItem.fromJson(Map<String, dynamic> json) {
@@ -20,6 +27,11 @@ class EquipmentItem {
       id: json['id'] as String,
       name: json['name'] as String,
       role: EquipmentRole.values.byName(json['role'] as String),
+      iconAssetPath: json['icon_asset_path'] as String?,
+      equipmentSlot: json['equipment_slot'] == null
+          ? null
+          : EquipmentSlot.values.byName(json['equipment_slot'] as String),
+      fighterLayerPath: json['fighter_layer_path'] as String?,
       modifiers: (json['modifiers'] as Map<String, dynamic>).map(
         (key, value) => MapEntry(key, (value as num).toDouble()),
       ),
@@ -105,10 +117,7 @@ class EquipmentDatabase {
     final itemMap = {for (final item in itemList) item.id: item};
     final setList = (json['sets'] as List<dynamic>)
         .map(
-          (set) => EquipmentSet.fromJson(
-            set as Map<String, dynamic>,
-            itemMap,
-          ),
+          (set) => EquipmentSet.fromJson(set as Map<String, dynamic>, itemMap),
         )
         .where((set) => set.items.length <= config.maxItemsPerEquipmentSet)
         .toList();

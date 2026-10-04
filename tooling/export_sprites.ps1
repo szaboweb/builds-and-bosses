@@ -16,6 +16,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'invoke_checked_process.ps1')
 $root = Split-Path -Parent $PSScriptRoot
 $charactersRoot = Join-Path $root 'assets\characters'
 
@@ -34,7 +35,7 @@ if (-not $classDirs) {
   exit 1
 }
 
-$failures = @()
+$exports = 0
 
 foreach ($classDir in $classDirs) {
   $source = Join-Path $classDir.FullName 'source.aseprite'
@@ -44,7 +45,9 @@ foreach ($classDir in $classDirs) {
   }
 
   Write-Host "== $($classDir.Name) =="
-  $tags = & $AsepritePath -b --list-tags $source | Where-Object { $_ -and $_.Trim() -ne '' }
+  $tagOutput = Invoke-CheckedProcess -Executable $AsepritePath `
+    -Arguments @('-b', '--list-tags', ('"' + $source + '"'))
+  $tags = $tagOutput -split '\r?\n' | Where-Object { $_ -and $_.Trim() -ne '' }
 
   if (-not $tags) {
     Write-Warning "No animation tags found in $source"
@@ -53,18 +56,35 @@ foreach ($classDir in $classDirs) {
 
   foreach ($tag in $tags) {
     $tag = $tag.Trim()
+    if ($tag -notmatch '^[A-Za-z0-9_-]+$') { throw "Unsafe animation tag: $tag" }
     $sheetPath = Join-Path $classDir.FullName "$tag.png"
     $dataPath = Join-Path $classDir.FullName "$tag.json"
     Write-Host "  exporting $tag -> $($classDir.Name)\$tag.png"
-    & $AsepritePath -b --tag $tag $source --sheet-type horizontal --sheet $sheetPath --data $dataPath
-    if ($LASTEXITCODE -ne 0) {
-      $failures += "$($classDir.Name)/$tag"
+    $temporary = Join-Path ([IO.Path]::GetTempPath()) ('bb-export-' + [guid]::NewGuid())
+    New-Item -ItemType Directory -Path $temporary | Out-Null
+    $freshSheet = Join-Path $temporary "$tag.png"
+    $freshData = Join-Path $temporary "$tag.json"
+    try {
+    Invoke-CheckedProcess -Executable $AsepritePath -Arguments @(
+      '-b', '--tag', ('"' + $tag + '"'), ('"' + $source + '"'),
+      '--sheet-type', 'horizontal', '--sheet', ('"' + $freshSheet + '"'),
+      '--data', ('"' + $freshData + '"')
+    )
+    foreach ($output in @($freshSheet, $freshData)) {
+      if (-not (Test-Path -LiteralPath $output) -or
+          (Get-Item -LiteralPath $output).Length -eq 0) {
+        throw "Export output missing or empty: $output"
+      }
+    }
+    Get-Content -LiteralPath $freshData -Raw | ConvertFrom-Json | Out-Null
+    Move-Item -LiteralPath $freshSheet -Destination $sheetPath -Force
+    Move-Item -LiteralPath $freshData -Destination $dataPath -Force
+    $exports++
+    } finally {
+      Remove-Item -LiteralPath $temporary -Recurse -Force
     }
   }
 }
 
-if ($failures.Count -gt 0) {
-  Write-Error "Export failed for: $($failures -join ', ')"
-  exit 1
-}
-Write-Host 'Sprite export complete.'
+if ($exports -eq 0) { throw 'No sprites were exported.' }
+Write-Host "Sprite export complete: $exports sheets."

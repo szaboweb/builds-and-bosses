@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -49,7 +51,7 @@ class _CharacterBuilderOverlayState extends State<CharacterBuilderOverlay> {
       'WIS': currentStats.wisdom,
       'CHA': currentStats.charisma,
     };
-    _loadCharacterSheets();
+    unawaited(_loadCharacterSheets());
   }
 
   Future<void> _loadCharacterSheets() async {
@@ -71,24 +73,29 @@ class _CharacterBuilderOverlayState extends State<CharacterBuilderOverlay> {
   }
 
   Future<void> _selectCharacterSheet(String path) async {
-    if (path == _livePublishedValue) {
-      PlayerComponent.characterSheetPath = path;
-    } else {
-      PlayerComponent.runtimeSheetImage = null;
-      PlayerComponent.runtimeSheetLabel = null;
-      PlayerComponent.characterSheetPath = path;
+    if (path != PlayerComponent.godotFighterSheetPath &&
+        widget.game.player.equippedItems.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'A Godot-felszerelés a fighterhez illeszkedik. '
+            'Másik sprite választása előtt vedd le a felszerelést.',
+          ),
+        ),
+      );
+      return;
     }
+    PlayerComponent.characterSheetPath = path;
     await widget.game.player.reloadCharacterSheet();
     if (!mounted) return;
     setState(() {});
   }
 
-  static const String _livePublishedValue = '__live_published__';
-
-  List<String> get _sheetOptions => [
-    if (PlayerComponent.runtimeSheetImage != null) _livePublishedValue,
-    ..._characterSheets,
-  ];
+  void _changeCharacterSheet(String? value) {
+    if (value != null) {
+      unawaited(_selectCharacterSheet(value));
+    }
+  }
 
   int get _remainingPoints => _pointBuy.remainingPoints(_scores);
 
@@ -506,7 +513,7 @@ class _CharacterBuilderOverlayState extends State<CharacterBuilderOverlay> {
               const SizedBox(height: 22),
 
               // Bottom Action Buttons
-              if (_sheetOptions.length > 1) ...[
+              if (_characterSheets.length > 1) ...[
                 Row(
                   children: [
                     const Text(
@@ -519,33 +526,25 @@ class _CharacterBuilderOverlayState extends State<CharacterBuilderOverlay> {
                         isExpanded: true,
                         dropdownColor: const Color(0xFF1B1727),
                         value:
-                            PlayerComponent.runtimeSheetImage != null &&
-                                PlayerComponent.characterSheetPath ==
-                                    _livePublishedValue
-                            ? _livePublishedValue
-                            : (_characterSheets.contains(
-                                    PlayerComponent.characterSheetPath,
-                                  )
-                                  ? PlayerComponent.characterSheetPath
-                                  : null),
-                        hint: const Text('Publikált karakter választása'),
+                            _characterSheets.contains(
+                              PlayerComponent.characterSheetPath,
+                            )
+                            ? PlayerComponent.characterSheetPath
+                            : null,
+                        hint: const Text('Beépített karakter választása'),
                         items: [
-                          for (final sheet in _sheetOptions)
+                          for (final sheet in _characterSheets)
                             DropdownMenuItem(
                               value: sheet,
                               child: Text(
-                                sheet == _livePublishedValue
-                                    ? '${PlayerComponent.runtimeSheetLabel ?? 'frissen publikált'} (élő)'
-                                    : (sheet.split('/').length > 1
-                                          ? sheet.split('/')[1]
-                                          : sheet),
+                                sheet.split('/').length > 1
+                                    ? sheet.split('/')[1]
+                                    : sheet,
                                 style: const TextStyle(fontSize: 13),
                               ),
                             ),
                         ],
-                        onChanged: (value) {
-                          if (value != null) _selectCharacterSheet(value);
-                        },
+                        onChanged: _changeCharacterSheet,
                       ),
                     ),
                   ],

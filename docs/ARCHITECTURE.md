@@ -1,5 +1,75 @@
 # Builds & Bosses Architecture
 
+## Status and Reading Guide
+
+This document distinguishes **current PoC/MWP** (minimum working prototype)
+from the **Steam productive target**. A target requirement is not evidence that
+its implementation already exists. Agents must inspect the affected code and
+tests before relying on it. Do not migrate engines or implement target features
+incidentally while changing a PoC feature.
+
+Read the current-state and responsibility sections for every affected module.
+Read target sections only when the task changes the corresponding contract.
+The shared module-sizing decision is in [CODE_QUALITY.md](CODE_QUALITY.md).
+
+## Current PoC/MWP
+
+- Flutter presents the UI; Flame runs the training arena. Godot is a separate
+  visual experiment/export tool, not the embedded gameplay engine.
+- `TacticalModeGame` currently coordinates input, planning, execution and combat.
+  Controller separation below is partly planned, not fully implemented.
+- `PlayerComponent` manually integrates movement, gravity and platform landing.
+  It does **not** currently own a Forge2D body. Keyboard input includes free
+  vertical flight; physics is not certified as fixed-timestep deterministic.
+- Core contains combat resolution, seeded dice, stats/config, actions, inventory
+  contracts and slot compatibility. Some runtime orchestration still lives in
+  the large game/player classes; this is explicit refactoring debt.
+- The fighter is a baked 13-cell, 64px atlas: rest plus walking phases.
+  Airborne movement holds a stride pose; dedicated attack/jump/fall clips are
+  not implemented. Equipment layers share the body's frame and facing.
+- The workshop has nine typed body slots and a paged 3x3 armory. Its current
+  Godot sample set contains a helmet, chest armor and sword. Applying equipment
+  updates visual layers transactionally; it does not apply combat-stat bonuses.
+  Outfits persist within the current game screen, not across application reloads.
+- Platform service contracts and a local adapter exist. Steam distribution
+  tooling is not proof of implemented Steam achievements, cloud save or sync.
+- Replay snapshots record selected combat information; complete deterministic
+  input/physics replay is a target, not a present guarantee.
+
+## Responsibility Contracts
+
+These boundaries apply now, including during extraction from legacy classes.
+Separate modules by ownership, not by arbitrary line chunks.
+
+| Module/layer | Owns | Must not own | Dependencies and public contract | Evidence |
+|---|---|---|---|---|
+| `core/dnd`, `core/combat` | Rule resolution, dice, combat results, combat records | Canvas, widgets, raw input, platform SDKs | Headless domain/config; typed requests/results | `dnd_combat_test.dart`, `combat_logger_test.dart` |
+| `core/config` | Tunable rule definitions, serialization and validation | Runtime rendering or UI coordination | Domain values and versioned data contracts | `config_and_stats_test.dart`, data validator |
+| `core/inventory` | Item/set definitions, typed body slots, compatibility and atomic outfit validation | Sprite loading, drag/drop, combat rendering | Items/slots/outfit; reject invalid placements without mutation | `inventory_test.dart`, `equipment_workshop_test.dart` |
+| Equipment application controller (target extraction) | Apply/remove workflow, loading state, commit/rollback coordination | Slot rules, Canvas, large widget trees | Inventory contracts plus explicit async appearance adapter | Workshop success/failure tests |
+| Equipment widgets (`ui`) | Armory paging, drag/drop intent, labelled slots and error presentation | Reimplementing compatibility or loading image atlases into Flame | Typed state and callbacks; dispatch intent | Workshop widget tests |
+| Fighter visual renderer (target extraction from player) | Atlas validation, pose/frame selection, equipment layers, facing, VFX | Damage formulas, inventory decisions, writing physical position | Appearance request and movement/action snapshot | `fighter_animation_test.dart`, Godot layer exporter |
+| Locomotion controller (target extraction from player) | Movement state, jump/flight/platform integration in PoC | UI, equipment catalog, attack rolls | Input intent, derived movement parameters, arena collision contract | Fighter movement and tactical tests |
+| Game coordinator | Connect services, lifecycle, target/fight orchestration | Accumulating every rule, renderer or input branch | Small explicit controller/service contracts | `tactical_game_test.dart` |
+| Input/phase controllers (target extraction) | Device-to-intent mapping; validated phase transitions | Rendering, damage calculations | Intent and phase/event contracts | Tactical input/phase tests |
+| Character builder (`ui`) | Edit build draft and show previews | Duplicate stat formulas or game physics | Core preview models and apply-build intent | Config/stats tests; add focused builder tests during extraction |
+| Platform adapters | Local persistence and optional platform integration | Changing domain rules or requiring network for gameplay | `PlatformServices` contracts | Adapter tests must accompany new integration |
+| `game/equipment_appearance.dart` (implemented extraction) | Layer atlas validation, atomic appearance loading, operation generations and deadlines | Slot UI, combat stats, movement physics | Typed outfit plus injectable image/frame loader | Fighter and reliability tests |
+| `game/combat_completion.dart` (implemented extraction) | Bounded post-combat persistence/achievement calls and visible failure state | Combat outcomes/rules, inventory, physics | `PlatformServices`, immutable run statistics | Reliability failure/timeout tests |
+| `core/dnd/combat_result.dart` | Typed strike result shared by rules and logger | Resolving attacks or logging itself | Result fields only; engine re-exports the stable API | Combat/logger tests and import-cycle gate |
+
+The appearance transaction loads and validates all requested layers before
+committing; failure retains both the outfit and character appearance. UI
+displays the error. This ownership belongs to the application workflow and
+renderer, not to inventory rules.
+The layer-loading owner is now extracted; the full body renderer/locomotion and
+workshop controller/widget separation remain debt. Combat results no longer
+make the logger import the combat engine, eliminating that circular dependency.
+
+Extracted modules should accept the data/services they need, not the entire
+game object by default. No cyclic controller dependencies or `part`-file
+splitting merely to conceal an unchanged oversized class.
+
 ## Core Principle
 
 Game rules and presentation are separate contracts.
@@ -42,6 +112,30 @@ The current coordinator is planned to split into five focused services:
 - `BuildCombatController`: hero/boss build state, stat-derived combat modifiers, active/passive ability effects, and equipment-set effects.
 
 The controllers communicate through domain models and events. No controller owns Canvas rendering or Flutter widgets.
+
+## Steam Productive Target
+
+**Everything from Physics and Collision through Data-Driven Values below is
+the intended production design, not a claim about the current PoC.**
+The Debug Replay section also describes a current partial implementation and
+must not be read as certification of complete replay.
+
+Production means a validated, releasable Steam build, not merely a successful
+upload. Acceptance includes:
+
+- Stable offline single-player gameplay, compatible versioned saves and explicit
+  migrations, with optional Steam services behind platform contracts.
+- A complete, tested movement/combat/control pipeline and clearly owned modules.
+- Validated animation/equipment coverage for supported appearances and actions;
+  the current three visual samples do not certify arbitrary armor combinations.
+- Reproducible tests/replay to the extent promised by the shipped design.
+- Measured performance and controller/display validation on the supported
+  desktop/Steam Deck configurations; budgets must be defined before certification.
+- Passing required quality, architecture, data, analyzer, test and release-build
+  checks, plus a release checklist. Hooks alone are not release certification.
+
+Forge2D below is a target design requiring an explicit migration task and
+regression tests. The Godot experiment does not authorize a game-engine change.
 
 ## Physics and Collision (Forge2D)
 
@@ -173,6 +267,12 @@ pwsh -NoProfile -File tooling/validate_architecture.ps1
 ```
 
 The validator is also a required GitHub Actions step. The local Git hook is installed by `setup.sh`.
+
+Current validators check selected source patterns and data constraints, not
+full semantic dependencies or complexity. The AST-based quality ratchet and
+PR-required status described in [CODE_QUALITY.md](CODE_QUALITY.md) are planned;
+do not report them as enforced until their implementation and CI configuration
+have been verified.
 
 ## Data Naming and Schemas
 

@@ -20,7 +20,9 @@ When team development begins, enable these repository settings:
 1. Protect `main` and require pull requests.
 2. Require at least one approving review.
 3. Dismiss stale approvals after new commits.
-4. Require the `windows-build` and `secret-scan` checks.
+4. Require the actual job status names from Windows build, secret scan,
+   `Code quality / quality-gate` and `Tooling quality` workflows (confirm their
+   displayed names in GitHub after the first run).
 5. Require the architecture/data validation checks.
 6. Restrict direct pushes to `main`.
 7. Optionally protect `dev` with CI required but allow maintainer integration.

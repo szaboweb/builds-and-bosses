@@ -9,9 +9,10 @@ import '../../core/dnd/character_stats.dart';
 import '../../core/dnd/combat_engine.dart';
 import '../../core/dnd/dice.dart';
 import '../../core/inventory/inventory.dart';
-import '../equipment_appearance.dart';
 import 'arena_map_component.dart';
 import 'dummy_enemy_component.dart';
+import 'fighter_animator.dart';
+import 'fighter_body_profile.dart';
 import 'floating_combat_text.dart';
 import 'projectile_component.dart';
 import '../../core/combat/combat_logger.dart';
@@ -42,61 +43,26 @@ class PlayerComponent extends PositionComponent with HasGameReference {
   Vector2? _moveTarget;
   VoidCallback? _onPlanFinished;
 
-  // Visuals & Animation
-  static const String godotFighterSheetPath =
-      'characters/fighter_godot/walk13_fighter.png';
-  double _spriteFrameSize = 32;
-  bool _usesGodotFighter = false;
+  // Visuals & Animation: pose/frame selection, atlas loading and equipment
+  // layers are owned by FighterAnimator (docs/ARCHITECTURE.md "Fighter
+  // visual renderer" extraction).
+  static final String godotFighterSheetPath =
+      FighterBodyProfile.godotFighter.spriteSheetPath;
 
   /// Bundled character atlas, selectable from the character builder.
   static String characterSheetPath = godotFighterSheetPath;
 
-  static const List<int> _idleFrames = [0];
-  static const List<int> _walkFrames = [1, 2];
-  static const List<int> _runFrames = [3, 4];
-  static const List<int> _fighterWalkFrames = [
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-  ];
-  // Pixels covered by one full two-frame cycle, used to sync steps to real speed.
-  static const double _walkStrideLength = 26;
-  static const double _runStrideLength = 44;
-  static const double _fighterStrideLength = 96;
-  Sprite? sprite;
-  List<Sprite> _animationFrames = const [];
-  final EquipmentAppearance _appearance = EquipmentAppearance();
+  final FighterAnimator _animator = FighterAnimator();
 
-  List<EquipmentItem> get equippedItems => _appearance.items;
+  Sprite? get sprite => _animator.sprite;
+  List<EquipmentItem> get equippedItems => _animator.equippedItems;
+  List<Sprite> get equipmentSprites => _animator.equipmentSprites;
 
-  List<Sprite> get equipmentSprites {
-    if (!_usesGodotFighter || sprite == null) return const [];
-    final frame = (sprite!.srcPosition.x / 64).round();
-    return _appearance.spritesAt(frame);
-  }
+  void cancelEquipmentUpdate() => _animator.cancelEquipmentUpdate();
 
-  void cancelEquipmentUpdate() => _appearance.cancelPending();
+  Future<void> setEquipment(List<EquipmentItem> items) => _animator
+      .setEquipment(List<EquipmentItem>.unmodifiable(items), game.images.load);
 
-  Future<void> setEquipment(List<EquipmentItem> items) async {
-    final requested = List<EquipmentItem>.unmodifiable(items);
-    if (requested.isNotEmpty && (!_usesGodotFighter || sprite == null)) {
-      throw StateError(
-        'A mintafelszerelés csak a Godot fighterhez használható.',
-      );
-    }
-    await _appearance.applyAtlas(requested, game.images.load);
-  }
-
-  double _animationPhase = 0.0;
   bool isFacingLeft = false;
   static final Paint _pixelArtPaint = Paint()
     ..filterQuality = FilterQuality.none
@@ -126,86 +92,23 @@ class PlayerComponent extends PositionComponent with HasGameReference {
   }
 
   /// Rebuilds the frame list after switching bundled character atlases.
-  Future<void> reloadCharacterSheet() async {
-    try {
-      final usesGodotFighter = characterSheetPath == godotFighterSheetPath;
-      final frameSize = usesGodotFighter ? 64.0 : 32.0;
-      final image = await game.images.load(characterSheetPath);
-      final frameCount = (image.width / frameSize).floor();
-      if (image.height != frameSize ||
-          image.width % frameSize != 0 ||
-          frameCount < (usesGodotFighter ? 13 : 5)) {
-        throw StateError(
-          'Invalid character atlas $characterSheetPath: '
-          '${image.width}x${image.height}, expected a row of '
-          '${frameSize.toInt()}px cells.',
-        );
-      }
-      _usesGodotFighter = usesGodotFighter;
-      _spriteFrameSize = frameSize;
-      _animationPhase = 0;
-      _animationFrames = [
-        for (var index = 0; index < frameCount; index++)
-          Sprite(
-            image,
-            srcPosition: Vector2(index * _spriteFrameSize, 0),
-            srcSize: Vector2(_spriteFrameSize, _spriteFrameSize),
-          ),
-      ];
-      sprite = _animationFrames.isEmpty ? null : _animationFrames.first;
-    } catch (error) {
-      CombatLogger.instance.logWarning(
-        'ANIMATION',
-        'Unable to load character sheet $characterSheetPath: $error. '
-            'Using procedural character.',
-      );
-      _animationFrames = const [];
-      sprite = null;
-    }
-  }
+  Future<void> reloadCharacterSheet() =>
+      _animator.reload(characterSheetPath, game.images.load);
 
-  /// Picks idle/walk/run from the body's own speed and advances the cycle so a
-  /// full stride covers [_walkStrideLength] pixels, which keeps feet from sliding.
+  /// Picks idle/walk/run from the body's own speed and hands the frame
+  /// selection to [FighterAnimator], which keeps feet from sliding across
+  /// each body profile's own stride length.
   void _updateLocomotionFrame(double dt) {
-    if (_animationFrames.isEmpty) {
-      return;
-    }
     // velocity.x is a normalised input direction, not pixels per second.
     final speed = isExecutingPlan && _moveTarget != null
         ? moveSpeed * (_currentQueue[_executingIndex] is DashAction ? 3.8 : 2.4)
         : velocity.x.abs() * moveSpeed;
-    final List<int> cycle;
-    final double strideLength;
-    if (_usesGodotFighter) {
-      // Jump/fall/flight clips are not authored yet; hold a stride in the air.
-      cycle = !isOnGround
-          ? const [4]
-          : (speed < 8 ? _idleFrames : _fighterWalkFrames);
-      strideLength = isOnGround && speed >= 8 ? _fighterStrideLength : 0;
-    } else if (!isOnGround) {
-      cycle = _runFrames;
-      strideLength = 0;
-    } else if (speed < 8) {
-      cycle = _idleFrames;
-      strideLength = 0;
-    } else if (speed <= moveSpeed * 1.2) {
-      cycle = _walkFrames;
-      strideLength = _walkStrideLength;
-    } else {
-      cycle = _runFrames;
-      strideLength = _runStrideLength;
-    }
-
-    if (strideLength <= 0) {
-      _animationPhase = 0;
-    } else {
-      _animationPhase += speed * dt / strideLength * cycle.length;
-      _animationPhase %= cycle.length;
-    }
-    final frameIndex = cycle[_animationPhase.floor() % cycle.length];
-    if (frameIndex < _animationFrames.length) {
-      sprite = _animationFrames[frameIndex];
-    }
+    _animator.updateLocomotionFrame(
+      dt: dt,
+      speed: speed,
+      moveSpeed: moveSpeed,
+      isOnGround: isOnGround,
+    );
   }
 
   /// Update character stats dynamically (e.g. from Character Builder / Tervezőasztal)
@@ -661,9 +564,10 @@ class PlayerComponent extends PositionComponent with HasGameReference {
     }
 
     if (sprite != null) {
-      final spriteSize = Vector2(_spriteFrameSize, _spriteFrameSize);
+      final profile = _animator.profile;
+      final spriteSize = Vector2.all(profile.frameSize);
       // Fixed world-root projection: do not re-anchor individual walk frames.
-      final baseline = _usesGodotFighter ? 54.0 : _spriteFrameSize;
+      final baseline = profile.rootBaselineY;
       sprite!.render(
         canvas,
         position: Vector2((size.x - spriteSize.x) / 2, size.y - baseline),
@@ -681,7 +585,9 @@ class PlayerComponent extends PositionComponent with HasGameReference {
     } else {
       _renderProceduralSideViewFighter(canvas);
     }
-    if (!_usesGodotFighter || sprite == null || !_appearance.hasWeapon) {
+    if (!_animator.profile.usesEquipmentLayers ||
+        sprite == null ||
+        !_animator.hasWeapon) {
       _renderClassWeapon(canvas);
     }
 

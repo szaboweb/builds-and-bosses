@@ -1,3 +1,43 @@
+[DIRECTION CHANGE 2026-10-04 - Quaternius rig evaluation]
+The in-game default fighter sprite (`app/assets/images/characters/fighter_godot/
+walk13_fighter.png`, `FighterBodyProfile.godotFighter`) was replaced with a
+render of Quaternius's CC0 "Universal Base Characters" Superhero_Male model
+(textured: light skin tone, built-in underwear, no hairstyle attached yet),
+posed with the separately-downloaded "Universal Animation Library" 1's
+`Walk_Loop`/`Idle_Loop` actions. Both packs share one Humanoid rig, so the
+animation applies with zero retargeting. Export used the same 13-cell/64px/
+baseline-54 recipe as `tooling/godot_fighter_preview/export_flutter_sheet.gd`
+(cell 0 = Idle_Loop frame 0, cells 1-12 = Walk_Loop sampled at (i-1)/12 of its
+length), rendered directly in Blender (no quantize/outline post-process) to
+match the existing sheet's raw-render look. An earlier attempt with just the
+Animation Library's plain preview mannequin worked but had no skin/clothing
+material; swapping in Universal Base Characters fixed that. The first Universal
+Base Characters render looked much too dark regardless of the Dark/Light skin
+texture choice; the actual cause was the scene's single point light falling
+off with distance (characters were parented/positioned several metres further
+from the light than the original `Fighter_Rig` spot, used earlier for side-by-
+side comparisons), not the texture - rendering at the original `Fighter_Rig`'s
+exact world position fixed the exposure. An unrelated bundled `Icosphere`
+placeholder mesh from the glTF import was also hidden from render; it was
+bleeding into frame edges as a grey blob.
+This is a first concrete step toward adopting the Quaternius rig/animation
+library as the project's base character, after a same-session comparison
+found: (a) retargeting the library onto the project's own `Fighter_Rig` fails
+naively (arms lock into a T-pose-like orientation) because the two skeletons'
+rest pose AND local bone axis conventions differ, requiring real per-bone
+correction math; (b) using Quaternius's own rig/characters needs no
+retargeting at all and immediately plays all of its 130+ animations correctly.
+Known gaps from this first step, not yet resolved: no hairstyle/eyebrows mesh
+attached (bald head only); the Regular/Teen size variants and the Superhero
+proportions this project separately explored for barbarian/robot body types
+are not yet wired into `FighterBodyProfile`; the Equipment Workshop's sample
+helmet/chest/sword layers and attack/block/cast/hit/dodge/death clips still
+assume the original `Fighter_Rig` bone names and proportions and have not been
+refitted; only the idle+walk cells were regenerated, nothing else in the
+pipeline moved. The original `Fighter_Rig`/`fighter.blend` is unmodified; see
+`fighter_body_variants.blend` (not committed) for the Barbarian_Rig/Robot_Rig
+proportion experiments done earlier in the same session.
+
 [WORKSHOP REMOVAL 2026-10-04]
 The old AI Character Workshop generator, API, workflows and startup tasks have
 been deleted. Its UI is replaced by an Equipment Workshop with a 3x3 typed body-slot

@@ -41,7 +41,6 @@ class LevelSelectorOverlay extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () {
                       onLevelSelected(level.$2);
-                      Navigator.of(context).pop();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.deepPurple,

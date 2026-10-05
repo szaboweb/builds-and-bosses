@@ -256,6 +256,9 @@ class TacticalModeGame extends FlameGame
 
     // Update camera position
     camera.viewfinder.position = playerSpawnPos.clone();
+
+    // Close the level selector overlay
+    overlays.remove('levelSelector');
   }
 
   @override

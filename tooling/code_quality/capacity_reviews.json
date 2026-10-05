@@ -1,11 +1,4 @@
 {
-  "app/lib/game/tactical_game.dart": {
-    "sourceHash": "d61c4e2a8b4a7a7fd185630b67e0b3d331814286c32cf2df955f6195d9b8e458",
-    "owner": "Game coordination and combat lifecycle; input handling extracted",
-    "upperBound": 645,
-    "decision": "extend",
-    "reason": "Measured 637 lines (within 650 ceiling). Input handling extracted to GameInputController and integrated with ArenaEditorController."
-  },
   "app/lib/ui/character_builder_overlay.dart": {
     "sourceHash": "cb846170782a76f2d88019d61ab3bcbdefdcc034b75a735ecc504821f52025d6",
     "owner": "Character build editing and workbench presentation",

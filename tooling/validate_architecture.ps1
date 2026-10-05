@@ -33,6 +33,9 @@ Get-ChildItem (Join-Path $project 'lib/ui') -Recurse -Filter '*.dart' | ForEach-
 }
 
 Get-ChildItem (Join-Path $project 'lib') -Recurse -Filter '*.dart' | ForEach-Object {
+  if ($_.Name -notmatch '^[a-z0-9_]+\.dart$') {
+    Add-Violation "file name must be lowercase snake_case: $($_.FullName)"
+  }
   $content = Get-Content $_.FullName -Raw
   if ($content -match '(?m)(?<!debug)\bprint\s*\(') {
     Add-Violation "production code must use structured logging instead of print: $($_.FullName)"

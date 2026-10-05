@@ -18,13 +18,19 @@ Count physical lines in the persisted, normally formatted source, including
 comments and blank lines. Report executable/code lines separately; do not
 compress formatting or remove useful documentation to satisfy the limit.
 
-- Below **700 lines**: normal responsibility review still applies.
-- At **700 lines or above**, or when a feature is expected to reach 700:
-  mandatory capacity/responsibility review before adding the feature.
-- **800 lines is the maximum** for new or compliant production source files,
-  and only when responsibility, structure and readability remain sound.
-- Existing files above 800 are legacy debt: no net growth; extract the touched
-  responsibility before extending it. A baseline is not permission to grow.
+- **Traffic Light File Size Zones:**
+  - 🟢 **Green (0 – 349 physical lines): Safe Expansion & Sweet Spot Zone.** Coherent features
+    can be added normally. The targeted size for new and extracted modules is **150 – 250 lines**
+    to optimize LLM attention and prevent context amnesia.
+  - 🟡 **Yellow (350 – 549 physical lines): Caution & Proactive Extraction Zone.**
+    Prohibit adding new responsibilities. If extending the existing owner, first
+    extract an existing sub-concern so the file drops comfortably into the Green Zone.
+    At **550 lines or above**, or when a feature is expected to reach 550:
+    mandatory capacity/responsibility review before adding code.
+  - 🔴 **Red (550 – 650 physical lines): Hard Ceiling & Ban on Feature Growth.**
+    **650 physical lines is the maximum** for new or compliant production source files.
+    Existing files above 650 are legacy debt: no net growth; extract the touched
+    responsibility before extending it. A baseline is not permission to grow.
 - Data-heavy files, tests and generated sources need explicit separate profiles,
   not blanket folder exemptions. Do not silently classify logic as data.
 
@@ -231,3 +237,10 @@ Avoid arbitrary line slices, catch-all utilities, excessive tiny forwarding
 files, cyclic services, shared mutable state, or `part` as a size-limit bypass.
 The goal is a small relevant reading context with a clear owner, not simply a
 smaller number in a report.
+
+## Token and Output Discipline
+
+- All automated test executions must use `flutter test --reporter=compact` (or `rtk flutter test` if installed) to reduce output volume by 60–80% and preserve model context capacity.
+- Iterative validation during development must target specific test files rather than executing the entire test suite on every change.
+- Terminal commands should leverage `rtk` (Rust Token Killer) whenever available in the local environment.
+

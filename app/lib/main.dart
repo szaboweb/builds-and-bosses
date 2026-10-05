@@ -14,6 +14,7 @@ import 'ui/combat_outcome_overlay.dart';
 import 'ui/debug_info_overlay.dart';
 import 'ui/planning_hud.dart';
 import 'core/inventory/equipment_grid.dart';
+import 'ui/editor/level_editor_overlay.dart';
 import 'ui/equipment_workshop_screen.dart';
 
 Future<void> main() async {
@@ -82,103 +83,126 @@ class _GameScreenState extends State<GameScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // 1. Flame Game Canvas
-          GameWidget<TacticalModeGame>(
-            game: _game,
-            overlayBuilderMap: {
-              'planningHud': (context, game) => PlanningHUD(game: game),
-              'actionBar': (context, game) => ActionBarOverlay(game: game),
-              'combatLog': (context, game) => CombatLogOverlay(game: game),
-              'combatHotbar': (context, game) =>
-                  CombatHotbarOverlay(game: game),
-              'combatOutcome': (context, game) =>
-                  CombatOutcomeOverlay(game: game),
-              'debugInfo': (context, game) => DebugInfoOverlay(game: game),
-              'characterBuilder': (context, game) =>
-                  CharacterBuilderOverlay(game: game),
-            },
-            initialActiveOverlays: [
-              'planningHud',
-              'combatLog',
-              'combatHotbar',
-              if (kDebugMode) 'debugInfo',
-            ],
-          ),
+          _buildGameCanvas(),
+          ..._buildTopActions(context),
+          _buildControlsTooltip(),
+        ],
+      ),
+    );
+  }
 
-          Positioned(
-            top: 84,
-            right: 16,
-            child: IconButton.filledTonal(
-              tooltip: 'Felszerelés workshop',
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => EquipmentWorkshopScreen(
-                    grid: _equipmentGrid,
-                    onEquipmentChanged: (items) async {
-                      final revision = ++_equipmentRevision;
-                      await _game.ready();
-                      if (revision != _equipmentRevision) {
-                        throw StateError('Equipment operation cancelled.');
-                      }
-                      await _game.player.setEquipment(items);
-                    },
-                    onCancelEquipmentUpdate: () {
-                      _equipmentRevision++;
-                      if (_game.isLoaded) {
-                        _game.player.cancelEquipmentUpdate();
-                      }
-                    },
+  Widget _buildGameCanvas() {
+    return GameWidget<TacticalModeGame>(
+      game: _game,
+      overlayBuilderMap: {
+        'planningHud': (context, game) => PlanningHUD(game: game),
+        'actionBar': (context, game) => ActionBarOverlay(game: game),
+        'combatLog': (context, game) => CombatLogOverlay(game: game),
+        'combatHotbar': (context, game) => CombatHotbarOverlay(game: game),
+        'combatOutcome': (context, game) => CombatOutcomeOverlay(game: game),
+        'debugInfo': (context, game) => DebugInfoOverlay(game: game),
+        'characterBuilder': (context, game) =>
+            CharacterBuilderOverlay(game: game),
+        'levelEditor': (context, game) => LevelEditorOverlay(
+          controller: game.editorController,
+          onPlayTest: () => game.closeLevelEditor(),
+          onClose: () => game.closeLevelEditor(),
+        ),
+      },
+      initialActiveOverlays: [
+        'planningHud',
+        'combatLog',
+        'combatHotbar',
+        if (kDebugMode) 'debugInfo',
+      ],
+    );
+  }
+
+  List<Widget> _buildTopActions(BuildContext context) {
+    return [
+      Positioned(
+        top: 36,
+        right: 16,
+        child: IconButton.filledTonal(
+          key: const Key('main_level_editor_button'),
+          tooltip: 'Pályatervező Editor (F4)',
+          onPressed: () => _game.toggleLevelEditor(),
+          icon: const Icon(Icons.architecture),
+        ),
+      ),
+      Positioned(
+        top: 84,
+        right: 16,
+        child: IconButton.filledTonal(
+          tooltip: 'Felszerelés workshop',
+          onPressed: () => _openWorkshop(context),
+          icon: const Icon(Icons.inventory_2_outlined),
+        ),
+      ),
+      Positioned(
+        top: 132,
+        right: 16,
+        child: ValueListenableBuilder<String?>(
+          valueListenable: _game.combatCompletion.error,
+          builder: (context, error, _) => error == null
+              ? const SizedBox.shrink()
+              : Tooltip(
+                  message: error,
+                  child: const Chip(
+                    avatar: Icon(Icons.warning_amber),
+                    label: Text('Mentési/platformhiba – lásd a naplót'),
                   ),
                 ),
-              ),
-              icon: const Icon(Icons.inventory_2_outlined),
-            ),
-          ),
+        ),
+      ),
+    ];
+  }
 
-          Positioned(
-            top: 132,
-            right: 16,
-            child: ValueListenableBuilder<String?>(
-              valueListenable: _game.combatCompletion.error,
-              builder: (context, error, _) => error == null
-                  ? const SizedBox.shrink()
-                  : Tooltip(
-                      message: error,
-                      child: const Chip(
-                        avatar: Icon(Icons.warning_amber),
-                        label: Text('Mentési/platformhiba – lásd a naplót'),
-                      ),
-                    ),
-            ),
-          ),
+  void _openWorkshop(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => EquipmentWorkshopScreen(
+          grid: _equipmentGrid,
+          onEquipmentChanged: (items) async {
+            final revision = ++_equipmentRevision;
+            await _game.ready();
+            if (revision != _equipmentRevision) {
+              throw StateError('Equipment operation cancelled.');
+            }
+            await _game.player.setEquipment(items);
+          },
+          onCancelEquipmentUpdate: () {
+            _equipmentRevision++;
+            if (_game.isLoaded) {
+              _game.player.cancelEquipmentUpdate();
+            }
+          },
+        ),
+      ),
+    );
+  }
 
-          // 2. Control Helper Tooltip in bottom corner
-          Positioned(
-            left: 16,
-            bottom: 16,
-            child: ValueListenableBuilder<GamePhase>(
-              valueListenable: _game.phaseNotifier,
-              builder: (context, phase, _) {
-                if (phase == GamePhase.planning) return const SizedBox.shrink();
-                return Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.black54,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: Colors.white10),
-                  ),
-                  child: const Text(
-                    'Controls: A/D run • W/S fly • SPACE jump • E melee • R ranged • C spell • TAB mode',
-                    style: TextStyle(color: Colors.white38, fontSize: 10),
-                  ),
-                );
-              },
+  Widget _buildControlsTooltip() {
+    return Positioned(
+      left: 16,
+      bottom: 16,
+      child: ValueListenableBuilder<GamePhase>(
+        valueListenable: _game.phaseNotifier,
+        builder: (context, phase, _) {
+          if (phase == GamePhase.planning) return const SizedBox.shrink();
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.black54,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: Colors.white10),
             ),
-          ),
-        ],
+            child: const Text(
+              'Controls: A/D run • W/S fly • SPACE jump • E melee • R ranged • C spell • TAB mode • F4 editor • B builder',
+              style: TextStyle(color: Colors.white38, fontSize: 10),
+            ),
+          );
+        },
       ),
     );
   }

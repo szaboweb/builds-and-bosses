@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,13 +7,18 @@ import 'package:flutter/services.dart';
 import '../core/campaign/campaign_blueprint.dart';
 import '../core/config/game_rules_config.dart';
 import '../core/dnd/character_catalog.dart';
+import '../core/dnd/character_progression.dart';
 import '../core/dnd/character_stats.dart';
 import '../game/components/player_component.dart';
 import '../game/tactical_game.dart';
+import 'character_builder/attribute_stepper_widget.dart';
+import 'character_builder/character_preview_card.dart';
+import 'character_builder/level_progression_card.dart';
 
 /// Gothic-themed RPG Character Builder / Tervezőasztal Overlay.
-/// Allows players to allocate attributes using the 2024 27-point buy system,
-/// with live real-time feedback on jump height, run speed, HP, and combat power.
+/// Allows players to allocate attributes using the 2024 27-point buy system
+/// and D&D 5e Ability Score Improvements (ASI) across levels 1 to 20,
+/// with live real-time feedback on jump height, run speed, HP, and AP/mana.
 class CharacterBuilderOverlay extends StatefulWidget {
   final TacticalModeGame game;
 
@@ -27,31 +33,160 @@ class _CharacterBuilderOverlayState extends State<CharacterBuilderOverlay> {
   final PointBuyConfig _pointBuy = GameRulesConfig.standard.pointBuy;
   static const CampaignProgression _progression = CampaignProgression();
 
-  late Map<String, int> _scores;
+  int _heroLevel = 3;
   String _heroName = 'Fighter';
   final String _selectedRaceId = 'human';
   final String _selectedClassId = 'fighter';
   final Set<String> _selectedAbilityIds = <String>{};
-  CampaignLevelMode _levelMode = CampaignLevelMode.levelUp;
   List<String> _characterSheets = const [];
 
-  int get _heroLevel => _progression.expectedHeroLevel(_levelMode);
+  late Map<String, int> _baseScores;
+  late Map<String, int> _asiAllocations;
+
+  static const List<String> _attributeKeys = [
+    'STR',
+    'DEX',
+    'CON',
+    'INT',
+    'WIS',
+    'CHA',
+  ];
+
+  static const Map<String, String> _attributeLabels = {
+    'STR': 'Erő',
+    'DEX': 'Ügyesség',
+    'CON': 'Állóképesség',
+    'INT': 'Intelligencia',
+    'WIS': 'Bölcsesség',
+    'CHA': 'Karizma',
+  };
+
+  static const Map<String, String> _attributeDescriptions = {
+    'STR': 'Ugrásmagasság, lökés, közelharci támadás',
+    'DEX': 'Futási sebesség, kitérés, mozgékonyság',
+    'CON': 'Maximális életerő (HP)',
+    'INT': 'Varázslat hatásfok, Mana/AP bónusz',
+    'WIS': 'Érzékelés, Mana/AP bónusz',
+    'CHA': 'Társalgás, vezetés, akarat',
+  };
 
   @override
   void initState() {
     super.initState();
     final currentStats = widget.game.player.stats;
     _heroName = currentStats.name;
+    _heroLevel = currentStats.level.clamp(
+      CharacterProgression.minLevel,
+      CharacterProgression.maxLevel,
+    );
     _selectedAbilityIds.addAll(['second_wind', 'resourceful', 'versatile']);
-    _scores = {
-      'STR': currentStats.strength,
-      'DEX': currentStats.dexterity,
-      'CON': currentStats.constitution,
-      'INT': currentStats.intelligence,
-      'WIS': currentStats.wisdom,
-      'CHA': currentStats.charisma,
-    };
+
+    _initScoresFromStats(currentStats);
     unawaited(_loadCharacterSheets());
+  }
+
+  void _initScoresFromStats(CharacterStats stats) {
+    _baseScores = {
+      'STR': min(15, max(8, stats.strength)),
+      'DEX': min(15, max(8, stats.dexterity)),
+      'CON': min(15, max(8, stats.constitution)),
+      'INT': min(15, max(8, stats.intelligence)),
+      'WIS': min(15, max(8, stats.wisdom)),
+      'CHA': min(15, max(8, stats.charisma)),
+    };
+    _asiAllocations = {
+      'STR': max(0, stats.strength - 15),
+      'DEX': max(0, stats.dexterity - 15),
+      'CON': max(0, stats.constitution - 15),
+      'INT': max(0, stats.intelligence - 15),
+      'WIS': max(0, stats.wisdom - 15),
+      'CHA': max(0, stats.charisma - 15),
+    };
+    _clampAsiToBudget();
+  }
+
+  int _totalScoreFor(String key) {
+    final base = _baseScores[key] ?? 10;
+    final asi = _asiAllocations[key] ?? 0;
+    return min(20, base + asi);
+  }
+
+  Map<String, int> get _currentTotalScores => {
+    for (final key in _attributeKeys) key: _totalScoreFor(key),
+  };
+
+  int get _totalAsiBudget => CharacterProgression.asiPointsForLevel(
+    _heroLevel,
+    classId: _selectedClassId,
+  );
+
+  int get _spentAsiPoints =>
+      _asiAllocations.values.fold(0, (sum, val) => sum + val);
+
+  int get _remainingAsiPoints => max(0, _totalAsiBudget - _spentAsiPoints);
+
+  int get _remainingPointBuy => _pointBuy.remainingPoints(_baseScores);
+
+  void _clampAsiToBudget() {
+    while (_spentAsiPoints > _totalAsiBudget) {
+      for (final key in _attributeKeys.reversed) {
+        if ((_asiAllocations[key] ?? 0) > 0) {
+          _asiAllocations[key] = _asiAllocations[key]! - 1;
+          break;
+        }
+      }
+    }
+  }
+
+  void _onLevelChanged(int newLevel) {
+    setState(() {
+      _heroLevel = newLevel.clamp(
+        CharacterProgression.minLevel,
+        CharacterProgression.maxLevel,
+      );
+      _clampAsiToBudget();
+    });
+  }
+
+  void _increment(String attr) {
+    setState(() {
+      final currentTotal = _totalScoreFor(attr);
+      if (currentTotal >= 20) return;
+
+      final currentBase = _baseScores[attr] ?? 8;
+      if (currentBase < 15 && _pointBuy.canIncrease(_baseScores, attr)) {
+        _baseScores[attr] = currentBase + 1;
+      } else if (_remainingAsiPoints > 0) {
+        _asiAllocations[attr] = (_asiAllocations[attr] ?? 0) + 1;
+      }
+    });
+  }
+
+  void _decrement(String attr) {
+    setState(() {
+      final currentAsi = _asiAllocations[attr] ?? 0;
+      if (currentAsi > 0) {
+        _asiAllocations[attr] = currentAsi - 1;
+      } else if (_pointBuy.canDecrease(_baseScores, attr)) {
+        _baseScores[attr] = (_baseScores[attr] ?? 8) - 1;
+      }
+    });
+  }
+
+  bool _canIncrement(String attr) {
+    final currentTotal = _totalScoreFor(attr);
+    if (currentTotal >= 20) return false;
+    final currentBase = _baseScores[attr] ?? 8;
+    if (currentBase < 15 && _pointBuy.canIncrease(_baseScores, attr)) {
+      return true;
+    }
+    return _remainingAsiPoints > 0;
+  }
+
+  bool _canDecrement(String attr) {
+    final currentAsi = _asiAllocations[attr] ?? 0;
+    if (currentAsi > 0) return true;
+    return _pointBuy.canDecrease(_baseScores, attr);
   }
 
   Future<void> _loadCharacterSheets() async {
@@ -85,9 +220,8 @@ class _CharacterBuilderOverlayState extends State<CharacterBuilderOverlay> {
       );
       return;
     }
-    PlayerComponent.characterSheetPath = path;
-    await widget.game.player.reloadCharacterSheet();
-    if (!mounted) return;
+    final success = await widget.game.player.setCharacterAppearance(path);
+    if (!success || !mounted) return;
     setState(() {});
   }
 
@@ -97,24 +231,48 @@ class _CharacterBuilderOverlayState extends State<CharacterBuilderOverlay> {
     }
   }
 
-  int get _remainingPoints => _pointBuy.remainingPoints(_scores);
+  void _resetToDefault() {
+    setState(() {
+      _heroLevel = 3;
+      _baseScores = {
+        'STR': 15,
+        'DEX': 12,
+        'CON': 13,
+        'INT': 10,
+        'WIS': 12,
+        'CHA': 10,
+      };
+      _asiAllocations = {
+        'STR': 1,
+        'DEX': 0,
+        'CON': 1,
+        'INT': 0,
+        'WIS': 0,
+        'CHA': 0,
+      };
+      _clampAsiToBudget();
+    });
+  }
 
   CharacterStats _buildPreviewStats() {
-    final str = _scores['STR'] ?? 10;
-    final dex = _scores['DEX'] ?? 10;
-    final con = _scores['CON'] ?? 10;
-    final intelligence = _scores['INT'] ?? 10;
-    final wis = _scores['WIS'] ?? 10;
-    final cha = _scores['CHA'] ?? 10;
+    final scores = _currentTotalScores;
+    final str = scores['STR'] ?? 10;
+    final dex = scores['DEX'] ?? 10;
+    final con = scores['CON'] ?? 10;
+    final intelligence = scores['INT'] ?? 10;
+    final wis = scores['WIS'] ?? 10;
+    final cha = scores['CHA'] ?? 10;
 
     final conMod = ((con - 10) / 2).floor();
-    final maxHp = GameRulesConfig.standard.combat.calculateMaxHp(
+
+    final maxHp = CharacterProgression.calculateMaxHp(
       _heroLevel,
       conMod,
-      baseHpOverride: 12,
+      baseHp: 12,
+      hpPerLevel: 6,
     );
 
-    final preview = CharacterStats(
+    return CharacterStats(
       name: _heroName,
       classId: _selectedClassId,
       raceId: _selectedRaceId,
@@ -129,90 +287,34 @@ class _CharacterBuilderOverlayState extends State<CharacterBuilderOverlay> {
       charisma: cha,
       config: GameRulesConfig.standard,
     );
-    return preview;
-  }
-
-  void _increment(String attr) {
-    if (_pointBuy.canIncrease(_scores, attr)) {
-      setState(() {
-        _scores[attr] = (_scores[attr] ?? 8) + 1;
-      });
-    }
-  }
-
-  void _decrement(String attr) {
-    if (_pointBuy.canDecrease(_scores, attr)) {
-      setState(() {
-        _scores[attr] = (_scores[attr] ?? 8) - 1;
-      });
-    }
-  }
-
-  void _resetToDefault() {
-    setState(() {
-      _scores = {
-        'STR': 16,
-        'DEX': 12,
-        'CON': 14,
-        'INT': 10,
-        'WIS': 12,
-        'CHA': 10,
-      };
-    });
   }
 
   void _applyBuild() {
     final newStats = _buildPreviewStats();
     final blueprint = _progression.firstBossBlueprint(
-      levelMode: _levelMode,
+      levelMode: CampaignLevelMode.custom,
+      customLevel: _heroLevel,
       classLevels: {
         CharacterCatalog.classById(_selectedClassId).name: _heroLevel,
       },
-      abilityScores: _scores,
+      abilityScores: _currentTotalScores,
       raceId: _selectedRaceId,
       selectedAbilityIds: _selectedAbilityIds.toList(),
     );
-    if (!blueprint.validate(_progression).isValid) return;
     widget.game.applyHeroBuild(newStats, blueprint: blueprint);
   }
 
   @override
   Widget build(BuildContext context) {
     final preview = _buildPreviewStats();
-    final jumpHeight = preview.maxJumpHeight;
-    final jumpVelocity = preview.jumpVelocity.abs();
-    final blueprint = _progression.firstBossBlueprint(
-      levelMode: _levelMode,
-      classLevels: {
-        CharacterCatalog.classById(_selectedClassId).name: _heroLevel,
-      },
-      abilityScores: _scores,
-      raceId: _selectedRaceId,
-      selectedAbilityIds: _selectedAbilityIds.toList(),
-    );
-    final blueprintIsValid = blueprint.validate(_progression).isValid;
-
-    // Clearance evaluation for the arena platforms
-    final String platformNotice;
-    final Color noticeColor;
-    if (jumpHeight >= 125) {
-      platformNotice = '★ Akrobatikus Ugró: könnyen eléri a magaslati hidat!';
-      noticeColor = const Color(0xFF69F0AE);
-    } else if (jumpHeight >= 103) {
-      platformNotice = '✓ Képes elérni a lebegő kőplatformokat (103 px)';
-      noticeColor = const Color(0xFF00E5FF);
-    } else {
-      platformNotice =
-          '⚠ Alacsony ugrás: nem éri el közvetlenül a kőplatformokat!';
-      noticeColor = const Color(0xFFFFB74D);
-    }
 
     return Container(
       color: Colors.black.withValues(alpha: 0.85),
       child: Center(
         child: Container(
-          width: 820,
-          padding: const EdgeInsets.all(24),
+          width: 860,
+          constraints: const BoxConstraints(maxHeight: 720),
+          padding: const EdgeInsets.all(22),
           decoration: BoxDecoration(
             color: const Color(0xFF14121E),
             borderRadius: BorderRadius.circular(16),
@@ -220,389 +322,94 @@ class _CharacterBuilderOverlayState extends State<CharacterBuilderOverlay> {
             boxShadow: [
               BoxShadow(
                 color: const Color(0xFF7C4DFF).withValues(alpha: 0.25),
-                blurRadius: 28,
-                spreadRadius: 4,
+                blurRadius: 30,
+                spreadRadius: 5,
               ),
             ],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF261D36),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(
-                          Icons.build_circle,
-                          color: Color(0xFFFFD54F),
-                          size: 28,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'TERVEZŐASZTAL • CHARACTER WORKBENCH',
-                            style: TextStyle(
-                              color: Color(0xFFFFD54F),
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.4,
-                            ),
-                          ),
-                          Text(
-                            'D&D 5e Stat-Driven & Config-Driven Karakterkészítő',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.6),
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: _remainingPoints >= 0
-                          ? const Color(0xFF1B2E24)
-                          : const Color(0xFF3E1B1B),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: _remainingPoints >= 0
-                            ? const Color(0xFF00E676)
-                            : const Color(0xFFFF5252),
-                      ),
-                    ),
-                    child: Text(
-                      'Pontkeret: $_remainingPoints / ${_pointBuy.totalBudget} pont',
-                      style: TextStyle(
-                        color: _remainingPoints >= 0
-                            ? const Color(0xFF00E676)
-                            : const Color(0xFFFF5252),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                ],
+              _buildHeader(),
+              const SizedBox(height: 14),
+              LevelProgressionCard(
+                currentLevel: _heroLevel,
+                onLevelChanged: _onLevelChanged,
               ),
-
-              const SizedBox(height: 18),
-              const Divider(color: Color(0xFF2E2640), height: 1),
-              const SizedBox(height: 18),
-
-              Row(
-                children: [
-                  const Text(
-                    'ELSŐ BOSS KAMPÁNYMÓD',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.1,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  ToggleButtons(
-                    isSelected: [
-                      _levelMode == CampaignLevelMode.levelDown,
-                      _levelMode == CampaignLevelMode.levelUp,
-                    ],
-                    onPressed: (index) {
-                      setState(() {
-                        _levelMode = index == 0
-                            ? CampaignLevelMode.levelDown
-                            : CampaignLevelMode.levelUp;
-                      });
-                    },
-                    borderRadius: BorderRadius.circular(6),
-                    selectedColor: Colors.black,
-                    fillColor: const Color(0xFFFFD54F),
-                    color: Colors.white70,
-                    constraints: const BoxConstraints(
-                      minHeight: 34,
-                      minWidth: 116,
-                    ),
-                    children: const [
-                      Text('LEVEL DOWN • Lv1'),
-                      Text('LEVEL UP • Lv2'),
-                    ],
-                  ),
-                  const Spacer(),
-                  Text(
-                    'Boss Lv${CampaignProgression.firstBossLevel} • Fighter Lv$_heroLevel',
-                    style: const TextStyle(
-                      color: Color(0xFFFFD54F),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 18),
-
-              // Main Content: 2 Columns (Left: Point-Buy Attributes, Right: Live Physical & Combat Preview)
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Left Column: Attribute Point Allocation
-                  Expanded(
-                    flex: 5,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'ALAP ÉRTÉKEK KIOSZTÁSA (POINT BUY)',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.7),
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.1,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        ..._scores.keys.map((attr) {
-                          return _buildAttributeRow(attr, _scores[attr] ?? 10);
-                        }),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(width: 24),
-
-                  // Right Column: Live Stat-Driven Physics & Combat Preview
-                  Expanded(
-                    flex: 5,
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1C1929),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFF382F4E)),
-                      ),
+              const SizedBox(height: 14),
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Left Column: Attribute Allocation
+                    Expanded(
+                      flex: 5,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'ÉLŐ ELŐNÉZET • STAT-DRIVEN EFFECT',
-                            style: TextStyle(
-                              color: Color(0xFF00E5FF),
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.1,
-                            ),
-                          ),
-                          const SizedBox(height: 14),
-
-                          // Dynamic Jump Card (Strength Effect)
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF252136),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: noticeColor.withValues(alpha: 0.4),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'STATOK KIOSZTÁSA (POINT BUY & ASI)',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.7),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.1,
+                                ),
                               ),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              Text(
+                                'ASI: $_remainingAsiPoints/$_totalAsiBudget | PB: $_remainingPointBuy/27',
+                                style: TextStyle(
+                                  color: _remainingPointBuy >= 0
+                                      ? const Color(0xFF00E676)
+                                      : const Color(0xFFFF5252),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Expanded(
+                            child: ListView(
+                              padding: EdgeInsets.zero,
                               children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Row(
-                                      children: [
-                                        Icon(
-                                          Icons.arrow_upward,
-                                          color: Color(0xFF00E5FF),
-                                          size: 18,
-                                        ),
-                                        SizedBox(width: 6),
-                                        Text(
-                                          'Ugrásmagasság (STR)',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                      ],
+                                for (final key in _attributeKeys)
+                                  AttributeStepperWidget(
+                                    attributeKey: key,
+                                    label: _attributeLabels[key] ?? key,
+                                    effectDescription:
+                                        _attributeDescriptions[key] ?? '',
+                                    state: AttributeStepperState(
+                                      score: _totalScoreFor(key),
+                                      canIncrement: _canIncrement(key),
+                                      canDecrement: _canDecrement(key),
+                                      onIncrement: () => _increment(key),
+                                      onDecrement: () => _decrement(key),
                                     ),
-                                    Text(
-                                      '${jumpHeight.toStringAsFixed(0)} px peak  (${jumpVelocity.toStringAsFixed(0)} px/s)',
-                                      style: const TextStyle(
-                                        color: Color(0xFF00E5FF),
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  platformNotice,
-                                  style: TextStyle(
-                                    color: noticeColor,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
                                   ),
-                                ),
                               ],
                             ),
-                          ),
-
-                          const SizedBox(height: 10),
-
-                          // Dynamic Run Speed Card (Dexterity Effect)
-                          _buildPreviewStatTile(
-                            icon: Icons.directions_run,
-                            iconColor: const Color(0xFF81D4FA),
-                            title: 'Futási Sebesség (DEX)',
-                            value:
-                                '${preview.moveSpeed.toStringAsFixed(0)} px/s',
-                            subtitle:
-                                'DEX bónusz: +${preview.dexterityMod * 12} px/s',
-                          ),
-
-                          const SizedBox(height: 10),
-
-                          // Combat Stats Card (HP, AC, Attack Bonus)
-                          _buildPreviewStatTile(
-                            icon: Icons.favorite,
-                            iconColor: const Color(0xFFFF5252),
-                            title: 'Max Életerő (CON) & AC',
-                            value:
-                                '${preview.maxHp} HP  •  AC ${preview.armorClass}',
-                            subtitle:
-                                'Level $_heroLevel Fighter (CON mod: +${preview.constitutionMod})',
-                          ),
-
-                          const SizedBox(height: 10),
-
-                          // Melee Strike Card (Strength Mod)
-                          _buildPreviewStatTile(
-                            icon: Icons.flash_on,
-                            iconColor: const Color(0xFFFFD54F),
-                            title: 'Közelharci Támadás (STR)',
-                            value: '+${preview.meleeAttackBonus} to Hit',
-                            subtitle:
-                                'Sebzés: 1d8 + ${preview.strengthMod} slashing',
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 22),
-
-              // Bottom Action Buttons
-              if (_characterSheets.length > 1) ...[
-                Row(
-                  children: [
-                    const Text(
-                      'Karakter sprite',
-                      style: TextStyle(color: Colors.white70, fontSize: 13),
-                    ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 18),
+                    // Right Column: Live Physical & Combat Preview
                     Expanded(
-                      child: DropdownButton<String>(
-                        isExpanded: true,
-                        dropdownColor: const Color(0xFF1B1727),
-                        value:
-                            _characterSheets.contains(
-                              PlayerComponent.characterSheetPath,
-                            )
-                            ? PlayerComponent.characterSheetPath
-                            : null,
-                        hint: const Text('Beépített karakter választása'),
-                        items: [
-                          for (final sheet in _characterSheets)
-                            DropdownMenuItem(
-                              value: sheet,
-                              child: Text(
-                                sheet.split('/').length > 1
-                                    ? sheet.split('/')[1]
-                                    : sheet,
-                                style: const TextStyle(fontSize: 13),
-                              ),
-                            ),
-                        ],
-                        onChanged: _changeCharacterSheet,
+                      flex: 5,
+                      child: CharacterPreviewCard(
+                        preview: preview,
+                        heroLevel: _heroLevel,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-              ],
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  OutlinedButton.icon(
-                    onPressed: _resetToDefault,
-                    icon: const Icon(Icons.refresh, size: 16),
-                    label: const Text('ALAPHELYZET'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white70,
-                      side: const BorderSide(color: Color(0xFF433959)),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  OutlinedButton(
-                    onPressed: widget.game.closeCharacterBuilder,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white70,
-                      side: const BorderSide(color: Color(0xFF433959)),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                    ),
-                    child: const Text('MÉGSE [ESC]'),
-                  ),
-                  const SizedBox(width: 12),
-                  ElevatedButton.icon(
-                    onPressed: _remainingPoints >= 0 && blueprintIsValid
-                        ? _applyBuild
-                        : null,
-                    icon: const Icon(Icons.check, size: 18),
-                    label: const Text('BUILD ALKALMAZÁSA & ARÉNA'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF7C4DFF),
-                      foregroundColor: Colors.white,
-                      disabledBackgroundColor: const Color(0xFF332948),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 14,
-                      ),
-                      textStyle: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.1,
-                      ),
-                    ),
-                  ),
-                ],
               ),
+              const SizedBox(height: 12),
+              _buildBottomBar(),
             ],
           ),
         ),
@@ -610,131 +417,142 @@ class _CharacterBuilderOverlayState extends State<CharacterBuilderOverlay> {
     );
   }
 
-  Widget _buildAttributeRow(String attributeKey, int score) {
-    final mod = ((score - 10) / 2).floor();
-    final modString = mod >= 0 ? '+$mod' : '$mod';
-    final canInc = _pointBuy.canIncrease(_scores, attributeKey);
-    final canDec = _pointBuy.canDecrease(_scores, attributeKey);
-
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 3),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E1A2D),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFF312844)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          SizedBox(
-            width: 70,
-            child: Text(
-              attributeKey,
-              style: const TextStyle(
+  Widget _buildHeader() {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFD54F).withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: const Color(0xFFFFD54F)),
+          ),
+          child: const Icon(Icons.build, color: Color(0xFFFFD54F), size: 24),
+        ),
+        const SizedBox(width: 12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'TERVEZŐASZTAL • CHARACTER WORKBENCH',
+              style: TextStyle(
                 color: Color(0xFFFFD54F),
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
-                fontSize: 14,
+                letterSpacing: 1.2,
               ),
             ),
+            Text(
+              'D&D 5e Stat-Driven & Config-Driven Karakterkészítő (Szint 1-20)',
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.6),
+                fontSize: 11,
+              ),
+            ),
+          ],
+        ),
+        const Spacer(),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: _remainingPointBuy >= 0
+                ? const Color(0xFF1B2E24)
+                : const Color(0xFF3E1B1B),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: _remainingPointBuy >= 0
+                  ? const Color(0xFF00E676)
+                  : const Color(0xFFFF5252),
+            ),
           ),
-          Text(
-            modString,
+          child: Text(
+            'PB: $_remainingPointBuy / 27 pont',
             style: TextStyle(
-              color: mod >= 0
-                  ? const Color(0xFF69F0AE)
+              color: _remainingPointBuy >= 0
+                  ? const Color(0xFF00E676)
                   : const Color(0xFFFF5252),
               fontWeight: FontWeight.bold,
               fontSize: 13,
             ),
           ),
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.remove_circle_outline, size: 20),
-                color: canDec ? const Color(0xFFFF8A80) : Colors.white24,
-                onPressed: canDec ? () => _decrement(attributeKey) : null,
-                visualDensity: VisualDensity.compact,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-              ),
-              Container(
-                width: 34,
-                alignment: Alignment.center,
-                child: Text(
-                  '$score',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.add_circle_outline, size: 20),
-                color: canInc ? const Color(0xFF00E5FF) : Colors.white24,
-                onPressed: canInc ? () => _increment(attributeKey) : null,
-                visualDensity: VisualDensity.compact,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-              ),
-            ],
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  Widget _buildPreviewStatTile({
-    required IconData icon,
-    required Color iconColor,
-    required String title,
-    required String value,
-    required String subtitle,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFF221E32),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFF332A47)),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: iconColor, size: 20),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.45),
-                    fontSize: 10,
-                  ),
-                ),
-              ],
-            ),
+  Widget _buildBottomBar() {
+    return Row(
+      children: [
+        if (_characterSheets.length > 1) ...[
+          const Text(
+            'Sprite:',
+            style: TextStyle(color: Colors.white70, fontSize: 12),
           ),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 140,
+            child: DropdownButton<String>(
+              isExpanded: true,
+              dropdownColor: const Color(0xFF1B1727),
+              value:
+                  _characterSheets.contains(
+                    widget.game.player.characterSheetPath,
+                  )
+                  ? widget.game.player.characterSheetPath
+                  : null,
+              hint: const Text('Sprite', style: TextStyle(fontSize: 11)),
+              items: [
+                for (final sheet in _characterSheets)
+                  DropdownMenuItem(
+                    value: sheet,
+                    child: Text(
+                      sheet.split('/').length > 1 ? sheet.split('/')[1] : sheet,
+                      style: const TextStyle(fontSize: 11),
+                    ),
+                  ),
+              ],
+              onChanged: _changeCharacterSheet,
             ),
           ),
         ],
-      ),
+        const Spacer(),
+        OutlinedButton.icon(
+          onPressed: _resetToDefault,
+          icon: const Icon(Icons.refresh, size: 14),
+          label: const Text('ALAPHELYZET', style: TextStyle(fontSize: 11)),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: Colors.white70,
+            side: const BorderSide(color: Color(0xFF433959)),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          ),
+        ),
+        const SizedBox(width: 8),
+        OutlinedButton(
+          onPressed: widget.game.closeCharacterBuilder,
+          style: OutlinedButton.styleFrom(
+            foregroundColor: Colors.white70,
+            side: const BorderSide(color: Color(0xFF433959)),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          ),
+          child: const Text('MÉGSE [ESC]', style: TextStyle(fontSize: 11)),
+        ),
+        const SizedBox(width: 8),
+        ElevatedButton.icon(
+          onPressed: _remainingPointBuy >= 0 ? _applyBuild : null,
+          icon: const Icon(Icons.check, size: 16),
+          label: const Text(
+            'BUILD ALKALMAZÁSA & ARÉNA',
+            style: TextStyle(fontSize: 11),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF7C4DFF),
+            foregroundColor: Colors.white,
+            disabledBackgroundColor: const Color(0xFF332948),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            textStyle: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+      ],
     );
   }
 }

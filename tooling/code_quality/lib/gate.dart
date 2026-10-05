@@ -1,6 +1,7 @@
 import 'capacity_review.dart';
 import 'dependencies.dart';
 import 'metrics.dart';
+import 'naming.dart';
 import 'ratchet.dart';
 
 Map<String, dynamic>? _previous(
@@ -76,7 +77,7 @@ List<String> checkSources(
         ).map((error) => 'Merge-base regression: $error'),
       );
     }
-    if (entry.value.lines >= 700 &&
+    if (entry.value.lines >= 550 &&
         entry.value.sourceHash != previous?['sourceHash'] &&
         !validCapacityReview(
           entry.value,
@@ -84,10 +85,11 @@ List<String> checkSources(
           reviews[entry.key] as Map<String, dynamic>?,
         )) {
       errors.add(
-        '${entry.key}: changed >=700 file requires hash-bound capacity review',
+        '${entry.key}: changed >=550 file requires hash-bound capacity review',
       );
     }
   }
   errors.addAll(dependencyViolations(measured));
+  errors.addAll(namingViolations(measured));
   return errors;
 }

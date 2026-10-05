@@ -1,0 +1,64 @@
+{
+    "name":  "Trial Grounds",
+    "version":  1,
+    "arenaWidth":  2400,
+    "arenaHeight":  900,
+    "playerSpawnX":  180,
+    "playerSpawnY":  822,
+    "platforms":  [
+                      {
+                          "id":  "plat_ground_main",
+                          "type":  "staticStone",
+                          "x":  0,
+                          "y":  840,
+                          "width":  2400,
+                          "height":  60
+                      },
+                      {
+                          "id":  "plat_pillar_left",
+                          "type":  "staticStone",
+                          "x":  320,
+                          "y":  720,
+                          "width":  180,
+                          "height":  22
+                      },
+                      {
+                          "id":  "plat_pillar_center",
+                          "type":  "staticStone",
+                          "x":  720,
+                          "y":  640,
+                          "width":  220,
+                          "height":  22
+                      },
+                      {
+                          "id":  "plat_upper_bridge",
+                          "type":  "staticStone",
+                          "x":  1130,
+                          "y":  525,
+                          "width":  140,
+                          "height":  18
+                      },
+                      {
+                          "id":  "plat_moving_trials",
+                          "type":  "movingStone",
+                          "x":  390,
+                          "y":  625,
+                          "width":  160,
+                          "height":  20,
+                          "kinematics":  {
+                                             "directionX":  1,
+                                             "directionY":  0,
+                                             "travelDistance":  500,
+                                             "speed":  90
+                                         }
+                      }
+                  ],
+    "spawns":  [
+                   {
+                       "id":  "spawn_dummy_vanguard",
+                       "type":  "training_dummy",
+                       "x":  2200,
+                       "y":  719
+                   }
+               ]
+}

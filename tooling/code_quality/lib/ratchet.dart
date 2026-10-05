@@ -16,7 +16,7 @@ List<String> violations(
 }) {
   final errors = <String>[];
   final oldLines = baseline?['lines'] as int? ?? 0;
-  final ceiling = oldLines > 800 ? oldLines : 800;
+  final ceiling = oldLines > 650 ? oldLines : 650;
   if (current.lines > ceiling) {
     errors.add('$file: ${current.lines} lines exceeds $ceiling');
   }

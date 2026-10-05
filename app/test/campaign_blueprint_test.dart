@@ -66,4 +66,29 @@ void main() {
     expect(result.errors, contains(CampaignValidationError.tooManyClasses));
     expect(result.errors, contains(CampaignValidationError.emptyAbilityScores));
   });
+
+  test('validates custom level mode for levels 1 through 20', () {
+    final blueprint20 = CampaignBlueprint(
+      bossId: CampaignProgression.firstBossId,
+      bossLevel: CampaignProgression.firstBossLevel,
+      heroLevel: 20,
+      levelMode: CampaignLevelMode.custom,
+      classLevels: const {'Fighter': 20},
+      abilityScores: abilityScores,
+    );
+
+    final result20 = blueprint20.validate(progression);
+    expect(result20.isValid, isTrue);
+    expect(blueprint20.heroLevel, equals(20));
+
+    final invalidLevel21 = CampaignBlueprint(
+      bossId: CampaignProgression.firstBossId,
+      bossLevel: CampaignProgression.firstBossLevel,
+      heroLevel: 21,
+      levelMode: CampaignLevelMode.custom,
+      classLevels: const {'Fighter': 21},
+      abilityScores: abilityScores,
+    );
+    expect(invalidLevel21.validate(progression).isValid, isFalse);
+  });
 }

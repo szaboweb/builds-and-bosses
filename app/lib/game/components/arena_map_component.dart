@@ -1,6 +1,11 @@
+import 'dart:async';
 import 'dart:math';
+
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+
+import '../../core/arena/arena_layout_blueprint.dart';
+import 'moving_platform_component.dart';
 
 /// Side-view 2D Gothic Dungeon Arena Map with ground, multi-tiered platforms,
 /// atmospheric background arches, and wall torches.
@@ -9,14 +14,30 @@ class ArenaMapComponent extends PositionComponent {
   final double arenaHeight;
 
   double _torchPulse = 0.0;
+  late MovingPlatformComponent movingPlatform;
+  List<Rect>? _customStaticPlatforms;
+  final List<MovingPlatformComponent> _extraMovingPlatforms = [];
 
-  ArenaMapComponent({
-    this.arenaWidth = 960.0,
-    this.arenaHeight = 540.0,
-  }) : super(
-          position: Vector2.zero(),
-          size: Vector2(arenaWidth, arenaHeight),
-        );
+  ArenaMapComponent({this.arenaWidth = 960.0, this.arenaHeight = 540.0})
+    : super(position: Vector2.zero(), size: Vector2(arenaWidth, arenaHeight)) {
+    final centerLeft = arenaWidth / 2 - 130;
+    final minX = 300.0 + 90.0;
+    final maxX = max(minX + 40.0, centerLeft - 180.0);
+    movingPlatform = MovingPlatformComponent(
+      initialPosition: Vector2(minX, arenaHeight - 275.0),
+      size: Vector2(160.0, 20.0),
+      minX: minX,
+      maxX: maxX,
+      speed: 90.0,
+      requiredStrength: 18,
+    );
+  }
+
+  @override
+  Future<void> onLoad() async {
+    super.onLoad();
+    await add(movingPlatform);
+  }
 
   /// Top Y coordinate of the solid ground floor.
   double get groundY => size.y - 52.0;
@@ -24,8 +45,10 @@ class ArenaMapComponent extends PositionComponent {
   double get leftWallX => 32.0;
   double get rightWallX => size.x - 32.0;
 
-  /// Elevated stone platforms in the arena.
-  List<Rect> get platforms => [
+  /// Static elevated stone platforms in the arena.
+  List<Rect> get staticPlatforms =>
+      _customStaticPlatforms ??
+      [
         // Left lower platform
         Rect.fromLTWH(100, size.y - 155, 200, 20),
         // Right lower platform (ideal for boss/dummy)
@@ -36,12 +59,64 @@ class ArenaMapComponent extends PositionComponent {
         Rect.fromLTWH(size.x / 2 - 70, size.y - 375, 140, 18),
       ];
 
-  Rect get playableBounds => Rect.fromLTWH(
-        leftWallX,
-        32.0,
-        rightWallX - leftWallX,
-        groundY - 32.0,
+  /// All elevated stone platforms in the arena, including the kinematic moving platform.
+  List<Rect> get platforms => [
+    ...staticPlatforms,
+    movingPlatform.toRect(),
+    ..._extraMovingPlatforms.map((m) => m.toRect()),
+  ];
+
+  /// Applies a customized [ArenaLayoutBlueprint] to the live arena map,
+  /// updating static collision bounds and moving platform kinematics.
+  void applyBlueprint(ArenaLayoutBlueprint blueprint) {
+    _customStaticPlatforms = blueprint.platforms
+        .where((p) => !p.isMoving)
+        .map((p) => Rect.fromLTWH(p.x, p.y, p.width, p.height))
+        .toList();
+
+    for (final extra in _extraMovingPlatforms) {
+      extra.removeFromParent();
+    }
+    _extraMovingPlatforms.clear();
+
+    final movingBlueprints = blueprint.platforms
+        .where((p) => p.isMoving)
+        .toList();
+    if (movingBlueprints.isNotEmpty) {
+      final first = movingBlueprints.first;
+      final k = first.kinematics ?? const PlatformKinematics();
+      final minX = min(first.x, first.endX);
+      final maxX = max(first.x, first.endX);
+      movingPlatform.removeFromParent();
+      movingPlatform = MovingPlatformComponent(
+        initialPosition: Vector2(first.x, first.y),
+        size: Vector2(first.width, first.height),
+        minX: minX,
+        maxX: maxX,
+        speed: k.speed,
+        initialDirection: k.directionX,
       );
+      add(movingPlatform);
+
+      for (int i = 1; i < movingBlueprints.length; i++) {
+        final mb = movingBlueprints[i];
+        final mk = mb.kinematics ?? const PlatformKinematics();
+        final extra = MovingPlatformComponent(
+          initialPosition: Vector2(mb.x, mb.y),
+          size: Vector2(mb.width, mb.height),
+          minX: min(mb.x, mb.endX),
+          maxX: max(mb.x, mb.endX),
+          speed: mk.speed,
+          initialDirection: mk.directionX,
+        );
+        _extraMovingPlatforms.add(extra);
+        add(extra);
+      }
+    }
+  }
+
+  Rect get playableBounds =>
+      Rect.fromLTWH(leftWallX, 32.0, rightWallX - leftWallX, groundY - 32.0);
 
   @override
   void update(double dt) {
@@ -100,15 +175,12 @@ class ArenaMapComponent extends PositionComponent {
       size.x * 0.32,
       size.x * 0.50,
       size.x * 0.68,
-      size.x * 0.85
+      size.x * 0.85,
     ];
 
     for (final px in pillarXs) {
       // Pillar column
-      canvas.drawRect(
-        Rect.fromLTWH(px - 18, 30, 36, groundY - 30),
-        pillarFill,
-      );
+      canvas.drawRect(Rect.fromLTWH(px - 18, 30, 36, groundY - 30), pillarFill);
       // Capital & Base trims
       canvas.drawRect(
         Rect.fromLTWH(px - 24, 30, 48, 12),
@@ -135,19 +207,27 @@ class ArenaMapComponent extends PositionComponent {
 
   void _renderTorches(Canvas canvas) {
     final pulse = 0.85 + 0.15 * sin(_torchPulse);
-    final torchXs = [size.x * 0.22, size.x * 0.40, size.x * 0.60, size.x * 0.78];
+    final torchXs = [
+      size.x * 0.22,
+      size.x * 0.40,
+      size.x * 0.60,
+      size.x * 0.78,
+    ];
     const torchY = 170.0;
 
     for (final tx in torchXs) {
       // Ambient radial warm light
       final glowPaint = Paint()
-        ..shader = RadialGradient(
-          colors: [
-            const Color(0xFFFF8F00).withValues(alpha: 0.18 * pulse),
-            const Color(0xFFFFB300).withValues(alpha: 0.06 * pulse),
-            Colors.transparent,
-          ],
-        ).createShader(Rect.fromCircle(center: Offset(tx, torchY), radius: 80 * pulse));
+        ..shader =
+            RadialGradient(
+              colors: [
+                const Color(0xFFFF8F00).withValues(alpha: 0.18 * pulse),
+                const Color(0xFFFFB300).withValues(alpha: 0.06 * pulse),
+                Colors.transparent,
+              ],
+            ).createShader(
+              Rect.fromCircle(center: Offset(tx, torchY), radius: 80 * pulse),
+            );
 
       canvas.drawCircle(Offset(tx, torchY), 80 * pulse, glowPaint);
 
@@ -172,22 +252,16 @@ class ArenaMapComponent extends PositionComponent {
   }
 
   void _renderPlatforms(Canvas canvas) {
-    for (final plat in platforms) {
+    for (final plat in staticPlatforms) {
       // Platform Drop Shadow
       canvas.drawRRect(
-        RRect.fromRectAndRadius(
-          plat.translate(0, 6),
-          const Radius.circular(4),
-        ),
+        RRect.fromRectAndRadius(plat.translate(0, 6), const Radius.circular(4)),
         Paint()..color = Colors.black45,
       );
 
       // Platform Stone Body
       final bodyRRect = RRect.fromRectAndRadius(plat, const Radius.circular(4));
-      canvas.drawRRect(
-        bodyRRect,
-        Paint()..color = const Color(0xFF262C3D),
-      );
+      canvas.drawRRect(bodyRRect, Paint()..color = const Color(0xFF262C3D));
 
       // Top highlighted stone ledge
       canvas.drawRRect(
@@ -260,11 +334,19 @@ class ArenaMapComponent extends PositionComponent {
     // Left wall
     final leftRect = Rect.fromLTWH(0, 0, leftWallX, size.y);
     canvas.drawRect(leftRect, wallPaint);
-    canvas.drawLine(Offset(leftWallX, 0), Offset(leftWallX, size.y), borderPaint);
+    canvas.drawLine(
+      Offset(leftWallX, 0),
+      Offset(leftWallX, size.y),
+      borderPaint,
+    );
 
     // Right wall
     final rightRect = Rect.fromLTWH(rightWallX, 0, size.x - rightWallX, size.y);
     canvas.drawRect(rightRect, wallPaint);
-    canvas.drawLine(Offset(rightWallX, 0), Offset(rightWallX, size.y), borderPaint);
+    canvas.drawLine(
+      Offset(rightWallX, 0),
+      Offset(rightWallX, size.y),
+      borderPaint,
+    );
   }
 }

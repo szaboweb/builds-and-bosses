@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 
 import 'package:builds_and_bosses_flame/core/inventory/godot_sample_equipment.dart';
+import 'package:builds_and_bosses_flame/game/components/fighter_animator.dart';
 import 'package:builds_and_bosses_flame/game/components/player_component.dart';
 import 'package:builds_and_bosses_flame/game/tactical_game.dart';
 import 'package:flame/game.dart';
@@ -97,10 +98,7 @@ void main() {
     await tester.runAsync(() => game.ready());
     await tester.pump();
     final player = game.player;
-    expect(
-      PlayerComponent.characterSheetPath,
-      PlayerComponent.godotFighterSheetPath,
-    );
+    expect(player.characterSheetPath, PlayerComponent.godotFighterSheetPath);
     expect(player.sprite, isNotNull);
     expect(player.sprite!.srcSize.x, 64);
     expect(player.sprite!.srcPosition.x, 0);
@@ -191,19 +189,87 @@ void main() {
     expect(player.isOnGround, isFalse);
     expect(player.sprite!.srcPosition.x, 4 * 64);
 
-    final originalPath = PlayerComponent.characterSheetPath;
+    final originalPath = player.characterSheetPath;
     try {
-      PlayerComponent.characterSheetPath =
-          'characters/stickman_13/walk13_rendered.png';
-      await tester.runAsync(player.reloadCharacterSheet);
+      final changed = await tester.runAsync(
+        () => player.setCharacterAppearance(
+          'characters/stickman_13/walk13_rendered.png',
+        ),
+      );
+      expect(changed, isTrue);
+      expect(
+        player.characterSheetPath,
+        'characters/stickman_13/walk13_rendered.png',
+      );
       expect(player.sprite!.srcSize.x, 32);
-      PlayerComponent.characterSheetPath = originalPath;
-      await tester.runAsync(player.reloadCharacterSheet);
+
+      final reset = await tester.runAsync(
+        () => player.setCharacterAppearance(originalPath),
+      );
+      expect(reset, isTrue);
+      expect(player.characterSheetPath, originalPath);
       expect(player.sprite!.srcSize.x, 64);
       expect(player.sprite!.srcPosition.x, 0);
     } finally {
-      PlayerComponent.characterSheetPath = originalPath;
+      await tester.runAsync(() => player.setCharacterAppearance(originalPath));
     }
     await tester.pumpWidget(const SizedBox.shrink());
   });
+
+  testWidgets(
+    'PlayerComponent appearance selection is instance-owned and robust',
+    (tester) async {
+      final p1 = PlayerComponent(
+        position: Vector2.zero(),
+        movementBounds: const Rect.fromLTWH(0, 0, 100, 100),
+      );
+      final p2 = PlayerComponent(
+        position: Vector2.zero(),
+        movementBounds: const Rect.fromLTWH(0, 0, 100, 100),
+        characterSheetPath: 'characters/stickman_13/walk13_rendered.png',
+      );
+
+      // 1. Independent appearance per instance
+      expect(p1.characterSheetPath, PlayerComponent.godotFighterSheetPath);
+      expect(
+        p2.characterSheetPath,
+        'characters/stickman_13/walk13_rendered.png',
+      );
+
+      // 2. Incompatible selection while equipped is rejected and preserves appearance
+      final game = TacticalModeGame();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(body: GameWidget(game: game)),
+        ),
+      );
+      await tester.runAsync(() => game.ready());
+      await tester.pump();
+
+      final player = game.player;
+      final initialPath = player.characterSheetPath;
+      await tester.runAsync(
+        () =>
+            player.setEquipment([godotSampleEquipmentSets.single.items.first]),
+      );
+
+      final rejectedResult = await tester.runAsync(
+        () => player.setCharacterAppearance(
+          'characters/stickman_13/walk13_rendered.png',
+        ),
+      );
+      expect(rejectedResult, isFalse);
+      expect(player.characterSheetPath, initialPath);
+      await tester.pumpWidget(const SizedBox.shrink());
+
+      // 3. FighterAnimator retains existing state when loader throws
+      final animator = FighterAnimator();
+      final reloadOk = await animator.reload(
+        PlayerComponent.godotFighterSheetPath,
+        (_) async => throw StateError('Simulated loader error'),
+      );
+      expect(reloadOk, isFalse);
+      expect(animator.sprite, isNull);
+    },
+  );
 }

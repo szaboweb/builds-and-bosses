@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../core/actions/game_action.dart';
+import '../core/dnd/character_stats.dart';
 import '../game/tactical_game.dart';
+import 'widgets/rpg_stat_badge_widget.dart';
 
 /// Top Status HUD overlay displaying player stats, boss stats, and Tactical Mode trigger.
 class PlanningHUD extends StatelessWidget {
@@ -164,78 +166,74 @@ class PlanningHUD extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            children: [
-              const Icon(Icons.shield, color: Color(0xFF64B5F6), size: 16),
-              const SizedBox(width: 6),
-              Text(
-                '${stats.name.toUpperCase()} (Lvl ${stats.level})',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.blueGrey.shade800,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  'AC ${stats.armorClass}',
-                  style: const TextStyle(
-                    color: Color(0xFF90CAF9),
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1A2733),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  'STR ${stats.strength} (${stats.maxJumpHeight.toStringAsFixed(0)}px)',
-                  style: const TextStyle(
-                    color: Color(0xFF00E5FF),
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          _buildPlayerHeaderRow(stats),
           const SizedBox(height: 6),
-          Row(
-            children: [
-              SizedBox(
-                width: 100,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(3),
-                  child: LinearProgressIndicator(
-                    value: hpRatio,
-                    minHeight: 6,
-                    backgroundColor: Colors.white12,
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                      Color(0xFF4CAF50),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '${stats.currentHp}/${stats.maxHp} HP',
-                style: const TextStyle(color: Colors.white70, fontSize: 11),
-              ),
-            ],
-          ),
+          _buildPlayerHpRow(stats, hpRatio),
         ],
       ),
+    );
+  }
+
+  Widget _buildPlayerHeaderRow(CharacterStats stats) {
+    return Row(
+      children: [
+        const Icon(Icons.shield, color: Color(0xFF64B5F6), size: 16),
+        const SizedBox(width: 6),
+        Text(
+          '${stats.name.toUpperCase()} (Lvl ${stats.level})',
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+          ),
+        ),
+        const SizedBox(width: 8),
+        RpgStatBadgeWidget.ac(stats.armorClass),
+        const SizedBox(width: 6),
+        RpgStatBadgeWidget.attribute(
+          name: 'STR',
+          score: stats.strength,
+          extra: '${stats.maxJumpHeight.toStringAsFixed(0)}px',
+          color: const Color(0xFF00E5FF),
+          backgroundColor: const Color(0xFF1A2733),
+        ),
+        const SizedBox(width: 6),
+        RpgStatBadgeWidget.attribute(
+          name: 'DEX',
+          score: stats.dexterity,
+          extra: '${stats.moveSpeed.toStringAsFixed(0)}px/s',
+          color: const Color(0xFFB388FF),
+          backgroundColor: const Color(0xFF231A36),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPlayerHpRow(CharacterStats stats, double hpRatio) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 75,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(3),
+            child: LinearProgressIndicator(
+              value: hpRatio,
+              minHeight: 6,
+              backgroundColor: Colors.white12,
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                Color(0xFF4CAF50),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          '${stats.currentHp}/${stats.maxHp} HP',
+          style: const TextStyle(color: Colors.white70, fontSize: 10),
+        ),
+        const SizedBox(width: 8),
+        RpgStatBadgeWidget.ap(game.actionQueue.maxAP),
+      ],
     );
   }
 
@@ -256,20 +254,11 @@ class PlanningHUD extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.red.shade900,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  'AC ${enemyStats.armorClass}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+              RpgStatBadgeWidget(
+                label: 'AC ${enemyStats.armorClass}',
+                textColor: Colors.white,
+                backgroundColor: Colors.red.shade900,
+                borderColor: Colors.redAccent.withValues(alpha: 0.6),
               ),
               const SizedBox(width: 8),
               Text(

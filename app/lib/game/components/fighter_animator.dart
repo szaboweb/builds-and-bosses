@@ -67,7 +67,7 @@ class FighterAnimator {
   }
 
   /// Rebuilds the frame list for [sheetPath], resolving its body profile.
-  Future<void> reload(
+  Future<bool> reload(
     String sheetPath,
     Future<ui.Image> Function(String path) load,
   ) async {
@@ -95,14 +95,14 @@ class FighterAnimator {
           ),
       ];
       sprite = _frames.isEmpty ? null : _frames.first;
+      return true;
     } catch (error) {
       CombatLogger.instance.logWarning(
         'ANIMATION',
         'Unable to load character atlas $sheetPath: $error. '
-            'Using procedural character.',
+            'Retaining existing appearance.',
       );
-      _frames = const [];
-      sprite = null;
+      return false;
     }
   }
 

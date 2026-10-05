@@ -32,10 +32,10 @@ void main() {
     () {
       expect(run('check').exitCode, 0);
       expect(run('init').exitCode, isNonZero);
-      source.writeAsStringSync('void a() {}\n${'// comment\n' * 800}');
+      source.writeAsStringSync('void a() {}\n${'// comment\n' * 650}');
       final result = run('check');
       expect(result.exitCode, isNonZero);
-      expect(result.stderr, contains('801 lines'));
+      expect(result.stderr, contains('651 lines'));
     },
   );
   test('new relative core/game dependency and import cycles fail', () {
@@ -93,13 +93,13 @@ void main() {
     source.renameSync('${root.path}/app/lib/renamed.dart');
     expect(run('check').exitCode, 0);
   });
-  test('changed 700-line file requires hash-bound review', () {
-    source.writeAsStringSync('void a() {}\n${'// comment\n' * 699}');
+  test('changed 550-line file requires hash-bound review', () {
+    source.writeAsStringSync('void a() {}\n${'// comment\n' * 549}');
     final result = run('check');
     expect(result.exitCode, isNonZero);
     expect(result.stderr, contains('requires hash-bound capacity review'));
     final report = run('report');
-    expect(report.stdout, contains('700'));
+    expect(report.stdout, contains('550'));
     // Source hash is calculated by the same measured baseline format.
     final original = File('${root.path}/tooling/code_quality/baseline.json');
     original.deleteSync();
@@ -115,7 +115,7 @@ void main() {
         'app/lib/sample.dart': {
           'sourceHash': metrics['sourceHash'],
           'owner': 'sample fixture',
-          'upperBound': 720,
+          'upperBound': 580,
           'reason': 'test coherent ownership',
           'decision': 'extend',
         },

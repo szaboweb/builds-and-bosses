@@ -1,4 +1,4 @@
-enum CampaignLevelMode { levelDown, levelUp }
+enum CampaignLevelMode { levelDown, levelUp, custom }
 
 enum CampaignValidationError {
   emptyClassBuild,
@@ -58,7 +58,11 @@ class CampaignBlueprint {
     )) {
       errors.add(CampaignValidationError.invalidClassLevel);
     }
-    if (heroLevel != progression.expectedHeroLevel(levelMode)) {
+    if (levelMode == CampaignLevelMode.custom) {
+      if (heroLevel < 1 || heroLevel > 20) {
+        errors.add(CampaignValidationError.invalidHeroLevel);
+      }
+    } else if (heroLevel != progression.expectedHeroLevel(levelMode)) {
       errors.add(CampaignValidationError.invalidHeroLevel);
     }
     if (totalClassLevels != heroLevel) {
@@ -83,12 +87,14 @@ class CampaignProgression {
 
   const CampaignProgression();
 
-  int expectedHeroLevel(CampaignLevelMode mode) {
+  int expectedHeroLevel(CampaignLevelMode mode, {int? customLevel}) {
     switch (mode) {
       case CampaignLevelMode.levelDown:
         return 1;
       case CampaignLevelMode.levelUp:
         return 2;
+      case CampaignLevelMode.custom:
+        return (customLevel ?? 1).clamp(1, 20);
     }
   }
 
@@ -98,11 +104,12 @@ class CampaignProgression {
     required Map<String, int> abilityScores,
     String raceId = 'human',
     List<String> selectedAbilityIds = const [],
+    int? customLevel,
   }) {
     return CampaignBlueprint(
       bossId: firstBossId,
       bossLevel: firstBossLevel,
-      heroLevel: expectedHeroLevel(levelMode),
+      heroLevel: expectedHeroLevel(levelMode, customLevel: customLevel),
       levelMode: levelMode,
       classLevels: classLevels,
       abilityScores: abilityScores,

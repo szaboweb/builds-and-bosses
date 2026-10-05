@@ -1,23 +1,16 @@
 {
-  "app/lib/game/components/player_component.dart": {
-    "sourceHash": "23e1aa8b1532e226c88819ef8bb4883f995f901f29bef01e9dfac337c88c2db9",
-    "owner": "Player runtime orchestration; fighter visual renderer extracted",
-    "upperBound": 807,
-    "decision": "extract",
-    "reason": "Legacy 901 lines reduced to 807. Atlas validation, pose/frame selection and equipment-layer sync moved to FighterAnimator plus the new FighterBodyProfile data contract (docs/ARCHITECTURE.md 'Fighter visual renderer'), enabling per-body-type frame size/baseline without growing this file. No remaining growth budget; further player responsibilities (locomotion controller, procedural/VFX rendering) must still be extracted."
-  },
   "app/lib/game/tactical_game.dart": {
-    "sourceHash": "373da22e26117d93b0db4b31423c12f05fc1c1931de658c936bde9af2008196a",
-    "owner": "Game coordination and combat lifecycle",
-    "upperBound": 720,
-    "decision": "extract",
-    "reason": "Measured 700 lines, 100 capacity. Persistence lifecycle extracted to CombatCompletion; remaining delegation estimate at most 10 plus 10 uncertainty. No persistence implementation belongs in this coordinator."
+    "sourceHash": "d61c4e2a8b4a7a7fd185630b67e0b3d331814286c32cf2df955f6195d9b8e458",
+    "owner": "Game coordination and combat lifecycle; input handling extracted",
+    "upperBound": 645,
+    "decision": "extend",
+    "reason": "Measured 637 lines (within 650 ceiling). Input handling extracted to GameInputController and integrated with ArenaEditorController."
   },
   "app/lib/ui/character_builder_overlay.dart": {
-    "sourceHash": "d66835e30b2402e91eab56b9d2b2c16197279a82070cd5f22d80ac8790084cf1",
-    "owner": "Character build editing and bundled sprite selection UI",
-    "upperBound": 750,
+    "sourceHash": "cb846170782a76f2d88019d61ab3bcbdefdcc034b75a735ecc504821f52025d6",
+    "owner": "Character build editing and workbench presentation",
+    "upperBound": 600,
     "decision": "extend",
-    "reason": "Measured 740 lines, 60 capacity. Existing async selection intent made explicit and callback extracted from the large build method. At most 5 helper lines plus 5 uncertainty; no new responsibility."
+    "reason": "Measured 558 lines (within 650 ceiling). Modularized with subcomponents in character_builder/ directory."
   }
 }

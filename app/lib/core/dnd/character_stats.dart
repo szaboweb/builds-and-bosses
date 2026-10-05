@@ -2,6 +2,7 @@ import 'dart:math';
 
 import '../config/game_rules_config.dart';
 import 'character_catalog.dart';
+import 'character_progression.dart';
 
 /// D&D character stats model with config-driven dynamic physics & combat scaling.
 class CharacterStats {
@@ -13,6 +14,18 @@ class CharacterStats {
   final int level;
   final int maxHp;
   int currentHp;
+  int? _currentMana;
+  int get currentMana => _currentMana ?? maxMana;
+  set currentMana(int value) => _currentMana = value;
+
+  int get maxMana => CharacterProgression.calculateMaxAp(
+    level,
+    intMod: intelligenceMod,
+    wisMod: wisdomMod,
+  );
+  int get maxAp => maxMana;
+  int get currentAp => currentMana;
+
   final int armorClass;
   final CharacterAlignment alignment;
 
@@ -69,6 +82,18 @@ class CharacterStats {
     0,
     weaponRange.stagger + strengthMod * weaponRange.staggerStrengthScaling,
   );
+
+  /// Melee knockback impulse (px/s) derived from Strength modifier.
+  /// Characters with standard or low Strength (<= 10) have 0 knockback against heavy foes.
+  /// High Strength (STR 12+, especially STR 20) yields strong knockback impulse.
+  double get meleeKnockback {
+    if (strengthMod <= 0) return 0.0;
+    return strengthMod * 64.0;
+  }
+
+  /// Whether this character possesses sufficient physical Strength (STR >= 16)
+  /// to push or shove heavy objects and combat dummies on physical contact.
+  bool get canShoveOnContact => strength >= 16;
   WeaponRangeConfig get rangedWeaponRange =>
       config.combat.weaponRangeFor(rangedWeaponId);
   double get rangedNormalRange =>
@@ -186,7 +211,7 @@ class CharacterStats {
     int? charisma,
     GameRulesConfig? config,
   }) {
-    return CharacterStats(
+    final copy = CharacterStats(
       name: name ?? this.name,
       classId: classId ?? this.classId,
       weaponId: weaponId ?? this.weaponId,
@@ -205,6 +230,8 @@ class CharacterStats {
       charisma: charisma ?? this.charisma,
       config: config ?? this.config,
     );
+    copy._currentMana = _currentMana;
+    return copy;
   }
 
   Map<String, dynamic> toJson() => {
@@ -216,6 +243,8 @@ class CharacterStats {
     'level': level,
     'maxHp': maxHp,
     'currentHp': currentHp,
+    'maxMana': maxMana,
+    'currentMana': currentMana,
     'armorClass': armorClass,
     'alignment': alignment.code,
     'strength': strength,

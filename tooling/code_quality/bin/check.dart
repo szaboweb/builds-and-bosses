@@ -67,9 +67,9 @@ void _execute(
       stdout.writeln(
         '${entry.value.lines}\t${entry.key}\t${entry.value.sourceHash}',
       );
-    } else if (entry.value.lines >= 700) {
+    } else if (entry.value.lines >= 550) {
       stdout.writeln(
-        'REVIEW 700: ${entry.key} (${entry.value.lines} lines; capacity ${800 - entry.value.lines}).',
+        'REVIEW 550: ${entry.key} (${entry.value.lines} lines; capacity ${650 - entry.value.lines}).',
       );
     }
   }

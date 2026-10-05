@@ -86,9 +86,9 @@ extension B on int { bool test() => this > 0; }
       throwsFormatException,
     );
   });
-  test('new files fail at 801 and legacy files cannot grow', () {
-    expect(violations('a', SourceMetrics(801), null), isNotEmpty);
-    expect(violations('a', SourceMetrics(800), null), isEmpty);
+  test('new files fail at 651 and legacy files cannot grow', () {
+    expect(violations('a', SourceMetrics(651), null), isNotEmpty);
+    expect(violations('a', SourceMetrics(650), null), isEmpty);
     expect(violations('a', SourceMetrics(916), {'lines': 915}), isNotEmpty);
     expect(violations('a', SourceMetrics(900), {'lines': 915}), isEmpty);
   });

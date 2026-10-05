@@ -17,23 +17,30 @@ import '../core/dnd/dice.dart';
 import '../core/debug/debug_replay.dart';
 import '../core/platform/platform_services.dart';
 import '../platform/local_platform_services.dart';
+import '../core/arena/arena_layout_blueprint.dart';
+import 'components/arena_editor_component.dart';
 import 'components/arena_map_component.dart';
 import 'components/dummy_enemy_component.dart';
 import 'components/ghost_preview_component.dart';
 import 'components/player_component.dart';
+import 'editor/arena_editor_controller.dart';
 import 'camera_follow_controller.dart';
 import 'lighting_controller.dart';
 import 'developer_mode_controller.dart';
 import 'developer_visualization_component.dart';
 import 'combat_completion.dart';
+import 'game_input_controller.dart';
+import 'game_phase.dart';
 
-enum GamePhase { realtime, planning, executing, cooldown }
+export 'game_phase.dart';
 
 enum CombatOutcome { victory, defeat }
 
 /// The main Flame game instance integrating the Side-view Platformer arena,
 /// gravity physics, player jumping, enemy dummy, and Tactical Mode planning loop.
-class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
+class TacticalModeGame extends FlameGame
+    with KeyboardEvents, TapCallbacks
+    implements GameInputTarget {
   final PlatformServices platformServices;
   final int debugSeed;
 
@@ -62,6 +69,38 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
   late final CombatCompletion combatCompletion = CombatCompletion(
     platformServices,
   );
+  late final GameInputController inputController = GameInputController(
+    target: this,
+  );
+  late final ArenaEditorController editorController = ArenaEditorController(
+    blueprint: ArenaLayoutBlueprint.defaultArena(),
+  );
+  late ArenaEditorComponent editorComponent;
+
+  @override
+  bool get isCharacterBuilderActive => overlays.isActive('characterBuilder');
+
+  @override
+  bool get isLevelEditorActive => overlays.isActive('levelEditor');
+
+  @override
+  void toggleDeveloperMode() => developerModeController.toggle();
+
+  @override
+  void selectAction(ActionType action) => selectedActionNotifier.value = action;
+
+  @override
+  void jump() => player.jump();
+
+  @override
+  void dropDown() => player.dropDown();
+
+  @override
+  void setHorizontalInput(double input) => player.velocity.x = input;
+
+  @override
+  void setVerticalFlightInput(double input) =>
+      player.verticalFlightInput = input;
 
   final ActionQueue actionQueue = ActionQueue(maxAP: 100);
   final ActionCooldowns actionCooldowns = ActionCooldowns();
@@ -93,8 +132,10 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
   ];
   CampaignBlueprint? activeBlueprint;
 
+  @override
   GamePhase get currentPhase => phaseNotifier.value;
 
+  @override
   void selectHotbarSlot(int index) {
     if (index < 0 || index >= hotbarSlots.length) return;
     final action = hotbarSlots[index];
@@ -166,6 +207,12 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
       target: player,
       worldSize: arena.size,
     );
+
+    editorComponent = ArenaEditorComponent(
+      controller: editorController,
+      arenaSize: arena.size,
+    );
+    world.add(editorComponent);
   }
 
   @override
@@ -239,12 +286,14 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
     overlays.remove('combatOutcome');
   }
 
+  @override
   void toggleDarkness() {
     lightingController.setDarkness(!lightingController.darknessActive);
   }
 
   // --- Phase Controls ---
 
+  @override
   void startPlanning() {
     if (currentPhase != GamePhase.realtime) return;
     combatTimerController.pause();
@@ -259,6 +308,7 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
     );
   }
 
+  @override
   void cancelPlanning() {
     if (currentPhase != GamePhase.planning) return;
     actionQueue.clear();
@@ -300,6 +350,7 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
   }
 
   /// Runs a fixed, non-reactive combat pipeline and plays it through the game.
+  @override
   void startAutoCombat() {
     if (currentPhase != GamePhase.realtime || enemy.stats.isDead) return;
 
@@ -332,6 +383,7 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
 
   // --- Character Builder (Tervezőasztal) Controls ---
 
+  @override
   void openCharacterBuilder() {
     player.velocity = Vector2.zero();
     overlays.add('characterBuilder');
@@ -341,6 +393,7 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
     );
   }
 
+  @override
   void closeCharacterBuilder() {
     overlays.remove('characterBuilder');
     CombatLogger.instance.logPhaseChange(
@@ -352,6 +405,7 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
   void applyHeroBuild(CharacterStats newStats, {CampaignBlueprint? blueprint}) {
     final oldStats = player.stats;
     player.updateStats(newStats);
+    actionQueue.setMaxAP(newStats.maxMana);
     lightingController.darkvisionRadius = newStats.darkvisionRadius;
     activeBlueprint = blueprint;
     CombatLogger.instance.logBuildChange(
@@ -359,6 +413,50 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
       newStats: newStats,
     );
     closeCharacterBuilder();
+  }
+
+  // --- Level Editor Controls ---
+
+  @override
+  void openLevelEditor() {
+    if (isLoaded) player.velocity = Vector2.zero();
+    editorController.isEnabled = true;
+    overlays.add('levelEditor');
+    CombatLogger.instance.logPhaseChange(
+      fromPhase: currentPhase.name.toUpperCase(),
+      toPhase: 'EDITOR',
+    );
+  }
+
+  @override
+  void closeLevelEditor() {
+    editorController.isEnabled = false;
+    overlays.remove('levelEditor');
+    if (isLoaded) applyArenaBlueprint(editorController.blueprint);
+    CombatLogger.instance.logPhaseChange(
+      fromPhase: 'EDITOR',
+      toPhase: currentPhase.name.toUpperCase(),
+    );
+  }
+
+  @override
+  void toggleLevelEditor() =>
+      isLevelEditorActive ? closeLevelEditor() : openLevelEditor();
+
+  void applyArenaBlueprint(ArenaLayoutBlueprint blueprint) {
+    if (!isLoaded) return;
+    arena.applyBlueprint(blueprint);
+    player.position.setValues(
+      blueprint.playerSpawnX,
+      blueprint.playerSpawnY - 26,
+    );
+    player.velocity.setZero();
+    final dummy = blueprint.spawns
+        .where((s) => s.type == 'training_dummy')
+        .firstOrNull;
+    if (dummy != null) {
+      enemy.position.setValues(dummy.x, dummy.y - 26);
+    }
   }
 
   // --- Action Queueing ---
@@ -433,12 +531,14 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
     ], () => phaseNotifier.value = GamePhase.realtime);
   }
 
+  @override
   void cycleCombatMode() {
     const modes = [ActionType.slash, ActionType.ranged, ActionType.spell];
     final currentIndex = modes.indexOf(selectedActionNotifier.value);
     selectedActionNotifier.value = modes[(currentIndex + 1) % modes.length];
   }
 
+  @override
   void triggerSelectedCombatHotkey() {
     switch (selectedActionNotifier.value) {
       case ActionType.slash:
@@ -469,34 +569,22 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
       return;
     }
 
-    final GameAction action;
-    switch (actionType) {
-      case ActionType.move:
-        action = MoveAction(targetPosition: tapPosition);
-        break;
-      case ActionType.slash:
-        action = SlashAction(targetPosition: tapPosition);
-        break;
-      case ActionType.spell:
-        action = SpellAction(
-          targetPosition: tapPosition,
-          knockback: player.stats.config.combat.spellKnockback,
-        );
-        break;
-      case ActionType.ranged:
-        action = RangedAction(targetPosition: tapPosition);
-        break;
-      case ActionType.dash:
-        action = DashAction(targetPosition: tapPosition);
-        break;
-      case ActionType.heal:
-        action = HealAction();
-        break;
-    }
+    final action = switch (actionType) {
+      ActionType.move => MoveAction(targetPosition: tapPosition),
+      ActionType.slash => SlashAction(targetPosition: tapPosition),
+      ActionType.spell => SpellAction(
+        targetPosition: tapPosition,
+        knockback: player.stats.config.combat.spellKnockback,
+      ),
+      ActionType.ranged => RangedAction(targetPosition: tapPosition),
+      ActionType.dash => DashAction(targetPosition: tapPosition),
+      ActionType.heal => HealAction(),
+    };
     _tryAddAction(action);
   }
 
   /// Select an ability target while Tactical Pause is active.
+  @override
   void selectAbilityTargetAt(Vector2 targetPosition) {
     if (currentPhase != GamePhase.planning) return;
     queueActionAt(targetPosition);
@@ -536,12 +624,7 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
   @override
   void onTapDown(TapDownEvent event) {
     super.onTapDown(event);
-    if (overlays.isActive('characterBuilder')) return;
-
-    if (currentPhase == GamePhase.planning) {
-      final worldPos = camera.globalToLocal(event.localPosition);
-      selectAbilityTargetAt(worldPos);
-    }
+    inputController.handleTapDown(event.localPosition, camera.globalToLocal);
   }
 
   @override
@@ -549,152 +632,6 @@ class TacticalModeGame extends FlameGame with KeyboardEvents, TapCallbacks {
     KeyEvent event,
     Set<LogicalKeyboardKey> keysPressed,
   ) {
-    // 0. Toggle Character Builder on 'B' key
-    if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.keyB) {
-      if (overlays.isActive('characterBuilder')) {
-        closeCharacterBuilder();
-      } else {
-        openCharacterBuilder();
-      }
-      return KeyEventResult.handled;
-    }
-
-    if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.f3) {
-      developerModeController.toggle();
-      return KeyEventResult.handled;
-    }
-
-    if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.keyF) {
-      startAutoCombat();
-      return KeyEventResult.handled;
-    }
-
-    if (event is KeyDownEvent &&
-        (event.logicalKey == LogicalKeyboardKey.keyR ||
-            event.logicalKey == LogicalKeyboardKey.altGraph ||
-            event.logicalKey == LogicalKeyboardKey.altRight)) {
-      triggerSelectedCombatHotkey();
-      return KeyEventResult.handled;
-    }
-
-    if (event is KeyDownEvent) {
-      final slot = _hotbarSlotForKey(event.logicalKey);
-      if (slot != null) {
-        selectHotbarSlot(slot);
-        return KeyEventResult.handled;
-      }
-    }
-
-    if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.keyL) {
-      toggleDarkness();
-      return KeyEventResult.handled;
-    }
-
-    if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.tab) {
-      cycleCombatMode();
-      return KeyEventResult.handled;
-    }
-
-    if (overlays.isActive('characterBuilder')) {
-      if (event is KeyDownEvent &&
-          event.logicalKey == LogicalKeyboardKey.escape) {
-        closeCharacterBuilder();
-        return KeyEventResult.handled;
-      }
-      return KeyEventResult.ignored;
-    }
-
-    if (event is KeyDownEvent) {
-      if (currentPhase == GamePhase.planning &&
-          (event.logicalKey == LogicalKeyboardKey.keyQ ||
-              event.logicalKey == LogicalKeyboardKey.controlRight)) {
-        selectedActionNotifier.value = ActionType.dash;
-        return KeyEventResult.handled;
-      }
-    }
-
-    // 1. Enter toggles Tactical Mode planning / returns to realtime
-    if (event is KeyDownEvent &&
-        (event.logicalKey == LogicalKeyboardKey.enter ||
-            event.logicalKey == LogicalKeyboardKey.numpadEnter)) {
-      if (currentPhase == GamePhase.realtime) {
-        startPlanning();
-        return KeyEventResult.handled;
-      } else if (currentPhase == GamePhase.planning) {
-        cancelPlanning();
-        return KeyEventResult.handled;
-      }
-    }
-
-    // 2. SPACE always belongs to jumping; Enter controls Tactical Pause.
-    if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.space) {
-      if (currentPhase == GamePhase.realtime) {
-        player.jump();
-        return KeyEventResult.handled;
-      }
-      return KeyEventResult.ignored;
-    }
-
-    // 3. Escape cancels planning
-    if (event is KeyDownEvent &&
-        event.logicalKey == LogicalKeyboardKey.escape) {
-      if (currentPhase == GamePhase.planning) {
-        cancelPlanning();
-        return KeyEventResult.handled;
-      }
-    }
-
-    // 4. Realtime Platformer Controls
-    if (currentPhase == GamePhase.realtime) {
-      // Drop down through a platform on tap of S / Down arrow while grounded
-      if (event is KeyDownEvent &&
-          (event.logicalKey == LogicalKeyboardKey.keyS ||
-              event.logicalKey == LogicalKeyboardKey.arrowDown)) {
-        player.dropDown();
-      }
-
-      // Horizontal run (A / D / Left / Right)
-      double horizontalInput = 0.0;
-      if (keysPressed.contains(LogicalKeyboardKey.keyA) ||
-          keysPressed.contains(LogicalKeyboardKey.arrowLeft)) {
-        horizontalInput -= 1.0;
-      }
-      if (keysPressed.contains(LogicalKeyboardKey.keyD) ||
-          keysPressed.contains(LogicalKeyboardKey.arrowRight)) {
-        horizontalInput += 1.0;
-      }
-      player.velocity.x = horizontalInput;
-
-      // Vertical flight (W / S / Up / Down); SPACE remains the only jump trigger.
-      double verticalInput = 0.0;
-      if (keysPressed.contains(LogicalKeyboardKey.keyW) ||
-          keysPressed.contains(LogicalKeyboardKey.arrowUp)) {
-        verticalInput -= 1.0;
-      }
-      if (keysPressed.contains(LogicalKeyboardKey.keyS) ||
-          keysPressed.contains(LogicalKeyboardKey.arrowDown)) {
-        verticalInput += 1.0;
-      }
-      player.verticalFlightInput = verticalInput;
-    }
-
-    return KeyEventResult.ignored;
-  }
-
-  int? _hotbarSlotForKey(LogicalKeyboardKey key) {
-    const keys = [
-      LogicalKeyboardKey.digit1,
-      LogicalKeyboardKey.digit2,
-      LogicalKeyboardKey.digit3,
-      LogicalKeyboardKey.digit4,
-      LogicalKeyboardKey.digit5,
-      LogicalKeyboardKey.digit6,
-      LogicalKeyboardKey.digit7,
-      LogicalKeyboardKey.digit8,
-      LogicalKeyboardKey.digit9,
-      LogicalKeyboardKey.digit0,
-    ];
-    final index = keys.indexOf(key);
-    return index == -1 ? null : index;
+    return inputController.handleKeyEvent(event, keysPressed);
   }
 }

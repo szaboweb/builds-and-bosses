@@ -1,12 +1,20 @@
 import 'package:flutter/foundation.dart';
+
 import 'game_action.dart';
 
 /// Manages the queue of planned actions and Action Point (AP) economy.
 class ActionQueue extends ChangeNotifier {
-  final int maxAP;
+  int maxAP;
   final List<GameAction> _actions = [];
 
   ActionQueue({this.maxAP = 100});
+
+  /// Dynamically updates max AP capacity and notifies UI listeners.
+  void setMaxAP(int value) {
+    if (maxAP == value) return;
+    maxAP = value;
+    notifyListeners();
+  }
 
   List<GameAction> get actions => List.unmodifiable(_actions);
 

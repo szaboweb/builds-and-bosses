@@ -254,8 +254,9 @@ class TacticalModeGame extends FlameGame
     final playerSpawnPos = Vector2(blueprint.playerSpawnX, arena.groundY - 26);
     player.position = playerSpawnPos;
 
-    // Update camera position
+    // Update camera position and world size
     camera.viewfinder.position = playerSpawnPos.clone();
+    cameraFollowController.worldSize = arena.size;
 
     // Close the level selector overlay
     overlays.remove('levelSelector');

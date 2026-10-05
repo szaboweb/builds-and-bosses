@@ -6,7 +6,7 @@ import 'package:flame/components.dart';
 class CameraFollowController {
   final CameraComponent camera;
   final PositionComponent target;
-  final Vector2 worldSize;
+  Vector2 worldSize;
 
   /// Fraction of the viewport width/height that forms the still dead-zone.
   final double deadZoneWidthFraction;

@@ -30,6 +30,8 @@ Get-ChildItem $dataRoot -Recurse -Filter '*.json' | ForEach-Object {
     'hero_save/v1' { 'hero_save.v1.schema.json' }
     'boss/v1' { 'boss.v1.schema.json' }
     'equipment_database/v1' { 'equipment_database.v1.schema.json' }
+    'level_layout/v1' { 'level_layout.v1.schema.json' }
+    'level_theme/v1' { 'level_theme.v1.schema.json' }
     default { $null }
   }
   if ($null -eq $schemaFile -or !(Test-Path (Join-Path $schemaRoot $schemaFile))) {

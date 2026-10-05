@@ -1,0 +1,160 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Level Layout Schema",
+  "description": "Defines the structure for level/dungeon layout JSON files",
+  "type": "object",
+  "required": [
+    "level_id",
+    "level_name",
+    "difficulty",
+    "grid_width",
+    "grid_height",
+    "rooms",
+    "grid_map"
+  ],
+  "properties": {
+    "level_id": {
+      "type": "string",
+      "description": "Unique identifier for the level",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "level_name": {
+      "type": "string",
+      "description": "Display name of the level"
+    },
+    "level_version": {
+      "type": "string",
+      "description": "Version of this level design"
+    },
+    "difficulty": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Difficulty rating (1-5)"
+    },
+    "grid_width": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Width of the grid in tiles"
+    },
+    "grid_height": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Height of the grid in tiles"
+    },
+    "floor_height": {
+      "type": "number",
+      "description": "Y-coordinate of the floor"
+    },
+    "ceiling_height": {
+      "type": "number",
+      "description": "Y-coordinate of the ceiling"
+    },
+    "rooms": {
+      "type": "array",
+      "description": "Array of rooms in the level",
+      "items": {
+        "type": "object",
+        "required": ["room_id", "room_name", "room_type"],
+        "properties": {
+          "room_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+$"
+          },
+          "room_name": {
+            "type": "string"
+          },
+          "room_type": {
+            "type": "string",
+            "enum": ["cavern", "cavern_secret", "dungeon", "hall", "treasure", "boss"]
+          },
+          "level": {
+            "type": "integer",
+            "description": "Vertical level (0=ground, 1=up, -1=down)"
+          },
+          "bounds": {
+            "type": "object",
+            "properties": {
+              "min_x": { "type": "number" },
+              "min_y": { "type": "number" },
+              "max_x": { "type": "number" },
+              "max_y": { "type": "number" }
+            }
+          },
+          "floor_material": { "type": "string" },
+          "wall_material": { "type": "string" },
+          "access_requirement": { "type": "string" }
+        }
+      }
+    },
+    "grid_map": {
+      "type": "object",
+      "required": ["terrain", "legend"],
+      "properties": {
+        "terrain": {
+          "type": "array",
+          "description": "2D grid of terrain tiles"
+        },
+        "legend": {
+          "type": "object",
+          "description": "Legend mapping terrain characters to types"
+        }
+      }
+    },
+    "obstacles": {
+      "type": "array",
+      "description": "Hazards and obstacles in the level",
+      "items": {
+        "type": "object",
+        "required": ["obstacle_id", "obstacle_type"],
+        "properties": {
+          "obstacle_id": { "type": "string" },
+          "obstacle_type": { "type": "string" },
+          "position": { "type": "object" },
+          "damage_on_fall": { "type": "number" },
+          "effect": { "type": "string" }
+        }
+      }
+    },
+    "destructibles": {
+      "type": "array",
+      "description": "Destructible objects with health and destruction effects",
+      "items": {
+        "type": "object",
+        "required": ["destructible_id", "destructible_type"],
+        "properties": {
+          "destructible_id": { "type": "string" },
+          "destructible_type": { "type": "string" },
+          "health": { "type": "number" },
+          "destruction_methods": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "method": { "type": "string" },
+                "damage_per_hit": { "type": "number" },
+                "hits_required": { "type": "number" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "spawn_points": {
+      "type": "array",
+      "description": "Player and enemy spawn locations",
+      "items": {
+        "type": "object",
+        "required": ["spawn_id", "spawn_type", "position"]
+      }
+    },
+    "loot_positions": {
+      "type": "array",
+      "description": "Treasure and loot locations"
+    },
+    "transitions": {
+      "type": "array",
+      "description": "Connections between rooms and exits"
+    }
+  }
+}

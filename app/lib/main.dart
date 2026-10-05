@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import 'platform/desktop_window.dart';
 import 'game/tactical_game.dart';
+import 'core/arena/arena_layout_blueprint.dart';
 import 'ui/action_bar_overlay.dart';
 import 'ui/character_builder_overlay.dart';
 import 'ui/combat_log_overlay.dart';
@@ -13,6 +14,7 @@ import 'ui/combat_hotbar_overlay.dart';
 import 'ui/combat_outcome_overlay.dart';
 import 'ui/debug_info_overlay.dart';
 import 'ui/planning_hud.dart';
+import 'ui/level_selector_overlay.dart';
 import 'core/inventory/equipment_grid.dart';
 import 'ui/editor/level_editor_overlay.dart';
 import 'ui/equipment_workshop_screen.dart';
@@ -107,6 +109,11 @@ class _GameScreenState extends State<GameScreen> {
           controller: game.editorController,
           onPlayTest: () => game.closeLevelEditor(),
           onClose: () => game.closeLevelEditor(),
+        ),
+        'levelSelector': (context, game) => LevelSelectorOverlay(
+          onLevelSelected: (ArenaLayoutBlueprint blueprint) {
+            game.loadLevel(blueprint);
+          },
         ),
       },
       initialActiveOverlays: [

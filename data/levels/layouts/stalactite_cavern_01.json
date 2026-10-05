@@ -1,0 +1,220 @@
+{
+  "_schema": "level_layout/v1",
+  "level_id": "stalactite_cavern_01",
+  "level_name": "Stalactite Cavern",
+  "level_version": "1.0",
+  "difficulty": 2,
+  "grid_width": 13,
+  "grid_height": 9,
+  "floor_height": 0,
+  "ceiling_height": 3,
+  "rooms": [
+    {
+      "room_id": "main_chamber",
+      "room_name": "Main Chamber",
+      "room_type": "cavern",
+      "level": 0,
+      "bounds": {
+        "min_x": 0,
+        "min_y": 0,
+        "max_x": 12,
+        "max_y": 8
+      },
+      "floor_material": "stone_tile_cavern",
+      "wall_material": "cavern_wall"
+    },
+    {
+      "room_id": "upper_chamber",
+      "room_name": "Hidden Wolf's Eye Chamber",
+      "room_type": "cavern_secret",
+      "level": 1,
+      "bounds": {
+        "min_x": 4,
+        "min_y": 2,
+        "max_x": 8,
+        "max_y": 4
+      },
+      "floor_material": "stone_tile_ritual",
+      "wall_material": "cavern_wall_smooth",
+      "access_requirement": "flying_or_climb"
+    }
+  ],
+  "grid_map": {
+    "terrain": [
+      ["W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W"],
+      ["W", "F", "F", "C", "C", "C", "F", "F", "C", "F", "F", "F", "W"],
+      ["W", "F", "C", "C", "C", "C", "C", "C", "C", "C", "C", "F", "W"],
+      ["W", "F", "C", "C", "C", "C", "C", "C", "C", "C", "C", "F", "W"],
+      ["W", "F", "C", "C", "C", "C", "X", "C", "C", "C", "C", "F", "W"],
+      ["W", "F", "C", "C", "C", "C", "C", "C", "C", "C", "C", "F", "W"],
+      ["W", "F", "C", "C", "C", "C", "C", "C", "C", "C", "C", "F", "W"],
+      ["W", "F", "F", "C", "C", "C", "F", "F", "C", "F", "F", "F", "W"],
+      ["W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W"]
+    ],
+    "legend": {
+      "W": "wall",
+      "F": "floor_safe",
+      "C": "chasm",
+      "X": "chasm_center_peak"
+    }
+  },
+  "obstacles": [
+    {
+      "obstacle_id": "chasm_main",
+      "obstacle_type": "pit",
+      "position": {"x": 6, "y": 4},
+      "extent": "fills_central_area",
+      "hazard": "damage_on_fall",
+      "damage": 15,
+      "effect": "stun",
+      "stun_duration_ms": 1000,
+      "escape_method": "climb_ladder_or_fly_out"
+    },
+    {
+      "obstacle_id": "peak_stalactite",
+      "obstacle_type": "spike_formation",
+      "position": {"x": 6, "y": 4},
+      "height": 1.5,
+      "description": "Sharp central stalactite peak in chasm",
+      "damage_on_contact": 10,
+      "avoid_by_flying": true
+    }
+  ],
+  "destructibles": [
+    {
+      "destructible_id": "ceiling_stalactites",
+      "destructible_type": "ceiling_section",
+      "position": {"x": 6, "y": 2},
+      "parent_room": "main_chamber",
+      "state": "intact",
+      "health": 50,
+      "destruction_methods": [
+        {
+          "method": "melee_slash",
+          "damage_per_hit": 15,
+          "hits_required": 4,
+          "class": "warrior"
+        },
+        {
+          "method": "spell_lightning",
+          "damage_per_cast": 25,
+          "casts_required": 2,
+          "class": "mage"
+        },
+        {
+          "method": "arrow_headshot",
+          "damage_per_arrow": 10,
+          "arrows_required": 5,
+          "class": "archer"
+        }
+      ],
+      "destruction_effect": {
+        "particle_system": "rock_dust_explosion",
+        "sound": "ceiling_collapse",
+        "ground_shake": true,
+        "shake_damage": 5,
+        "shake_duration_ms": 500,
+        "message": "The stalactite ceiling comes crashing down!"
+      },
+      "after_destruction": {
+        "new_state": "destroyed",
+        "opens_passage_to": "upper_chamber",
+        "access_type": "flying_or_climb",
+        "passage_coordinates": {"x": 6, "y": 2}
+      }
+    }
+  ],
+  "spawn_points": [
+    {
+      "spawn_id": "entry_left",
+      "spawn_type": "player_entry",
+      "position": {"x": 1, "y": 1},
+      "orientation": "east"
+    },
+    {
+      "spawn_id": "entry_right",
+      "spawn_type": "player_entry",
+      "position": {"x": 11, "y": 1},
+      "orientation": "west"
+    },
+    {
+      "spawn_id": "enemy_stone_elemental",
+      "spawn_type": "enemy",
+      "enemy_type": "stone_elemental",
+      "position": {"x": 3, "y": 5},
+      "quantity": 1,
+      "aggro_on_player": true
+    },
+    {
+      "spawn_id": "enemy_bats_left",
+      "spawn_type": "enemy_swarm",
+      "enemy_type": "stalactite_bat",
+      "position": {"x": 2, "y": 3},
+      "quantity": 2,
+      "patrol_pattern": "random_flight"
+    },
+    {
+      "spawn_id": "enemy_bats_right",
+      "spawn_type": "enemy_swarm",
+      "enemy_type": "stalactite_bat",
+      "position": {"x": 10, "y": 3},
+      "quantity": 2,
+      "patrol_pattern": "random_flight"
+    }
+  ],
+  "loot_positions": [
+    {
+      "loot_id": "gold_main_left",
+      "loot_type": "gold",
+      "position": {"x": 2, "y": 6},
+      "amount": 50
+    },
+    {
+      "loot_id": "gold_main_right",
+      "loot_type": "gold",
+      "position": {"x": 10, "y": 6},
+      "amount": 50
+    },
+    {
+      "loot_id": "potion_healing",
+      "loot_type": "consumable",
+      "subtype": "healing_potion",
+      "position": {"x": 6, "y": 1},
+      "quantity": 2
+    },
+    {
+      "loot_id": "mana_gem",
+      "loot_type": "consumable",
+      "subtype": "mana_gem",
+      "position": {"x": 6, "y": 7},
+      "quantity": 1
+    }
+  ],
+  "transitions": [
+    {
+      "transition_id": "to_upper_chamber",
+      "from_room": "main_chamber",
+      "to_room": "upper_chamber",
+      "trigger_condition": "ceiling_destroyed_and_flying",
+      "transition_point": {"x": 6, "y": 2},
+      "target_entry": "upper_chamber_entry",
+      "direction": "up"
+    },
+    {
+      "transition_id": "exit_left",
+      "from_room": "main_chamber",
+      "transition_type": "level_exit",
+      "exit_point": {"x": 0, "y": 4},
+      "direction": "west",
+      "next_level": "previous_level"
+    },
+    {
+      "transition_id": "exit_right",
+      "from_room": "main_chamber",
+      "transition_type": "level_exit",
+      "exit_point": {"x": 12, "y": 4},
+      "direction": "east",
+      "next_level": "next_level"
+    }
+  ]
+}

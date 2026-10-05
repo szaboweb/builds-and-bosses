@@ -1,0 +1,292 @@
+{
+  "_schema": "level_theme/v1",
+  "theme_id": "stalactite_cavern",
+  "theme_name": "Stalactite Cavern Theme",
+  "theme_version": "1.0",
+  "environment": {
+    "lighting": {
+      "ambient_light": {
+        "color": "#3a3a4a",
+        "intensity": 0.4
+      },
+      "key_light": {
+        "color": "#8b9dc3",
+        "intensity": 0.8,
+        "direction": "from_ceiling",
+        "angle": 45
+      },
+      "fill_light": {
+        "color": "#c4a57b",
+        "intensity": 0.3,
+        "direction": "from_ground",
+        "effect": "warm_ground_reflection"
+      },
+      "atmospheric_effect": "light_shafts_from_windows",
+      "atmospheric_fog": {
+        "enabled": true,
+        "color": "#5a5a6a",
+        "density": 0.15
+      }
+    },
+    "skybox": {
+      "type": "indoor_cavern",
+      "ceiling_texture": "stalactite_rocky_ceiling",
+      "wall_texture": "cavern_stone_wall"
+    }
+  },
+  "room_styles": [
+    {
+      "room_type": "cavern",
+      "floor": {
+        "material": "stone_tile_cavern",
+        "texture": "cavern_floor_tiles_256x256",
+        "color": "#5a5a5a",
+        "roughness": 0.8,
+        "uv_scale": 2.0,
+        "ambient_occlusion": true
+      },
+      "walls": {
+        "material": "cavern_wall",
+        "texture": "cavern_wall_rocky_256x256",
+        "color": "#4a4a5a",
+        "roughness": 0.9,
+        "uv_scale": 2.0,
+        "cracks": {
+          "enabled": true,
+          "overlay_texture": "cavern_cracks_512x512",
+          "opacity": 0.6
+        }
+      },
+      "ceiling": {
+        "material": "cavern_rock_ceiling",
+        "texture": "cavern_ceiling_rocky_512x512",
+        "color": "#3a3a4a",
+        "roughness": 0.95
+      },
+      "decorations": {
+        "stalactites": {
+          "enabled": true,
+          "model": "stalactite_formations",
+          "spacing": "random_clustered",
+          "density": "medium",
+          "color": "#a8a8b8",
+          "material": "crystalline_ice"
+        },
+        "stalagmites": {
+          "enabled": true,
+          "model": "stalagmite_formations",
+          "spacing": "sparse",
+          "density": "low",
+          "color": "#8a8a9a"
+        },
+        "crystal_outcrops": {
+          "enabled": true,
+          "model": "crystal_cluster_small",
+          "glow": true,
+          "glow_color": "#6b8fbc",
+          "glow_intensity": 0.5,
+          "placement": "wall_edges_corners"
+        }
+      }
+    },
+    {
+      "room_type": "cavern_secret",
+      "name": "Wolf's Eye Chamber",
+      "floor": {
+        "material": "stone_tile_ritual",
+        "texture": "ritual_floor_pattern_512x512",
+        "color": "#6a5a4a",
+        "pattern": "circular_runes",
+        "pattern_opacity": 0.3,
+        "roughness": 0.7
+      },
+      "walls": {
+        "material": "cavern_wall_smooth",
+        "texture": "cavern_wall_smooth_256x256",
+        "color": "#5a5a6a",
+        "roughness": 0.8,
+        "trim": "ornamental_stone_edge"
+      },
+      "ceiling": {
+        "material": "cavern_ceiling_vault",
+        "texture": "vault_ceiling_pattern_512x512",
+        "color": "#4a4a5a",
+        "style": "triangular_vault",
+        "apex_detail": "wolf_symbol_carved"
+      },
+      "windows": {
+        "enabled": true,
+        "type": "triangular_eye_shaped",
+        "quantity": 2,
+        "position": "symmetric_sides",
+        "orientation": "wolf_eye_gaze",
+        "frame_material": "iron_ornate",
+        "glass_color": "#7a9fcc",
+        "glass_transparency": 0.6,
+        "exterior_light": "moonlight_shaft",
+        "light_intensity": 0.7
+      },
+      "ambient_details": {
+        "wall_inscriptions": "ancient_wolf_runes",
+        "inscriptions_opacity": 0.4,
+        "mystical_aura": {
+          "enabled": true,
+          "particle_system": "subtle_mist_swirl",
+          "color": "#7a6f88",
+          "density": "light"
+        }
+      }
+    }
+  ],
+  "effects": {
+    "destructible_ceiling_collapse": {
+      "particle_system": "rock_debris_burst",
+      "particle_count": 50,
+      "particle_velocity": 15,
+      "particle_lifetime_ms": 2000,
+      "particle_color": "#8a8a9a",
+      "particle_dust_cloud": {
+        "enabled": true,
+        "color": "#6a6a7a",
+        "duration_ms": 3000,
+        "opacity_peak": 0.8
+      },
+      "sound_effect": "sound_ceiling_collapse_01",
+      "sound_volume": 0.9,
+      "screen_shake": {
+        "enabled": true,
+        "intensity": 0.8,
+        "duration_ms": 800
+      },
+      "lighting_flash": {
+        "enabled": true,
+        "flash_color": "#ffffff",
+        "flash_intensity": 0.5,
+        "duration_ms": 200
+      }
+    },
+    "chasm_fall_damage": {
+      "particle_system": "dust_impact",
+      "particle_count": 20,
+      "sound_effect": "sound_body_hit_stone",
+      "screen_shake": {
+        "intensity": 0.3,
+        "duration_ms": 300
+      }
+    },
+    "water_dripping": {
+      "enabled": true,
+      "particle_system": "water_droplet_fall",
+      "frequency_hz": 0.5,
+      "sound_effect": "sound_water_drip_cavern",
+      "sound_volume": 0.3,
+      "placement": "random_ceiling_points"
+    }
+  },
+  "color_palette": {
+    "primary": {
+      "name": "Cavern Grey",
+      "hex": "#5a5a6a",
+      "rgb": [90, 90, 106]
+    },
+    "secondary": {
+      "name": "Stalactite White",
+      "hex": "#a8a8b8",
+      "rgb": [168, 168, 184]
+    },
+    "accent_cool": {
+      "name": "Ice Blue",
+      "hex": "#6b8fbc",
+      "rgb": [107, 143, 188]
+    },
+    "accent_warm": {
+      "name": "Amber Glow",
+      "hex": "#c4a57b",
+      "rgb": [196, 165, 123]
+    },
+    "dark": {
+      "name": "Deep Shadow",
+      "hex": "#2a2a3a",
+      "rgb": [42, 42, 58]
+    },
+    "highlight": {
+      "name": "Crystal Gleam",
+      "hex": "#e0e8f0",
+      "rgb": [224, 232, 240]
+    }
+  },
+  "audio": {
+    "ambient_sound": {
+      "track": "cavern_ambience_wind_drips",
+      "volume": 0.4,
+      "loop": true,
+      "layers": [
+        {
+          "name": "wind_howl",
+          "volume": 0.3
+        },
+        {
+          "name": "water_dripping",
+          "volume": 0.2
+        },
+        {
+          "name": "distant_echoes",
+          "volume": 0.15
+        }
+      ]
+    },
+    "music": {
+      "track": "stalactite_cavern_exploration",
+      "tempo": "slow_mysterious",
+      "mood": "eerie_discovery",
+      "instruments": ["strings", "wind", "percussion_distant"],
+      "volume": 0.5,
+      "loop": true
+    },
+    "music_boss_trigger": {
+      "track": "stalactite_cavern_boss_alert",
+      "tempo": "fast_intense",
+      "mood": "combat_ready",
+      "fade_in_ms": 500,
+      "previous_track_fade_out_ms": 200
+    },
+    "sound_effects": {
+      "ceiling_collapse": "sound_ceiling_collapse_01.wav",
+      "stalactite_drip": "sound_drip_water_cavern.wav",
+      "enemy_bat_screech": "sound_bat_screech_01.wav",
+      "stone_impact": "sound_body_hit_stone.wav"
+    }
+  },
+  "visual_effects": {
+    "parallax": {
+      "enabled": true,
+      "background_depth_layers": 3,
+      "depth_scale": 0.3
+    },
+    "depth_of_field": {
+      "enabled": false,
+      "focus_distance": 10,
+      "blur_strength": 0.2
+    },
+    "color_grading": {
+      "enabled": true,
+      "lut_texture": "cavern_cool_color_grading",
+      "intensity": 0.7
+    }
+  },
+  "interactive_elements": {
+    "destructible_objects": {
+      "style": "rocky_crystalline",
+      "break_effect": "stone_shatter_particles",
+      "material_variant": "cavern_rock"
+    },
+    "lighting_sources": {
+      "crystal_glow": {
+        "emissive": true,
+        "color": "#6b8fbc",
+        "intensity": 0.6,
+        "range": 5
+      }
+    }
+  }
+}

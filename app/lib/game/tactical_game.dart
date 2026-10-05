@@ -65,6 +65,7 @@ class TacticalModeGame extends FlameGame
   late CameraFollowController cameraFollowController;
   late LightingController lightingController;
   late DeveloperModeController developerModeController;
+  late ArenaLayoutBlueprint currentArenaBlueprint;
   late final CombatCompletion combatCompletion = CombatCompletion(
     platformServices,
   );
@@ -147,9 +148,26 @@ class TacticalModeGame extends FlameGame
     super.onLoad();
     Dice.configureSeed(debugSeed);
 
-    arena = ArenaMapComponent(arenaWidth: 2400, arenaHeight: 900);
+    // Initialize with default arena first
+    currentArenaBlueprint = ArenaLayoutBlueprint.defaultArena();
+
+    _initializeGameComponents();
+    _initializeControllers();
+    _buildWorldComponents();
+
+    // Show level selector after a short delay
+    Future.delayed(const Duration(milliseconds: 100), () {
+      _showLevelSelector();
+    });
+  }
+
+  void _initializeGameComponents() {
+    arena = ArenaMapComponent(
+      arenaWidth: currentArenaBlueprint.arenaWidth,
+      arenaHeight: currentArenaBlueprint.arenaHeight,
+    );
     player = PlayerComponent(
-      position: Vector2(180, arena.groundY - 26),
+      position: Vector2(currentArenaBlueprint.playerSpawnX, arena.groundY - 26),
       movementBounds: arena.playableBounds,
     );
     enemy = DummyEnemyComponent(
@@ -158,6 +176,15 @@ class TacticalModeGame extends FlameGame
         if (currentPhase == GamePhase.planning) queueAttackOnEnemy();
       },
     );
+  }
+
+  void _initializeControllers() {
+    final playerSpawnPos = Vector2(
+      currentArenaBlueprint.playerSpawnX,
+      arena.groundY - 26,
+    );
+    final enemySpawnPos = Vector2(arena.size.x - 200, arena.size.y - 155 - 26);
+
     combatCoordinator = CombatCoordinator(
       context: CombatCoordinatorContext(
         player: player,
@@ -168,8 +195,8 @@ class TacticalModeGame extends FlameGame
         onAddOverlay: overlays.add,
         onRemoveOverlay: overlays.remove,
       ),
-      playerResetPosition: Vector2(180, arena.groundY - 26),
-      enemyResetPosition: Vector2(arena.size.x - 200, arena.size.y - 155 - 26),
+      playerResetPosition: playerSpawnPos,
+      enemyResetPosition: enemySpawnPos,
       debugSeed: debugSeed,
     );
     ghostPreview = GhostPreviewComponent(player: player, queue: actionQueue);
@@ -192,7 +219,9 @@ class TacticalModeGame extends FlameGame
       controller: editorController,
       arenaSize: arena.size,
     );
+  }
 
+  void _buildWorldComponents() {
     world.addAll([
       arena,
       player,
@@ -206,6 +235,27 @@ class TacticalModeGame extends FlameGame
       ),
       editorComponent,
     ]);
+  }
+
+  /// Shows the level selector overlay for the user to choose a level.
+  void _showLevelSelector() {
+    overlays.add('levelSelector');
+  }
+
+  /// Loads a specific arena layout into the game world.
+  void loadLevel(ArenaLayoutBlueprint blueprint) {
+    currentArenaBlueprint = blueprint;
+
+    // Update arena dimensions and apply blueprint
+    arena.size = Vector2(blueprint.arenaWidth, blueprint.arenaHeight);
+    arena.applyBlueprint(blueprint);
+
+    // Reset player position to blueprint spawn point
+    final playerSpawnPos = Vector2(blueprint.playerSpawnX, arena.groundY - 26);
+    player.position = playerSpawnPos;
+
+    // Update camera position
+    camera.viewfinder.position = playerSpawnPos.clone();
   }
 
   @override

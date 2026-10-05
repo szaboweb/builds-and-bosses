@@ -1,0 +1,150 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Level Theme Schema",
+  "description": "Defines the visual and audio styling for dungeon levels",
+  "type": "object",
+  "required": [
+    "theme_id",
+    "theme_name",
+    "environment",
+    "room_styles",
+    "color_palette"
+  ],
+  "properties": {
+    "theme_id": {
+      "type": "string",
+      "description": "Unique identifier for the theme",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "theme_name": {
+      "type": "string",
+      "description": "Display name of the theme"
+    },
+    "theme_version": {
+      "type": "string",
+      "description": "Version of this theme"
+    },
+    "environment": {
+      "type": "object",
+      "description": "Global environmental settings",
+      "properties": {
+        "lighting": {
+          "type": "object",
+          "properties": {
+            "ambient_light": {
+              "type": "object",
+              "properties": {
+                "color": { "type": "string" },
+                "intensity": { "type": "number" }
+              }
+            },
+            "key_light": {
+              "type": "object"
+            },
+            "fill_light": {
+              "type": "object"
+            },
+            "atmospheric_fog": {
+              "type": "object",
+              "properties": {
+                "enabled": { "type": "boolean" },
+                "color": { "type": "string" },
+                "density": { "type": "number" }
+              }
+            }
+          }
+        },
+        "skybox": {
+          "type": "object",
+          "properties": {
+            "type": { "type": "string" },
+            "ceiling_texture": { "type": "string" },
+            "wall_texture": { "type": "string" }
+          }
+        }
+      }
+    },
+    "room_styles": {
+      "type": "array",
+      "description": "Styling templates for different room types",
+      "items": {
+        "type": "object",
+        "required": ["room_type"],
+        "properties": {
+          "room_type": { "type": "string" },
+          "floor": {
+            "type": "object",
+            "properties": {
+              "material": { "type": "string" },
+              "texture": { "type": "string" },
+              "color": { "type": "string" },
+              "roughness": { "type": "number" }
+            }
+          },
+          "walls": {
+            "type": "object",
+            "properties": {
+              "material": { "type": "string" },
+              "texture": { "type": "string" },
+              "color": { "type": "string" }
+            }
+          },
+          "ceiling": {
+            "type": "object"
+          },
+          "decorations": {
+            "type": "object",
+            "properties": {
+              "stalactites": { "type": "object" },
+              "stalagmites": { "type": "object" },
+              "crystal_outcrops": { "type": "object" }
+            }
+          }
+        }
+      }
+    },
+    "effects": {
+      "type": "object",
+      "description": "Visual effects for events",
+      "properties": {
+        "destructible_ceiling_collapse": { "type": "object" },
+        "chasm_fall_damage": { "type": "object" },
+        "water_dripping": { "type": "object" }
+      }
+    },
+    "color_palette": {
+      "type": "object",
+      "description": "Color definitions for the theme",
+      "properties": {
+        "primary": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "hex": { "type": "string" },
+            "rgb": { "type": "array" }
+          }
+        },
+        "secondary": { "type": "object" },
+        "accent_cool": { "type": "object" },
+        "accent_warm": { "type": "object" }
+      }
+    },
+    "audio": {
+      "type": "object",
+      "description": "Audio settings",
+      "properties": {
+        "ambient_sound": {
+          "type": "object",
+          "properties": {
+            "track": { "type": "string" },
+            "volume": { "type": "number" },
+            "loop": { "type": "boolean" }
+          }
+        },
+        "music": { "type": "object" },
+        "music_boss_trigger": { "type": "object" },
+        "sound_effects": { "type": "object" }
+      }
+    }
+  }
+}

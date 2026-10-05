@@ -33,20 +33,60 @@ class StalactiteCavernLayout {
 
   static List<PlatformBlueprint> _buildLowerLevelPlatforms() {
     return [
+      ..._buildLeftSidePlatforms(),
+      ..._buildCentralApproaches(),
+      ..._buildRightSidePlatforms(),
+    ];
+  }
+
+  static List<PlatformBlueprint> _buildLeftSidePlatforms() {
+    return [
       // Left side - safe walking platform
       PlatformBlueprint(
         id: 'plat_lower_left_main',
         type: PlatformType.staticStone,
         x: 100.0,
         y: 1050.0,
-        width: 400.0,
+        width: 350.0,
         height: 30.0,
       ),
+      // Left side stalactite 1
+      PlatformBlueprint(
+        id: 'plat_stalactite_left_1',
+        type: PlatformType.staticStone,
+        x: 250.0,
+        y: 200.0,
+        width: 40.0,
+        height: 150.0,
+      ),
+      // Left side stalactite 2
+      PlatformBlueprint(
+        id: 'plat_stalactite_left_2',
+        type: PlatformType.staticStone,
+        x: 450.0,
+        y: 250.0,
+        width: 40.0,
+        height: 120.0,
+      ),
+      // Left side stalactite 3
+      PlatformBlueprint(
+        id: 'plat_stalactite_left_3',
+        type: PlatformType.staticStone,
+        x: 650.0,
+        y: 300.0,
+        width: 40.0,
+        height: 100.0,
+      ),
+    ];
+  }
+
+  static List<PlatformBlueprint> _buildCentralApproaches() {
+    return [
       // Center-left approach
       PlatformBlueprint(
         id: 'plat_lower_left_step',
         type: PlatformType.staticStone,
-        x: 500.0,
+        x: 800.0,
         y: 950.0,
         width: 250.0,
         height: 25.0,
@@ -55,18 +95,50 @@ class StalactiteCavernLayout {
       PlatformBlueprint(
         id: 'plat_lower_right_step',
         type: PlatformType.staticStone,
-        x: 2250.0,
+        x: 1950.0,
         y: 950.0,
         width: 250.0,
         height: 25.0,
+      ),
+    ];
+  }
+
+  static List<PlatformBlueprint> _buildRightSidePlatforms() {
+    return [
+      // Right side stalactite 1
+      PlatformBlueprint(
+        id: 'plat_stalactite_right_1',
+        type: PlatformType.staticStone,
+        x: 1860.0,
+        y: 300.0,
+        width: 40.0,
+        height: 100.0,
+      ),
+      // Right side stalactite 2
+      PlatformBlueprint(
+        id: 'plat_stalactite_right_2',
+        type: PlatformType.staticStone,
+        x: 2060.0,
+        y: 250.0,
+        width: 40.0,
+        height: 120.0,
+      ),
+      // Right side stalactite 3
+      PlatformBlueprint(
+        id: 'plat_stalactite_right_3',
+        type: PlatformType.staticStone,
+        x: 2260.0,
+        y: 200.0,
+        width: 40.0,
+        height: 150.0,
       ),
       // Right side - safe walking platform
       PlatformBlueprint(
         id: 'plat_lower_right_main',
         type: PlatformType.staticStone,
-        x: 2500.0,
+        x: 2550.0,
         y: 1050.0,
-        width: 400.0,
+        width: 350.0,
         height: 30.0,
       ),
     ];
@@ -74,6 +146,24 @@ class StalactiteCavernLayout {
 
   static List<PlatformBlueprint> _buildCentralChasmPlatforms() {
     return [
+      // Central pit left edge
+      PlatformBlueprint(
+        id: 'plat_chasm_pit_left',
+        type: PlatformType.staticStone,
+        x: 1300.0,
+        y: 900.0,
+        width: 120.0,
+        height: 25.0,
+      ),
+      // Central pit right edge
+      PlatformBlueprint(
+        id: 'plat_chasm_pit_right',
+        type: PlatformType.staticStone,
+        x: 1580.0,
+        y: 900.0,
+        width: 120.0,
+        height: 25.0,
+      ),
       // Chasm floor (deep bottom, lethal fall)
       PlatformBlueprint(
         id: 'plat_chasm_floor',
@@ -88,46 +178,64 @@ class StalactiteCavernLayout {
 
   static List<PlatformBlueprint> _buildDestructibleCeiling() {
     return [
-      // Main ceiling platform (destructible, collapses to open passage)
+      // Destructible ceiling center - main piece above chasm
       PlatformBlueprint(
-        id: 'plat_ceiling_section',
+        id: 'plat_ceiling_center',
+        type: PlatformType.staticStone,
+        x: 1300.0,
+        y: 400.0,
+        width: 400.0,
+        height: 40.0,
+      ),
+      // Destructible ceiling left stalactite
+      PlatformBlueprint(
+        id: 'plat_ceiling_stalactite_left',
         type: PlatformType.staticStone,
         x: 1200.0,
-        y: 400.0,
-        width: 600.0,
-        height: 30.0,
+        y: 500.0,
+        width: 50.0,
+        height: 120.0,
+      ),
+      // Destructible ceiling right stalactite
+      PlatformBlueprint(
+        id: 'plat_ceiling_stalactite_right',
+        type: PlatformType.staticStone,
+        x: 1550.0,
+        y: 500.0,
+        width: 50.0,
+        height: 120.0,
       ),
     ];
   }
 
   static List<PlatformBlueprint> _buildUpperChamberPlatforms() {
     return [
-      // Upper left platform (wolf's eye chamber)
+      // Left eye of wolf (left triangle window)
       PlatformBlueprint(
-        id: 'plat_upper_left',
+        id: 'plat_upper_left_eye',
         type: PlatformType.staticStone,
-        x: 1000.0,
-        y: 300.0,
-        width: 300.0,
-        height: 25.0,
-      ),
-      // Upper center platform (peak of wolf's eye)
-      PlatformBlueprint(
-        id: 'plat_upper_center',
-        type: PlatformType.staticStone,
-        x: 1350.0,
-        y: 150.0,
-        width: 300.0,
+        x: 1100.0,
+        y: 200.0,
+        width: 150.0,
         height: 20.0,
       ),
-      // Upper right platform (wolf's eye chamber)
+      // Right eye of wolf (right triangle window)
       PlatformBlueprint(
-        id: 'plat_upper_right',
+        id: 'plat_upper_right_eye',
         type: PlatformType.staticStone,
-        x: 1700.0,
-        y: 300.0,
-        width: 300.0,
-        height: 25.0,
+        x: 1550.0,
+        y: 200.0,
+        width: 150.0,
+        height: 20.0,
+      ),
+      // Upper chamber center (nose/peak of wolf face)
+      PlatformBlueprint(
+        id: 'plat_upper_center_peak',
+        type: PlatformType.staticStone,
+        x: 1350.0,
+        y: 100.0,
+        width: 100.0,
+        height: 15.0,
       ),
     ];
   }

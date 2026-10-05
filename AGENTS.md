@@ -30,6 +30,9 @@
     650 physical lines after formatting is the absolute maximum limit. No new
     features may be added to Red files without extracting touched concerns first.
     Legacy files >650 lines must strictly decrease in size.
+- **AST Complexity Limits & Context Parameter Pattern:**
+  - Enforced thresholds: max 7 parameters per constructor/method, max 80 physical lines per method, max control-flow nesting 4.
+  - When extracting or creating a controller/coordinator with >5-6 dependencies (components, controllers, callbacks, notifiers), bundle them into a dedicated `<Name>Context` class in `<name>_context.dart`. This prevents constructor bloating, complies with the 7-parameter ratchet, and keeps the main class in the 🟢 Green Zone (<350 lines).
 - Do not bypass limits with compressed formatting, `part` splitting, blanket
   exclusions or baseline increases. Complexity matters independently of length.
 
@@ -39,14 +42,18 @@
 - Update architecture contracts when ownership changes.
 - Run relevant Flutter analysis/tests and architecture/data validators.
 - **Mandatory Token-Efficient Execution (CLI / Test Output):**
-  - Whenever executing tests, the agent **MUST** use `flutter test --reporter=compact` (or prefix with `rtk` if available, e.g. `rtk flutter test`) to minimize output token consumption and avoid context window pollution with hundreds of verbose log lines.
+  - Use `rtk` CLI proxy prefix for standard shell commands (e.g. `rtk git status`, `rtk git diff`, `rtk git add`, `rtk powershell ...`) to minimize LLM token consumption by 60–90%.
+  - Whenever executing tests, the agent **MUST** use `flutter test --reporter=compact` (e.g. `rtk flutter test ... --reporter=compact`) to avoid context window pollution with verbose log lines.
   - When iterating or debugging a specific feature, always target the focused test file (e.g. `flutter test test/dummy_shove_test.dart --reporter=compact`) instead of running the whole suite repeatedly.
-  - Use `tooling/quick_check.ps1 -TestFile <path>` for 1-step iteration: automatically formats changed files, runs the focused test with compact reporter, and executes the quality ratchet.
-  - Use `rtk` CLI proxy prefix for standard shell commands (e.g. `rtk git status`, `rtk git diff`) whenever the `rtk` binary is available on PATH.
+  - **Tooling Automation Suite:**
+    - `tooling/quick_check.ps1 -TestFile <path>`: 1-step iteration: automatically formats changed files, runs the focused test with compact reporter, and executes the quality ratchet.
+    - `tooling/check_file_capacity.ps1`: sub-second line count & capacity tracking by zone (`-YellowAndRed`, `-ChangedOnly`, `-Top <N>`, `-Detailed`).
+    - `tooling/run_editor_suite.ps1`: 1-command compact batch runner for the level editor test suite (`-IncludeGame`, `-WithQuality`, `-Format`).
+    - `tooling/export_level_blueprint.ps1`: validates and exports dungeon layout blueprint JSONs (`-ExportDefault`, `-InputFile <path>`).
 - Run `tooling\validate_quality.ps1`: it checks AST metrics, size, imports,
   cycles and changed-file formatting. The commit hook uses staged content.
   Restore the pinned checker dependencies first; missing tools fail the gate.
-- Changed files at/above 700 require a source-hash-bound capacity review in
+- Changed files at/above 550 require a source-hash-bound capacity review in
   `tooling/code_quality/capacity_reviews.json`, in addition to the task/PR summary.
 - Do not read the entire generated baseline into agent context. Inspect only
   affected entries; use `dart run bin/check.dart report` for sizes/source hashes.

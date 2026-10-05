@@ -273,13 +273,13 @@ Futtasd az architecture validator, data validator, flutter analyze, flutter test
 
 ## 12. TacticalModeGame refactor target
 
-The coordinator should be split into five services:
+The coordinator is split into five focused services:
 
-1. `GameInputController`: keyboard/tap input and intent dispatch.
-2. `CombatCoordinator`: action execution, target selection, cooldown and CombatEngine orchestration.
-3. `GamePhaseController`: realtime, planning, executing, cooldown, victory and defeat transitions.
-4. `CombatTimerController`: combat elapsed time, Tactical Mode pause/resume, restart and final duration.
-5. `BuildCombatController`: hero and boss builds, stat-derived combat effects, active/passive abilities, weapon/equipment modifiers, and build changes.
+1. `GameInputController` (Implemented ✅): keyboard/tap input and intent dispatch (`app/lib/game/game_input_controller.dart`).
+2. `CombatCoordinator` (Implemented ✅): action execution, planning queue, target selection, cooldowns and outcome resolution (`app/lib/game/combat_coordinator.dart`, `combat_coordinator_context.dart`).
+3. `CombatTimerController` (Implemented ✅): combat elapsed time, Tactical Mode pause/resume, restart and final duration (`app/lib/core/combat/combat_timer_controller.dart`).
+4. `GamePhaseController` (Pending): realtime, planning, executing, cooldown, victory, and defeat transition coordinator.
+5. `BuildCombatController` (Pending): hero and boss builds, stat-derived combat effects, active/passive abilities, weapon/equipment modifiers, and build changes.
 
 `BuildCombatController` is the single contract for questions such as:
 

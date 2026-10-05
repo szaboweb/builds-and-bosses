@@ -41,10 +41,11 @@ class ArenaEditorController extends ChangeNotifier {
   set isEnabled(bool value) {
     if (_isEnabled == value) return;
     _isEnabled = value;
-    if (!_isEnabled)
+    if (!_isEnabled) {
       clearSelection();
-    else
+    } else {
       notifyListeners();
+    }
   }
 
   String? get selectedPlatformId => _selectedPlatformId;

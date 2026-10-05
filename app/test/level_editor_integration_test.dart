@@ -8,7 +8,6 @@ import 'package:builds_and_bosses_flame/game/components/arena_editor_component.d
 import 'package:builds_and_bosses_flame/game/components/arena_map_component.dart';
 import 'package:builds_and_bosses_flame/game/editor/arena_editor_controller.dart';
 import 'package:builds_and_bosses_flame/game/game_input_controller.dart';
-import 'package:builds_and_bosses_flame/game/game_phase.dart';
 import 'package:builds_and_bosses_flame/game/tactical_game.dart';
 
 class _FakeInputTarget implements GameInputTarget {

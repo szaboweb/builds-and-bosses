@@ -32,6 +32,22 @@ class _FakeGameInputTarget implements GameInputTarget {
   Vector2? targetedAbilityPos;
 
   @override
+  bool isLevelEditorActive = false;
+
+  bool toggledLevelEditor = false;
+  bool openedLevelEditor = false;
+  bool closedLevelEditor = false;
+
+  @override
+  void toggleLevelEditor() => toggledLevelEditor = true;
+
+  @override
+  void openLevelEditor() => openedLevelEditor = true;
+
+  @override
+  void closeLevelEditor() => closedLevelEditor = true;
+
+  @override
   void openCharacterBuilder() => openedBuilder = true;
 
   @override

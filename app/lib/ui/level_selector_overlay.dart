@@ -6,8 +6,7 @@ import 'package:builds_and_bosses_flame/core/arena/stalactite_cavern_layout.dart
 class LevelSelectorOverlay extends StatelessWidget {
   final Function(ArenaLayoutBlueprint) onLevelSelected;
 
-  const LevelSelectorOverlay({Key? key, required this.onLevelSelected})
-    : super(key: key);
+  const LevelSelectorOverlay({super.key, required this.onLevelSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +54,7 @@ class LevelSelectorOverlay extends StatelessWidget {
                     ),
                   ),
                 );
-              }).toList(),
+              }),
             ],
           ),
         ),

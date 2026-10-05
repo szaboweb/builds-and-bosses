@@ -105,12 +105,13 @@ void main() {
 
       expect(selectedBlueprints.length, 1);
       expect(selectedBlueprints[0].platforms.length, greaterThan(0));
-      // Verify platform IDs
+      // Verify platform IDs - check for stalactite cavern specific platforms
       final platformIds = selectedBlueprints[0].platforms
           .map((p) => p.id)
           .toList();
-      expect(platformIds, contains('plat_lower_left_main'));
-      expect(platformIds, contains('plat_chasm_floor'));
+      expect(platformIds, contains('plat_left_main'));
+      expect(platformIds, contains('pit_rim_left'));
+      expect(platformIds, contains('stala_left_1'));
     });
 
     testWidgets('both levels have spawn points defined', (tester) async {

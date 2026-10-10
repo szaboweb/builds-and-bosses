@@ -211,5 +211,57 @@ void main() {
       expect(locomotion.isOnGround, isFalse);
       expect(locomotion.isOnMovingPlatform, isFalse);
     });
+
+    test(
+      'Flying character with STR 10 lands and is supported by moving platform',
+      () {
+        final playerPos = Vector2(550, 625 - 26);
+        final playerSize = Vector2(32, 52);
+
+        locomotion.characterStrength = 10;
+        locomotion.hasFlight = true;
+        locomotion.updatePhysics(
+          dt: 0.016,
+          position: playerPos,
+          size: playerSize,
+          moveSpeed: 180,
+          gravity: 980,
+          movementBounds: arena.playableBounds,
+          arena: arena,
+        );
+
+        expect(locomotion.isOnGround, isTrue);
+        expect(locomotion.isOnMovingPlatform, isTrue);
+        expect(playerPos.y, equals(625 - 26));
+      },
+    );
+
+    test(
+      'Character flying downward (verticalFlightInput > 0) lands on platform',
+      () {
+        // Start 5px above the platform
+        final playerPos = Vector2(550, 625 - 26 - 5);
+        final playerSize = Vector2(32, 52);
+
+        locomotion.characterStrength = 10;
+        locomotion.verticalFlightInput =
+            1.0; // flying downward towards platform
+
+        locomotion.updatePhysics(
+          dt: 0.05, // 50ms * 180px/s = 9px movement -> crosses platform top
+          position: playerPos,
+          size: playerSize,
+          moveSpeed: 180,
+          gravity: 0,
+          movementBounds: arena.playableBounds,
+          arena: arena,
+        );
+
+        expect(locomotion.isOnGround, isTrue);
+        expect(locomotion.isOnMovingPlatform, isTrue);
+        expect(playerPos.y, equals(625 - 26));
+        expect(locomotion.verticalFlightInput, equals(0.0));
+      },
+    );
   });
 }

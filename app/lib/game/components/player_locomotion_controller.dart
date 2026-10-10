@@ -19,6 +19,9 @@ class PlayerLocomotionController {
   bool isFacingLeft = false;
   int characterStrength = 10;
 
+  /// Whether the character possesses flight capability or is actively flying.
+  bool hasFlight = false;
+
   /// Perform a jump if currently on the ground or a platform.
   bool jump({required double jumpVelocity}) {
     if (isOnGround) {
@@ -84,6 +87,9 @@ class PlayerLocomotionController {
     }
 
     final isFlying = verticalFlightInput != 0;
+    if (isFlying) {
+      hasFlight = true;
+    }
     _applyVelocity(dt, gravity, isFlying);
 
     if (velocity.x != 0) {
@@ -135,12 +141,20 @@ class PlayerLocomotionController {
     if (currentFeetY >= groundY) {
       position.y = groundY - size.y / 2;
       velocity.y = 0;
+      if (verticalFlightInput > 0) {
+        verticalFlightInput = 0;
+      }
       isOnGround = true;
       return;
     }
 
     // 2. Elevated semi-solid platform landings
-    if (isFlying || velocity.y < 0 || dropThroughTimer > 0 || arena == null) {
+    // Do not land if flying UPWARD (verticalFlightInput < 0), jumping UPWARD (velocity.y < 0),
+    // dropping through, or no arena.
+    if (verticalFlightInput < 0 ||
+        velocity.y < 0 ||
+        dropThroughTimer > 0 ||
+        arena == null) {
       return;
     }
 
@@ -155,7 +169,7 @@ class PlayerLocomotionController {
 
   bool _canLandOn(Rect plat, double x, double prevY, double currentY) {
     if (x < plat.left - 10 || x > plat.right + 10) return false;
-    return prevY <= plat.top + 2.0 && currentY >= plat.top;
+    return prevY <= plat.top + 6.0 && currentY >= plat.top;
   }
 
   void _resolvePlatformLandings({
@@ -171,11 +185,17 @@ class PlayerLocomotionController {
 
       final isMovingPlat = (plat == movingPlatRect);
       if (isMovingPlat &&
-          !arena.movingPlatform.canSupportCharacter(characterStrength)) {
+          !arena.movingPlatform.canSupportCharacter(
+            characterStrength,
+            hasFlight: hasFlight || verticalFlightInput != 0,
+          )) {
         continue;
       }
       position.y = plat.top - size.y / 2;
       velocity.y = 0;
+      if (verticalFlightInput > 0) {
+        verticalFlightInput = 0;
+      }
       isOnGround = true;
       isOnMovingPlatform = isMovingPlat;
       return;

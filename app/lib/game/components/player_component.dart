@@ -39,6 +39,9 @@ class PlayerComponent extends PositionComponent with HasGameReference {
   double get verticalFlightInput => _locomotion.verticalFlightInput;
   set verticalFlightInput(double val) => _locomotion.verticalFlightInput = val;
 
+  bool get hasFlight => _locomotion.hasFlight;
+  set hasFlight(bool val) => _locomotion.hasFlight = val;
+
   bool get isOnGround => _locomotion.isOnGround;
   set isOnGround(bool val) => _locomotion.isOnGround = val;
 

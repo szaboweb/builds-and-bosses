@@ -34,8 +34,9 @@ class MovingPlatformComponent extends PositionComponent {
   Rect toRect() => Rect.fromLTWH(position.x, position.y, size.x, size.y);
 
   /// Whether a character possesses sufficient Strength to land and maintain
-  /// footing on this heavy floating runic platform.
-  bool canSupportCharacter(int strength) => strength >= requiredStrength;
+  /// footing on this heavy floating runic platform, or bypasses the gate via flight.
+  bool canSupportCharacter(int strength, {bool hasFlight = false}) =>
+      hasFlight || strength >= requiredStrength;
 
   @override
   void update(double dt) {

@@ -42,6 +42,9 @@ class PlayerComponent extends PositionComponent with HasGameReference {
   bool get hasFlight => _locomotion.hasFlight;
   set hasFlight(bool val) => _locomotion.hasFlight = val;
 
+  bool get isGaseous => _locomotion.isGaseous;
+  set isGaseous(bool val) => _locomotion.isGaseous = val;
+
   bool get isOnGround => _locomotion.isOnGround;
   set isOnGround(bool val) => _locomotion.isOnGround = val;
 

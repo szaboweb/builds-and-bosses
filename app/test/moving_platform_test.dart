@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flame/extensions.dart';
 import 'package:builds_and_bosses_flame/core/dnd/character_stats.dart';
+import 'package:builds_and_bosses_flame/core/rules/status_tracker.dart';
 import 'package:builds_and_bosses_flame/game/components/arena_map_component.dart';
 import 'package:builds_and_bosses_flame/game/components/moving_platform_component.dart';
 import 'package:builds_and_bosses_flame/game/components/player_locomotion_controller.dart';
@@ -263,5 +264,87 @@ void main() {
         expect(locomotion.verticalFlightInput, equals(0.0));
       },
     );
+
+    test('Hero in Gaseous Form floats freely through moving platform without landing', () {
+      final playerPos = Vector2(550, 625 - 26 - 5);
+      final playerSize = Vector2(32, 52);
+
+      locomotion.characterStrength = 10;
+      locomotion.hasFlight = true;
+      locomotion.isGaseous = true; // Gaseous form active
+      locomotion.verticalFlightInput = 1.0; // floating downwards
+
+      locomotion.updatePhysics(
+        dt: 0.05,
+        position: playerPos,
+        size: playerSize,
+        moveSpeed: 180,
+        gravity: 0,
+        movementBounds: arena.playableBounds,
+        arena: arena,
+      );
+
+      // Does NOT land, floats through the platform
+      expect(locomotion.isOnGround, isFalse);
+      expect(locomotion.isOnMovingPlatform, isFalse);
+      expect(playerPos.y, greaterThan(625 - 26)); // floated past platform top
+    });
+
+    test('Hero lands on moving platform once Gaseous Form status expires or is dismissed', () {
+      final tracker = StatusTracker();
+      const status = Status(
+        id: 'gaseous_form',
+        holderId: 'hero',
+        sourceId: 'potion_or_spell',
+        startTick: 0,
+        durationTicks: 60, // 1 second at 60Hz
+        tags: {'gaseous_form', 'airborne'},
+      );
+      tracker.applyStatus(status, 0);
+
+      // Tick 30: spell is active
+      locomotion.isGaseous = tracker.hasTag('hero', 'gaseous_form');
+      expect(locomotion.isGaseous, isTrue);
+
+      final playerPos = Vector2(550, 625 - 26 - 5);
+      final playerSize = Vector2(32, 52);
+      locomotion.verticalFlightInput = 1.0;
+
+      locomotion.updatePhysics(
+        dt: 0.05,
+        position: playerPos,
+        size: playerSize,
+        moveSpeed: 180,
+        gravity: 0,
+        movementBounds: arena.playableBounds,
+        arena: arena,
+      );
+      expect(locomotion.isOnMovingPlatform, isFalse);
+
+      // Tick 60: spell expires
+      final expiryEvents = tracker.updateTick(60);
+      expect(expiryEvents.length, equals(1));
+      expect(tracker.hasTag('hero', 'gaseous_form'), isFalse);
+
+      locomotion.isGaseous = tracker.hasTag('hero', 'gaseous_form');
+      expect(locomotion.isGaseous, isFalse);
+
+      // Position placed right above platform to land
+      playerPos.y = 625 - 26 - 1;
+      locomotion.updatePhysics(
+        dt: 0.02,
+        position: playerPos,
+        size: playerSize,
+        moveSpeed: 180,
+        gravity: 0,
+        movementBounds: arena.playableBounds,
+        arena: arena,
+      );
+
+      // Now hero can touch down, land and ride the moving platform!
+      expect(locomotion.isOnGround, isTrue);
+      expect(locomotion.isOnMovingPlatform, isTrue);
+      expect(playerPos.y, equals(625 - 26));
+    });
   });
 }

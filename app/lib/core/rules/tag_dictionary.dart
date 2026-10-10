@@ -106,6 +106,7 @@ class TagDictionary {
     'magic',
     'bludgeoning',
     'piercing',
+    'gaseous_form',
   });
 
   bool isValid(String tag) => _validTags.contains(tag);

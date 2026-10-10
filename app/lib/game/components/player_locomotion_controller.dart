@@ -22,6 +22,10 @@ class PlayerLocomotionController {
   /// Whether the character possesses flight capability or is actively flying.
   bool hasFlight = false;
 
+  /// Whether the character is in a gaseous / intangible form (e.g. Gaseous Form spell).
+  /// In this state, the character floats freely through platforms and cannot land on them.
+  bool isGaseous = false;
+
   /// Perform a jump if currently on the ground or a platform.
   bool jump({required double jumpVelocity}) {
     if (isOnGround) {
@@ -149,9 +153,10 @@ class PlayerLocomotionController {
     }
 
     // 2. Elevated semi-solid platform landings
-    // Do not land if flying UPWARD (verticalFlightInput < 0), jumping UPWARD (velocity.y < 0),
-    // dropping through, or no arena.
-    if (verticalFlightInput < 0 ||
+    // Do not land if gaseous (intangible / phased), flying UPWARD (verticalFlightInput < 0),
+    // jumping UPWARD (velocity.y < 0), dropping through, or no arena.
+    if (isGaseous ||
+        verticalFlightInput < 0 ||
         velocity.y < 0 ||
         dropThroughTimer > 0 ||
         arena == null) {

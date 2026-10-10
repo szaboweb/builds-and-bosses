@@ -122,6 +122,12 @@ class PlayerLocomotionController {
       prevHeadY: prevHeadY,
     );
 
+    _resolveDownwardObstacleDeflection(
+      position: position,
+      size: size,
+      prevFeetY: prevFeetY,
+    );
+
     _resolveLandings(
       position: position,
       size: size,
@@ -153,6 +159,34 @@ class PlayerLocomotionController {
         position.y = obstacle.bottom + size.y / 2;
         if (velocity.y < 0) {
           velocity.y = 0;
+        }
+        return;
+      }
+    }
+  }
+
+  void _resolveDownwardObstacleDeflection({
+    required Vector2 position,
+    required Vector2 size,
+    required double prevFeetY,
+  }) {
+    if (isGaseous || solidObstacles.isEmpty) return;
+
+    final currentFeetY = position.y + size.y / 2;
+    final halfWidth = size.x / 2;
+
+    for (final obstacle in solidObstacles) {
+      final overlapsX =
+          (position.x + halfWidth > obstacle.left + 2) &&
+          (position.x - halfWidth < obstacle.right - 2);
+      if (!overlapsX) continue;
+
+      if (prevFeetY <= obstacle.top + 12.0 && currentFeetY >= obstacle.top) {
+        final obstacleCenterX = (obstacle.left + obstacle.right) / 2;
+        if (position.x >= obstacleCenterX) {
+          position.x = obstacle.right + halfWidth + 1.0;
+        } else {
+          position.x = obstacle.left - halfWidth - 1.0;
         }
         return;
       }

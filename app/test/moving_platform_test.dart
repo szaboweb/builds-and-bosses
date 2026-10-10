@@ -428,5 +428,74 @@ void main() {
       expect(playerPos.y, lessThan(625 + 26));
       expect(locomotion.isOnGround, isFalse);
     });
+
+    test('Solid hero falling from above onto dummy slides off to the side and lands beside dummy on platform', () {
+      // Platform [500..660] at Y=625. Dummy at center X=550 (span 526..574), top=569
+      final dummyRect = Rect.fromLTWH(550 - 24, 569, 48, 56);
+      locomotion.solidObstacles = [dummyRect];
+      locomotion.hasFlight = true;
+      locomotion.isGaseous = false;
+
+      // Player positioned above dummy, slightly to the right (X=560, feet at 564, 5px above dummy top 569)
+      final playerPos = Vector2(560, 569 - 26 - 5);
+      final playerSize = Vector2(32, 52);
+      locomotion.verticalFlightInput = 1.0; // flying downward
+
+      // Move downward to cross dummy top
+      locomotion.updatePhysics(
+        dt: 0.05,
+        position: playerPos,
+        size: playerSize,
+        moveSpeed: 180,
+        gravity: 0,
+        movementBounds: arena.playableBounds,
+        arena: arena,
+      );
+
+      // Player is deflected to the right side of the dummy (dummy.right 574 + 16 + 1 = 591)
+      expect(playerPos.x, equals(574 + 16 + 1.0));
+      expect(playerPos.x, greaterThan(dummyRect.right));
+
+      // Continue descending to platform level
+      locomotion.updatePhysics(
+        dt: 0.35,
+        position: playerPos,
+        size: playerSize,
+        moveSpeed: 180,
+        gravity: 0,
+        movementBounds: arena.playableBounds,
+        arena: arena,
+      );
+
+      // Safely lands on the platform beside the dummy
+      expect(locomotion.isOnGround, isTrue);
+      expect(locomotion.isOnMovingPlatform, isTrue);
+      expect(playerPos.y, equals(625 - 26));
+    });
+
+    test('Gaseous hero falling from above onto dummy passes straight through without deflecting', () {
+      final dummyRect = Rect.fromLTWH(550 - 24, 569, 48, 56);
+      locomotion.solidObstacles = [dummyRect];
+      locomotion.hasFlight = true;
+      locomotion.isGaseous = true;
+
+      final playerPos = Vector2(560, 569 - 26 - 5);
+      final playerSize = Vector2(32, 52);
+      locomotion.verticalFlightInput = 1.0;
+
+      locomotion.updatePhysics(
+        dt: 0.05,
+        position: playerPos,
+        size: playerSize,
+        moveSpeed: 180,
+        gravity: 0,
+        movementBounds: arena.playableBounds,
+        arena: arena,
+      );
+
+      // Does NOT deflect horizontally; continues straight down at X=560
+      expect(playerPos.x, equals(560.0));
+      expect(locomotion.isOnGround, isFalse);
+    });
   });
 }

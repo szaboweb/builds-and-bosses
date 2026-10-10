@@ -45,6 +45,9 @@ class PlayerComponent extends PositionComponent with HasGameReference {
   bool get isGaseous => _locomotion.isGaseous;
   set isGaseous(bool val) => _locomotion.isGaseous = val;
 
+  List<Rect> get solidObstacles => _locomotion.solidObstacles;
+  set solidObstacles(List<Rect> val) => _locomotion.solidObstacles = val;
+
   bool get isOnGround => _locomotion.isOnGround;
   set isOnGround(bool val) => _locomotion.isOnGround = val;
 
@@ -363,6 +366,17 @@ class PlayerComponent extends PositionComponent with HasGameReference {
         .whereType<ArenaMapComponent>()
         .firstOrNull;
     _locomotion.characterStrength = stats.strength;
+    _locomotion.solidObstacles = game.world.children
+        .whereType<DummyEnemyComponent>()
+        .where((e) => !e.stats.isDead)
+        .map(
+          (e) => Rect.fromCenter(
+            center: Offset(e.position.x, e.position.y),
+            width: e.size.x,
+            height: e.size.y,
+          ),
+        )
+        .toList(growable: false);
     _locomotion.updatePhysics(
       dt: dt,
       position: position,

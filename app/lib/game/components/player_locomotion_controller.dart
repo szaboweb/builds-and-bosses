@@ -26,6 +26,10 @@ class PlayerLocomotionController {
   /// In this state, the character floats freely through platforms and cannot land on them.
   bool isGaseous = false;
 
+  /// Solid physical obstacles (such as standing enemies or heavy constructs)
+  /// that block upward passage unless the character is gaseous.
+  List<Rect> solidObstacles = const [];
+
   /// Perform a jump if currently on the ground or a platform.
   bool jump({required double jumpVelocity}) {
     if (isOnGround) {
@@ -59,6 +63,7 @@ class PlayerLocomotionController {
     verticalFlightInput = 0.0;
     dropThroughTimer = 0.0;
     isOnMovingPlatform = false;
+    solidObstacles = const [];
   }
 
   /// Updates physics timers, integrates velocity/flight into position, and
@@ -103,12 +108,19 @@ class PlayerLocomotionController {
     position.x = position.x.clamp(leftX, rightX);
 
     final prevFeetY = position.y + size.y / 2;
+    final prevHeadY = position.y - size.y / 2;
     if (isFlying) {
       position.y += verticalFlightInput * moveSpeed * dt;
       position.y = position.y.clamp(topY, groundY - size.y / 2);
     } else {
       position.y += velocity.y * dt;
     }
+
+    _resolveUpwardObstacleCollisions(
+      position: position,
+      size: size,
+      prevHeadY: prevHeadY,
+    );
 
     _resolveLandings(
       position: position,
@@ -118,6 +130,33 @@ class PlayerLocomotionController {
       arena: arena,
       isFlying: isFlying,
     );
+  }
+
+  void _resolveUpwardObstacleCollisions({
+    required Vector2 position,
+    required Vector2 size,
+    required double prevHeadY,
+  }) {
+    if (isGaseous || solidObstacles.isEmpty) return;
+
+    final currentHeadY = position.y - size.y / 2;
+    final halfWidth = size.x / 2;
+
+    for (final obstacle in solidObstacles) {
+      final overlapsX =
+          (position.x + halfWidth > obstacle.left + 2) &&
+          (position.x - halfWidth < obstacle.right - 2);
+      if (!overlapsX) continue;
+
+      if (prevHeadY >= obstacle.bottom - 12.0 &&
+          currentHeadY < obstacle.bottom) {
+        position.y = obstacle.bottom + size.y / 2;
+        if (velocity.y < 0) {
+          velocity.y = 0;
+        }
+        return;
+      }
+    }
   }
 
   void _applyVelocity(double dt, double gravity, bool isFlying) {

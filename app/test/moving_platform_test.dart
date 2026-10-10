@@ -346,5 +346,87 @@ void main() {
       expect(locomotion.isOnMovingPlatform, isTrue);
       expect(playerPos.y, equals(625 - 26));
     });
+
+    test('Solid hero ascending from below is blocked by standing enemy dummy (body-block) and cannot land', () {
+      // Platform top is 625. Dummy standing on platform: bottom at 625, top at 569
+      final dummyRect = Rect.fromLTWH(500 - 24, 569, 48, 56);
+      locomotion.solidObstacles = [dummyRect];
+      locomotion.hasFlight = true;
+      locomotion.isGaseous = false;
+
+      // Player positioned directly below the dummy (X=500, head at 654)
+      final playerPos = Vector2(500, 680);
+      final playerSize = Vector2(32, 52);
+      locomotion.verticalFlightInput = -1.0; // flying upward into dummy
+
+      // Move upward for 0.4s (72px movement: from 680 -> 608, which would penetrate dummy)
+      locomotion.updatePhysics(
+        dt: 0.4,
+        position: playerPos,
+        size: playerSize,
+        moveSpeed: 180,
+        gravity: 0,
+        movementBounds: arena.playableBounds,
+        arena: arena,
+      );
+
+      // Player's head is blocked at dummy.bottom (625), player.y is clamped to 625 + 26 = 651
+      expect(playerPos.y, equals(625 + 26));
+      expect(locomotion.isOnGround, isFalse);
+      expect(locomotion.isOnMovingPlatform, isFalse);
+    });
+
+    test('Hero circumventing enemy dummy horizontally emerges through platform and safely lands', () {
+      final dummyRect = Rect.fromLTWH(500 - 24, 569, 48, 56);
+      locomotion.solidObstacles = [dummyRect];
+      locomotion.hasFlight = true;
+      locomotion.isGaseous = false;
+
+      // Player navigates to the side of the dummy (X=580, on platform [500..660], outside dummy boundary 524)
+      final playerPos = Vector2(580, 625 - 26 - 5);
+      final playerSize = Vector2(32, 52);
+      locomotion.verticalFlightInput =
+          1.0; // flying downward to land beside dummy
+
+      locomotion.updatePhysics(
+        dt: 0.05,
+        position: playerPos,
+        size: playerSize,
+        moveSpeed: 180,
+        gravity: 0,
+        movementBounds: arena.playableBounds,
+        arena: arena,
+      );
+
+      // Beside the dummy, hero safely touches down on the platform
+      expect(locomotion.isOnGround, isTrue);
+      expect(locomotion.isOnMovingPlatform, isTrue);
+      expect(playerPos.y, equals(625 - 26));
+    });
+
+    test('Gaseous hero ascending from below passes straight through standing enemy dummy', () {
+      final dummyRect = Rect.fromLTWH(500 - 24, 569, 48, 56);
+      locomotion.solidObstacles = [dummyRect];
+      locomotion.hasFlight = true;
+      locomotion.isGaseous = true; // Gaseous form active
+
+      final playerPos = Vector2(500, 680);
+      final playerSize = Vector2(32, 52);
+      locomotion.verticalFlightInput = -1.0; // flying upward
+
+      locomotion.updatePhysics(
+        dt: 0.4,
+        position: playerPos,
+        size: playerSize,
+        moveSpeed: 180,
+        gravity: 0,
+        movementBounds: arena.playableBounds,
+        arena: arena,
+      );
+
+      // Not blocked! Floats cleanly through dummy.bottom (past 651 into 608)
+      expect(playerPos.y, lessThan(625 + 26));
+      expect(locomotion.isOnGround, isFalse);
+    });
   });
 }

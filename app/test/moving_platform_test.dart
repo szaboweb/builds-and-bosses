@@ -3,6 +3,7 @@ import 'package:flame/extensions.dart';
 import 'package:builds_and_bosses_flame/core/dnd/character_stats.dart';
 import 'package:builds_and_bosses_flame/core/rules/status_tracker.dart';
 import 'package:builds_and_bosses_flame/game/components/arena_map_component.dart';
+import 'package:builds_and_bosses_flame/game/components/dummy_enemy_component.dart';
 import 'package:builds_and_bosses_flame/game/components/moving_platform_component.dart';
 import 'package:builds_and_bosses_flame/game/components/player_locomotion_controller.dart';
 
@@ -496,6 +497,81 @@ void main() {
       // Does NOT deflect horizontally; continues straight down at X=560
       expect(playerPos.x, equals(560.0));
       expect(locomotion.isOnGround, isFalse);
+    });
+
+    test('When dummy is marked isRideable (large beast/wolf MWP placeholder), hero lands on its back', () {
+      final dummy = DummyEnemyComponent(position: Vector2(550, 625 - 28));
+      dummy.isRideable = true;
+
+      locomotion.rideableSurfaces = [dummy.rideableBackSurface!];
+      locomotion.hasFlight = true;
+      locomotion.isGaseous = false;
+
+      // Player descends onto the beast's back
+      final playerPos = Vector2(550, dummy.rideableBackSurface!.top - 26 - 4);
+      final playerSize = Vector2(32, 52);
+      locomotion.verticalFlightInput = 1.0;
+
+      locomotion.updatePhysics(
+        dt: 0.05,
+        position: playerPos,
+        size: playerSize,
+        moveSpeed: 180,
+        gravity: 0,
+        movementBounds: arena.playableBounds,
+        arena: arena,
+      );
+
+      // Hero safely lands on the beast's back!
+      expect(locomotion.isOnGround, isTrue);
+      expect(locomotion.isOnRideableEntity, isTrue);
+      expect(playerPos.y, equals(dummy.rideableBackSurface!.top - 26));
+    });
+
+    test('Hero riding the beast is carried along horizontally with the beast displacement', () {
+      final dummy = DummyEnemyComponent(position: Vector2(550, 625 - 28));
+      dummy.isRideable = true;
+
+      locomotion.rideableSurfaces = [dummy.rideableBackSurface!];
+      locomotion.isOnGround = true;
+      locomotion.isOnRideableEntity = true;
+
+      // Beast moves +25px
+      dummy.pushBy(25.0);
+      locomotion.rideableDisplacement = Vector2(
+        dummy.lastDisplacementX,
+        dummy.lastDisplacementY,
+      );
+
+      final playerPos = Vector2(550, dummy.rideableBackSurface!.top - 26);
+      final playerSize = Vector2(32, 52);
+
+      locomotion.updatePhysics(
+        dt: 0.016,
+        position: playerPos,
+        size: playerSize,
+        moveSpeed: 180,
+        gravity: 0,
+        movementBounds: arena.playableBounds,
+        arena: arena,
+      );
+
+      // Hero was carried along by +25px: from 550 to 575!
+      expect(playerPos.x, equals(575.0));
+      expect(locomotion.isOnRideableEntity, isTrue);
+      expect(locomotion.isOnGround, isTrue);
+    });
+
+    test('Jumping leaves the beast back and clears isOnRideableEntity', () {
+      locomotion.isOnGround = true;
+      locomotion.isOnRideableEntity = true;
+
+      final jumped = locomotion.jump(jumpVelocity: -400);
+
+      expect(jumped, isTrue);
+      expect(locomotion.isOnGround, isFalse);
+      expect(locomotion.isOnRideableEntity, isFalse);
+      expect(locomotion.velocity.y, equals(-400.0));
     });
   });
 }

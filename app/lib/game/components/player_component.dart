@@ -366,17 +366,26 @@ class PlayerComponent extends PositionComponent with HasGameReference {
         .whereType<ArenaMapComponent>()
         .firstOrNull;
     _locomotion.characterStrength = stats.strength;
-    _locomotion.solidObstacles = game.world.children
+    final activeEnemies = game.world.children
         .whereType<DummyEnemyComponent>()
-        .where((e) => !e.stats.isDead)
-        .map(
-          (e) => Rect.fromCenter(
-            center: Offset(e.position.x, e.position.y),
-            width: e.size.x,
-            height: e.size.y,
-          ),
-        )
+        .where((e) => !e.stats.isDead);
+    _locomotion.solidObstacles = activeEnemies
+        .where((e) => !e.isRideable)
+        .map((e) => e.toRect())
         .toList(growable: false);
+    _locomotion.rideableSurfaces = activeEnemies
+        .map((e) => e.rideableBackSurface)
+        .whereType<Rect>()
+        .toList(growable: false);
+    final ridden = activeEnemies.where((e) => e.isRideable).firstOrNull;
+    if (ridden != null && _locomotion.isOnRideableEntity) {
+      _locomotion.rideableDisplacement = Vector2(
+        ridden.lastDisplacementX,
+        ridden.lastDisplacementY,
+      );
+    } else {
+      _locomotion.rideableDisplacement = null;
+    }
     _locomotion.updatePhysics(
       dt: dt,
       position: position,

@@ -30,12 +30,23 @@ class PlayerLocomotionController {
   /// that block upward passage unless the character is gaseous.
   List<Rect> solidObstacles = const [];
 
+  /// Rideable surfaces (such as the back of a large beast, mount, or boss)
+  /// where characters can land and stand on top instead of sliding off.
+  List<Rect> rideableSurfaces = const [];
+
+  /// Whether the player is currently standing on a rideable living entity.
+  bool isOnRideableEntity = false;
+
+  /// Kinematic displacement of the living entity being ridden.
+  Vector2? rideableDisplacement;
+
   /// Perform a jump if currently on the ground or a platform.
   bool jump({required double jumpVelocity}) {
     if (isOnGround) {
       velocity.y = jumpVelocity;
       isOnGround = false;
       isOnMovingPlatform = false;
+      isOnRideableEntity = false;
       return true;
     }
     return false;
@@ -63,7 +74,10 @@ class PlayerLocomotionController {
     verticalFlightInput = 0.0;
     dropThroughTimer = 0.0;
     isOnMovingPlatform = false;
+    isOnRideableEntity = false;
     solidObstacles = const [];
+    rideableSurfaces = const [];
+    rideableDisplacement = null;
   }
 
   /// Updates physics timers, integrates velocity/flight into position, and
@@ -90,9 +104,12 @@ class PlayerLocomotionController {
         : movementBounds.right - size.x / 2;
     final topY = arena != null ? 20.0 : movementBounds.top + 20.0;
 
-    // Carry standing rider along with the kinematic moving platform
+    // Carry standing rider along with the kinematic moving platform or rideable entity
     if (isOnMovingPlatform && arena != null) {
       position.x += arena.movingPlatform.lastDisplacementX;
+    } else if (isOnRideableEntity && rideableDisplacement != null) {
+      position.x += rideableDisplacement!.x;
+      position.y += rideableDisplacement!.y;
     }
 
     final isFlying = verticalFlightInput != 0;
@@ -213,6 +230,7 @@ class PlayerLocomotionController {
     final currentFeetY = position.y + size.y / 2;
     isOnGround = false;
     isOnMovingPlatform = false;
+    isOnRideableEntity = false;
 
     // 1. Solid ground landing
     if (currentFeetY >= groundY) {
@@ -225,16 +243,29 @@ class PlayerLocomotionController {
       return;
     }
 
-    // 2. Elevated semi-solid platform landings
-    // Do not land if gaseous (intangible / phased), flying UPWARD (verticalFlightInput < 0),
-    // jumping UPWARD (velocity.y < 0), dropping through, or no arena.
+    // 2. Elevated semi-solid platform & rideable living entity landings
     if (isGaseous ||
         verticalFlightInput < 0 ||
         velocity.y < 0 ||
-        dropThroughTimer > 0 ||
-        arena == null) {
+        dropThroughTimer > 0) {
       return;
     }
+
+    // Check rideable surfaces (mounts / large beasts / boss backs)
+    for (final surface in rideableSurfaces) {
+      if (_canLandOn(surface, position.x, prevFeetY, currentFeetY)) {
+        position.y = surface.top - size.y / 2;
+        velocity.y = 0;
+        if (verticalFlightInput > 0) {
+          verticalFlightInput = 0;
+        }
+        isOnGround = true;
+        isOnRideableEntity = true;
+        return;
+      }
+    }
+
+    if (arena == null) return;
 
     _resolvePlatformLandings(
       position: position,

@@ -21,6 +21,25 @@ class DummyEnemyComponent extends PositionComponent
   bool _hasFallenOffPlatform = false;
   bool get hasFallenOffPlatform => _hasFallenOffPlatform;
 
+  /// Kinematic displacement recorded in the last simulation frame.
+  double lastDisplacementX = 0.0;
+  double lastDisplacementY = 0.0;
+
+  /// Whether characters can land and ride on top of this entity
+  /// (e.g. large wolf, hellhound, or dragon).
+  bool isRideable = false;
+
+  /// Returns the top back-platform rect if [isRideable] is true.
+  Rect? get rideableBackSurface {
+    if (!isRideable || stats.isDead) return null;
+    return Rect.fromLTWH(
+      position.x - size.x / 2 + 2,
+      position.y - size.y / 2,
+      size.x - 4,
+      12,
+    );
+  }
+
   double _hitFlashTimer = 0.0;
   double _staggerTimer = 0.0;
   static const double _hitFlashDuration = 0.25;
@@ -66,6 +85,8 @@ class DummyEnemyComponent extends PositionComponent
   /// Pushes the dummy by a physical delta (e.g. player walking into it).
   void pushBy(double deltaX) {
     position.x += deltaX;
+    lastDisplacementX = deltaX;
+    lastDisplacementY = 0.0;
     _resolveCollisions(currentArena, position.y + size.y / 2);
   }
 
@@ -98,6 +119,8 @@ class DummyEnemyComponent extends PositionComponent
       }
     }
 
+    final prevX = position.x;
+    final prevY = position.y;
     final prevFeetY = position.y + size.y / 2;
     position.x += velocity.x * dt;
     position.y += velocity.y * dt;
@@ -109,6 +132,8 @@ class DummyEnemyComponent extends PositionComponent
     }
 
     _resolveCollisions(activeArena, prevFeetY);
+    lastDisplacementX = position.x - prevX;
+    lastDisplacementY = position.y - prevY;
   }
 
   void _resolveCollisions(ArenaMapComponent? activeArena, double prevFeetY) {

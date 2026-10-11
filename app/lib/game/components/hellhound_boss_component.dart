@@ -121,35 +121,108 @@ class HellhoundBossComponent extends DummyEnemyComponent {
         ? game.world.children.whereType<PlayerComponent>().firstOrNull
         : null;
     if (player != null) {
-      resolvePlayerCollision(player: player, activeArena: currentArena);
+      resolvePlayerCollision(player: player, activeArena: currentArena, dt: dt);
     }
   }
 
-  /// Pushes the player when patrolling into them, or turns around if blocked.
-  void resolvePlayerCollision({
-    required PlayerComponent player,
-    ArenaMapComponent? activeArena,
-  }) {
-    if (player.stats.isDead || player.isGaseous) return;
-
+  bool _canCollideWithPlayer(PlayerComponent player) {
+    if (player.stats.isDead || player.isGaseous) return false;
     final houndTop = position.y - size.y / 2;
     final houndBottom = position.y + size.y / 2;
     final playerFeet = player.position.y + player.size.y / 2;
     final playerHead = player.position.y - player.size.y / 2;
+    if (playerFeet <= houndTop + 6) return false;
+    return playerFeet >= houndTop && playerHead <= houndBottom;
+  }
 
-    if (playerFeet <= houndTop + 6) return;
-    if (playerFeet < houndTop || playerHead > houndBottom) return;
+  bool _resolveCounterPush({
+    required PlayerComponent player,
+    required double dir,
+    required double combinedHalfW,
+    required double minBoundary,
+    required double maxBoundary,
+    required double dt,
+  }) {
+    final heroStr = player.stats.strength;
+    final bossStr = stats.strength;
+    if (heroStr > bossStr) {
+      final diff = heroStr - bossStr;
+      final overpowerSpeed =
+          player.moveSpeed * 0.4 * (diff / 4.0).clamp(0.25, 1.0);
+      position.x -= dir * overpowerSpeed * dt;
+      position.x = position.x.clamp(minBoundary, maxBoundary);
+      player.position.x = position.x + dir * combinedHalfW;
+      if (position.x <= minBoundary || position.x >= maxBoundary) {
+        patrolDirectionRight = !patrolDirectionRight;
+      }
+      return true;
+    }
+    if (heroStr == bossStr) {
+      position.x -= dir * (patrolSpeed * dt);
+      player.position.x = position.x + dir * combinedHalfW;
+      return true;
+    }
+    final resistance = (heroStr / bossStr).clamp(0.2, 0.75);
+    position.x -= dir * (patrolSpeed * dt * resistance);
+    return false;
+  }
+
+  /// Resolves Strength contest shove / body block between Hellhound and Player.
+  /// Option B (Strength Struggle):
+  /// - Passive player: pushed forward, but higher STR creates passive drag/resistance.
+  /// - Active counter-push (moving towards hound):
+  ///   - Hero STR < Hound STR: Hound pushes hero forward with resistance.
+  ///   - Hero STR == Hound STR: Deadlock! Both halt at contact point.
+  ///   - Hero STR > Hound STR: Hero overpowers the hound and shoves it backwards!
+  void resolvePlayerCollision({
+    required PlayerComponent player,
+    ArenaMapComponent? activeArena,
+    double dt = 0.016,
+  }) {
+    if (!_canCollideWithPlayer(player)) return;
 
     final combinedHalfW = (size.x + player.size.x) / 2 - 2.0;
     final dx = player.position.x - position.x;
     if (dx.abs() >= combinedHalfW) return;
 
+    final dir = patrolDirectionRight ? 1.0 : -1.0;
+    if (dx * dir < -size.x * 0.25) return;
+
+    final (minBoundary, maxBoundary) = _resolvePatrolBoundaries(activeArena);
+    final isCounterPushing = player.velocity.x * dir < -0.1;
+
+    if (isCounterPushing) {
+      final handled = _resolveCounterPush(
+        player: player,
+        dir: dir,
+        combinedHalfW: combinedHalfW,
+        minBoundary: minBoundary,
+        maxBoundary: maxBoundary,
+        dt: dt,
+      );
+      if (handled) return;
+    } else if (player.velocity.x.abs() <= 0.1 && player.stats.strength >= 16) {
+      final passiveDrag = ((player.stats.strength - 10) * 0.04).clamp(
+        0.1,
+        0.45,
+      );
+      position.x -= dir * (patrolSpeed * dt * passiveDrag);
+    }
+
     final arenaLeft = (activeArena?.leftWallX ?? 0) + player.size.x / 2;
     final arenaRight = (activeArena?.rightWallX ?? 9999) - player.size.x / 2;
+    _clampAndPushPlayer(player, dir, combinedHalfW, arenaLeft, arenaRight);
+  }
 
-    if (patrolDirectionRight) {
-      if (dx < -size.x * 0.25) return;
-      final pushedX = position.x + combinedHalfW;
+  void _clampAndPushPlayer(
+    PlayerComponent player,
+    double dir,
+    double combinedHalfW,
+    double arenaLeft,
+    double arenaRight,
+  ) {
+    final pushedX = position.x + dir * combinedHalfW;
+    if (dir > 0) {
       if (pushedX >= arenaRight) {
         player.position.x = arenaRight;
         position.x = arenaRight - combinedHalfW;
@@ -158,8 +231,6 @@ class HellhoundBossComponent extends DummyEnemyComponent {
         player.position.x = max(player.position.x, pushedX);
       }
     } else {
-      if (dx > size.x * 0.25) return;
-      final pushedX = position.x - combinedHalfW;
       if (pushedX <= arenaLeft) {
         player.position.x = arenaLeft;
         position.x = arenaLeft + combinedHalfW;

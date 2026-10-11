@@ -239,6 +239,23 @@ class PlayerCombatController {
     );
   }
 
+  bool _canCollideWithEnemy(
+    DummyEnemyComponent enemy,
+    double playerFeet,
+    double playerHead,
+  ) {
+    if (enemy.stats.isDead) return false;
+    final enemyTop = enemy.position.y - enemy.size.y / 2;
+    final enemyBottom = enemy.position.y + enemy.size.y / 2;
+    if (enemy.isRideable && playerFeet <= enemyTop + 8.0) return false;
+    return playerFeet > enemyTop && playerHead < enemyBottom;
+  }
+
+  bool _canShoveEnemy(DummyEnemyComponent enemy, CharacterStats stats) {
+    return stats.canShoveOnContact &&
+        (!enemy.isRideable || stats.strength > enemy.stats.strength);
+  }
+
   /// Resolves physical body contact between moving player and adjacent enemies.
   /// Strong characters (STR >= 16) push/shove enemies; all characters are blocked
   /// from walking through solid enemy bodies unless in gaseous form.
@@ -257,15 +274,7 @@ class PlayerCombatController {
     final playerHead = playerPosition.y - playerSize.y / 2;
 
     for (final enemy in enemies) {
-      if (enemy.stats.isDead) continue;
-
-      final enemyTop = enemy.position.y - enemy.size.y / 2;
-      final enemyBottom = enemy.position.y + enemy.size.y / 2;
-
-      // Allow landing and standing on top of rideable enemy backs
-      if (enemy.isRideable && playerFeet <= enemyTop + 8.0) continue;
-      // Skip if vertically clear (above head or below feet)
-      if (playerFeet <= enemyTop || playerHead >= enemyBottom) continue;
+      if (!_canCollideWithEnemy(enemy, playerFeet, playerHead)) continue;
 
       final dx = enemy.position.x - playerPosition.x;
       final combinedHalfWidth = (playerSize.x + enemy.size.x) / 2 - 4.0;
@@ -275,7 +284,7 @@ class PlayerCombatController {
 
       final pushDir = dx > 0 ? 1.0 : -1.0;
 
-      if (stats.canShoveOnContact && !enemy.isRideable) {
+      if (_canShoveEnemy(enemy, stats)) {
         final pushStep = stats.moveSpeed * 0.8 * dt;
         enemy.pushBy(pushDir * pushStep);
       }

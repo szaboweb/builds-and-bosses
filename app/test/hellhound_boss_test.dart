@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:builds_and_bosses_flame/game/components/arena_map_component.dart';
 import 'package:builds_and_bosses_flame/game/components/hellhound_boss_component.dart';
 
+import 'package:builds_and_bosses_flame/core/dnd/character_stats.dart';
 import 'package:builds_and_bosses_flame/game/components/player_combat_controller.dart';
 import 'package:builds_and_bosses_flame/game/components/player_component.dart';
 
@@ -118,7 +119,7 @@ void main() {
 
       // Combined half width is (120 + 48) / 2 - 2 = 82
       final expectedX = boss.position.x + 82.0;
-      expect(player.position.x, equals(expectedX));
+      expect(player.position.x, closeTo(expectedX, 0.001));
     });
 
     test(
@@ -172,5 +173,99 @@ void main() {
           boss.position.x - 80.0; // combined half width (48+120)/2 - 4 = 80
       expect(player.position.x, equals(expectedX));
     });
+
+    test(
+      'Option B: Equal STR 16 standoff halts both entities at contact line',
+      () {
+        final player = PlayerComponent(
+          position: Vector2(boss.position.x + 70, boss.position.y),
+          movementBounds: const Rect.fromLTWH(0, 0, 1000, 500),
+        );
+        player.stats = player.stats.copyWith(strength: 16);
+        player.velocity.x =
+            -1.0; // Counter-pushing left into the right-moving boss
+
+        final initialBossX = boss.position.x;
+        boss.resolvePlayerCollision(player: player, dt: 0.1);
+
+        // Deadlock: boss does not advance forward, player stays at contact
+        expect(
+          boss.position.x,
+          closeTo(initialBossX - (boss.patrolSpeed * 0.1), 0.001),
+        );
+        expect(player.position.x, closeTo(boss.position.x + 82.0, 0.001));
+      },
+    );
+
+    test(
+      'Option B: Apex STR 20 overpowers Hellhound and shoves boss backwards',
+      () {
+        final player = PlayerComponent(
+          position: Vector2(boss.position.x + 70, boss.position.y),
+          movementBounds: const Rect.fromLTWH(0, 0, 1000, 500),
+        );
+        player.stats = player.stats.copyWith(strength: 20);
+        player.velocity.x =
+            -1.0; // Counter-pushing left into the right-moving boss
+
+        final initialBossX = boss.position.x;
+        boss.resolvePlayerCollision(player: player, dt: 0.1);
+
+        // Hero overpowers: boss position decreased (pushed back to the left)
+        expect(boss.position.x, lessThan(initialBossX));
+        expect(player.position.x, closeTo(boss.position.x + 82.0, 0.001));
+      },
+    );
+
+    test(
+      'Option B: Weak STR 10 counter-pushing is overpowered by Hellhound',
+      () {
+        final player = PlayerComponent(
+          position: Vector2(boss.position.x + 70, boss.position.y),
+          movementBounds: const Rect.fromLTWH(0, 0, 1000, 500),
+        );
+        player.stats = player.stats.copyWith(strength: 10);
+        player.velocity.x = -1.0; // Counter-pushing left
+
+        boss.resolvePlayerCollision(player: player, dt: 0.1);
+
+        // Hound wins: player is pushed to the right
+        expect(player.position.x, greaterThanOrEqualTo(boss.position.x + 82.0));
+      },
+    );
+
+    test(
+      'Option B: Passive STR 20 hero creates drag, slowing Hellhound push',
+      () {
+        final weakPlayer = PlayerComponent(
+          position: Vector2(boss.position.x + 70, boss.position.y),
+          movementBounds: const Rect.fromLTWH(0, 0, 1000, 500),
+        );
+        weakPlayer.stats = weakPlayer.stats.copyWith(strength: 10);
+        weakPlayer.velocity.x = 0.0; // Standing still
+
+        final strongPlayer = PlayerComponent(
+          position: Vector2(boss.position.x + 70, boss.position.y),
+          movementBounds: const Rect.fromLTWH(0, 0, 1000, 500),
+        );
+        strongPlayer.stats = strongPlayer.stats.copyWith(strength: 20);
+        strongPlayer.velocity.x = 0.0; // Standing still
+
+        final bossForWeak = HellhoundBossComponent(
+          position: Vector2(spawnX, spawnY),
+          patrolSpeed: 40.0,
+        );
+        final bossForStrong = HellhoundBossComponent(
+          position: Vector2(spawnX, spawnY),
+          patrolSpeed: 40.0,
+        );
+
+        bossForWeak.resolvePlayerCollision(player: weakPlayer, dt: 0.1);
+        bossForStrong.resolvePlayerCollision(player: strongPlayer, dt: 0.1);
+
+        // Boss facing strong hero experiences passive drag, so its final X is less
+        expect(bossForStrong.position.x, lessThan(bossForWeak.position.x));
+      },
+    );
   });
 }

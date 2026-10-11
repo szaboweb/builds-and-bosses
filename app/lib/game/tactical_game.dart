@@ -22,6 +22,7 @@ import 'combat_coordinator.dart';
 import 'combat_completion.dart';
 import 'components/arena_editor_component.dart';
 import 'components/arena_map_component.dart';
+import 'components/parallax_backdrop_component.dart';
 import 'components/dummy_enemy_component.dart';
 import 'components/hellhound_boss_component.dart';
 import 'components/ghost_preview_component.dart';
@@ -59,6 +60,7 @@ class TacticalModeGame extends FlameGame
         ),
       );
 
+  late ParallaxBackdropComponent backdrop;
   late ArenaMapComponent arena;
   late PlayerComponent player;
   late BaseEnemyComponent enemy;
@@ -165,6 +167,10 @@ class TacticalModeGame extends FlameGame
   }
 
   void _initializeGameComponents() {
+    backdrop = ParallaxBackdropComponent(
+      arenaWidth: currentArenaBlueprint.arenaWidth,
+      arenaHeight: currentArenaBlueprint.arenaHeight,
+    );
     arena = ArenaMapComponent(
       arenaWidth: currentArenaBlueprint.arenaWidth,
       arenaHeight: currentArenaBlueprint.arenaHeight,
@@ -226,6 +232,7 @@ class TacticalModeGame extends FlameGame
 
   void _buildWorldComponents() {
     world.addAll([
+      backdrop,
       arena,
       player,
       enemy,
@@ -254,6 +261,7 @@ class TacticalModeGame extends FlameGame
     currentArenaBlueprint = blueprint;
 
     // Update arena dimensions and apply blueprint
+    backdrop.size = Vector2(blueprint.arenaWidth, blueprint.arenaHeight);
     arena.size = Vector2(blueprint.arenaWidth, blueprint.arenaHeight);
     arena.applyBlueprint(blueprint);
 

@@ -141,68 +141,17 @@ class ArenaMapComponent extends PositionComponent {
   void render(Canvas canvas) {
     super.render(canvas);
 
-    // 1. Background dark stone dungeon wall
-    final bgPaint = Paint()..color = const Color(0xFF0F111A);
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.x, size.y), bgPaint);
-
-    // 2. Gothic Background Pillars & Arches
-    _renderBackgroundArchitecture(canvas);
-
-    // 3. Wall Torches & Ambient Fire Glow
+    // 1. Wall Torches & Ambient Fire Glow
     _renderTorches(canvas);
 
-    // 4. Floating Stone Platforms
+    // 2. Floating Stone Platforms
     _renderPlatforms(canvas);
 
-    // 5. Solid Ground Floor & Dungeon Base
+    // 3. Solid Ground Floor & Dungeon Base
     _renderGround(canvas);
 
-    // 6. Side Boundary Walls
+    // 4. Side Boundary Walls
     _renderWalls(canvas);
-  }
-
-  void _renderBackgroundArchitecture(Canvas canvas) {
-    final archPaint = Paint()
-      ..color = const Color(0xFF161926)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.0;
-
-    final pillarFill = Paint()..color = const Color(0xFF141724);
-
-    // Draw 5 background stone pillars
-    final pillarXs = [
-      size.x * 0.15,
-      size.x * 0.32,
-      size.x * 0.50,
-      size.x * 0.68,
-      size.x * 0.85,
-    ];
-
-    for (final px in pillarXs) {
-      // Pillar column
-      canvas.drawRect(Rect.fromLTWH(px - 18, 30, 36, groundY - 30), pillarFill);
-      // Capital & Base trims
-      canvas.drawRect(
-        Rect.fromLTWH(px - 24, 30, 48, 12),
-        Paint()..color = const Color(0xFF1E2235),
-      );
-      canvas.drawRect(
-        Rect.fromLTWH(px - 24, groundY - 14, 48, 14),
-        Paint()..color = const Color(0xFF1E2235),
-      );
-    }
-
-    // Interconnecting gothic arches
-    for (int i = 0; i < pillarXs.length - 1; i++) {
-      final p1 = pillarXs[i];
-      final p2 = pillarXs[i + 1];
-      final mid = (p1 + p2) / 2;
-
-      final path = Path()
-        ..moveTo(p1, 100)
-        ..quadraticBezierTo(mid, 35, p2, 100);
-      canvas.drawPath(path, archPaint);
-    }
   }
 
   void _renderTorches(Canvas canvas) {

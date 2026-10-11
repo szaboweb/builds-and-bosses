@@ -181,4 +181,153 @@ void main() {
       expect(tracker.isOpenPit(4, 12), isFalse); // Closed, solid platform now!
     });
   });
+
+  group('Universal PhysicalContestResolver Tests', () {
+    const contest = PhysicalContestResolver();
+
+    test('Gaseous form yields passThrough with zero displacement', () {
+      final outcome = contest.resolve(
+        const PhysicalContestRequest(
+          moverStr: 20,
+          targetStr: 20,
+          moverVelocity: 180.0,
+          isGaseous: true,
+        ),
+      );
+      expect(outcome.result, equals(PhysicalContestResult.passThrough));
+      expect(outcome.isBodyBlocked, isFalse);
+      expect(outcome.canShoveTarget, isFalse);
+      expect(outcome.targetDisplacement, equals(0.0));
+      expect(outcome.moverDisplacement, equals(0.0));
+    });
+
+    test(
+      'Head-on equal STR 16 produces standoff with halted moverSpeedFactor',
+      () {
+        final outcome = contest.resolve(
+          const PhysicalContestRequest(
+            moverStr: 16,
+            targetStr: 16,
+            moverVelocity: -180.0,
+            targetVelocity: 48.0,
+          ),
+        );
+        expect(outcome.result, equals(PhysicalContestResult.standoff));
+        expect(outcome.moverSpeedFactor, equals(0.0));
+        expect(outcome.isBodyBlocked, isTrue);
+        expect(outcome.canShoveTarget, isFalse);
+      },
+    );
+
+    test('Head-on STR 20 overpowers STR 16 and produces targetDisplacement backwards', () {
+      final outcome = contest.resolve(
+        const PhysicalContestRequest(
+          moverStr: 20,
+          targetStr: 16,
+          moverVelocity: -180.0,
+          targetVelocity: 48.0,
+          dt: 0.1,
+        ),
+      );
+      expect(outcome.result, equals(PhysicalContestResult.moverWins));
+      expect(outcome.canShoveTarget, isTrue);
+      expect(outcome.isBodyBlocked, isTrue);
+      // Mover is moving left (-180), so target displacement is negative (shoved left)
+      expect(outcome.targetDisplacement, lessThan(0.0));
+    });
+
+    test('Head-on STR 10 vs 16 yields targetWins, pusher displaced back', () {
+      final outcome = contest.resolve(
+        const PhysicalContestRequest(
+          moverStr: 10,
+          targetStr: 16,
+          moverVelocity: -180.0,
+          targetVelocity: 48.0,
+          dt: 0.1,
+        ),
+      );
+      expect(outcome.result, equals(PhysicalContestResult.targetWins));
+      expect(outcome.canShoveTarget, isFalse);
+      expect(outcome.isBodyBlocked, isTrue);
+      expect(outcome.moverDisplacement, greaterThan(0.0));
+    });
+
+    test(
+      'Unidirectional: STR >= 16 shoves standard enemy, STR < 16 body blocks',
+      () {
+        final weak = contest.resolve(
+          const PhysicalContestRequest(
+            moverStr: 10,
+            targetStr: 10,
+            moverVelocity: 180.0,
+            targetVelocity: 0.0,
+            dt: 0.1,
+          ),
+        );
+        expect(weak.canShoveTarget, isFalse);
+        expect(weak.targetDisplacement, equals(0.0));
+        expect(weak.isBodyBlocked, isTrue);
+
+        final strong = contest.resolve(
+          const PhysicalContestRequest(
+            moverStr: 16,
+            targetStr: 10,
+            moverVelocity: 180.0,
+            targetVelocity: 0.0,
+            dt: 0.1,
+          ),
+        );
+        expect(strong.canShoveTarget, isTrue);
+        expect(strong.targetDisplacement, greaterThan(0.0));
+        expect(strong.isBodyBlocked, isTrue);
+      },
+    );
+
+    test('Rideable entity requires moverStr > targetStr to shove', () {
+      final equalMover = contest.resolve(
+        const PhysicalContestRequest(
+          moverStr: 16,
+          targetStr: 16,
+          moverVelocity: 180.0,
+          targetVelocity: 0.0,
+          isRideable: true,
+        ),
+      );
+      expect(equalMover.canShoveTarget, isFalse);
+
+      final apexMover = contest.resolve(
+        const PhysicalContestRequest(
+          moverStr: 20,
+          targetStr: 16,
+          moverVelocity: 180.0,
+          targetVelocity: 0.0,
+          isRideable: true,
+          dt: 0.1,
+        ),
+      );
+      expect(apexMover.canShoveTarget, isTrue);
+      expect(apexMover.targetDisplacement, greaterThan(0.0));
+    });
+
+    test('Passive STR 20 entity creates drag, reducing moverSpeedFactor', () {
+      final vsWeak = contest.resolve(
+        const PhysicalContestRequest(
+          moverStr: 16,
+          targetStr: 10,
+          moverVelocity: 48.0,
+          targetVelocity: 0.0,
+        ),
+      );
+      final vsStrong = contest.resolve(
+        const PhysicalContestRequest(
+          moverStr: 16,
+          targetStr: 20,
+          moverVelocity: 48.0,
+          targetVelocity: 0.0,
+        ),
+      );
+      expect(vsWeak.moverSpeedFactor, equals(1.0));
+      expect(vsStrong.moverSpeedFactor, lessThan(1.0));
+    });
+  });
 }

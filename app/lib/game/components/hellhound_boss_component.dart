@@ -4,6 +4,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/dnd/character_stats.dart';
+import '../../core/physics/displacement_resolver.dart';
 import 'arena_map_component.dart';
 import 'dummy_enemy_component.dart';
 import 'player_component.dart';
@@ -143,13 +144,20 @@ class HellhoundBossComponent extends DummyEnemyComponent {
     required double maxBoundary,
     required double dt,
   }) {
-    final heroStr = player.stats.strength;
-    final bossStr = stats.strength;
-    if (heroStr > bossStr) {
-      final diff = heroStr - bossStr;
-      final overpowerSpeed =
-          player.moveSpeed * 0.4 * (diff / 4.0).clamp(0.25, 1.0);
-      position.x -= dir * overpowerSpeed * dt;
+    const resolver = PhysicalContestResolver();
+    final outcome = resolver.resolve(
+      PhysicalContestRequest(
+        moverStr: player.stats.strength,
+        targetStr: stats.strength,
+        moverVelocity: player.velocity.x * player.moveSpeed,
+        targetVelocity: dir * patrolSpeed,
+        isRideable: true,
+        dt: dt,
+      ),
+    );
+
+    if (outcome.result == PhysicalContestResult.moverWins) {
+      position.x += outcome.targetDisplacement;
       position.x = position.x.clamp(minBoundary, maxBoundary);
       player.position.x = position.x + dir * combinedHalfW;
       if (position.x <= minBoundary || position.x >= maxBoundary) {
@@ -157,13 +165,14 @@ class HellhoundBossComponent extends DummyEnemyComponent {
       }
       return true;
     }
-    if (heroStr == bossStr) {
+
+    if (outcome.result == PhysicalContestResult.standoff) {
       position.x -= dir * (patrolSpeed * dt);
       player.position.x = position.x + dir * combinedHalfW;
       return true;
     }
-    final resistance = (heroStr / bossStr).clamp(0.2, 0.75);
-    position.x -= dir * (patrolSpeed * dt * resistance);
+
+    position.x -= dir * (patrolSpeed * dt * (1.0 - outcome.moverSpeedFactor));
     return false;
   }
 
@@ -201,12 +210,22 @@ class HellhoundBossComponent extends DummyEnemyComponent {
         dt: dt,
       );
       if (handled) return;
-    } else if (player.velocity.x.abs() <= 0.1 && player.stats.strength >= 16) {
-      final passiveDrag = ((player.stats.strength - 10) * 0.04).clamp(
-        0.1,
-        0.45,
+    } else if (player.velocity.x.abs() <= 0.1) {
+      const resolver = PhysicalContestResolver();
+      final passiveOutcome = resolver.resolve(
+        PhysicalContestRequest(
+          moverStr: stats.strength,
+          targetStr: player.stats.strength,
+          moverVelocity: dir * patrolSpeed,
+          targetVelocity: 0.0,
+          isRideable: false,
+          dt: dt,
+        ),
       );
-      position.x -= dir * (patrolSpeed * dt * passiveDrag);
+      if (passiveOutcome.moverSpeedFactor < 1.0) {
+        position.x -=
+            dir * (patrolSpeed * dt * (1.0 - passiveOutcome.moverSpeedFactor));
+      }
     }
 
     final arenaLeft = (activeArena?.leftWallX ?? 0) + player.size.x / 2;

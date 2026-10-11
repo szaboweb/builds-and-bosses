@@ -4,6 +4,7 @@ import '../../core/combat/combat_logger.dart';
 import '../../core/dnd/character_stats.dart';
 import '../../core/dnd/combat_engine.dart';
 import '../../core/dnd/dice.dart';
+import '../../core/physics/displacement_resolver.dart';
 import 'dummy_enemy_component.dart';
 import 'floating_combat_text.dart';
 
@@ -251,11 +252,6 @@ class PlayerCombatController {
     return playerFeet > enemyTop && playerHead < enemyBottom;
   }
 
-  bool _canShoveEnemy(DummyEnemyComponent enemy, CharacterStats stats) {
-    return stats.canShoveOnContact &&
-        (!enemy.isRideable || stats.strength > enemy.stats.strength);
-  }
-
   /// Resolves physical body contact between moving player and adjacent enemies.
   /// Strong characters (STR >= 16) push/shove enemies; all characters are blocked
   /// from walking through solid enemy bodies unless in gaseous form.
@@ -272,6 +268,7 @@ class PlayerCombatController {
 
     final playerFeet = playerPosition.y + playerSize.y / 2;
     final playerHead = playerPosition.y - playerSize.y / 2;
+    const resolver = PhysicalContestResolver();
 
     for (final enemy in enemies) {
       if (!_canCollideWithEnemy(enemy, playerFeet, playerHead)) continue;
@@ -284,13 +281,25 @@ class PlayerCombatController {
 
       final pushDir = dx > 0 ? 1.0 : -1.0;
 
-      if (_canShoveEnemy(enemy, stats)) {
-        final pushStep = stats.moveSpeed * 0.8 * dt;
-        enemy.pushBy(pushDir * pushStep);
+      final outcome = resolver.resolve(
+        PhysicalContestRequest(
+          moverStr: stats.strength,
+          targetStr: enemy.stats.strength,
+          moverVelocity: playerVelocityX * stats.moveSpeed,
+          targetVelocity: enemy.velocity.x,
+          isRideable: enemy.isRideable,
+          isGaseous: isGaseous,
+          dt: dt,
+        ),
+      );
+
+      if (outcome.canShoveTarget && outcome.targetDisplacement != 0) {
+        enemy.pushBy(outcome.targetDisplacement);
       }
 
-      // Solid collision: prevent player from penetrating through enemy body
-      playerPosition.x = enemy.position.x - pushDir * combinedHalfWidth;
+      if (outcome.isBodyBlocked) {
+        playerPosition.x = enemy.position.x - pushDir * combinedHalfWidth;
+      }
     }
   }
 }

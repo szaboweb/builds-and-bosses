@@ -66,6 +66,7 @@ flutter:
     - assets/images/characters/wizard_13/
     - assets/images/characters/stickman_13/
     - assets/images/characters/fighter_godot/
+    - assets/images/characters/hellhound/
     - assets/images/equipment/godot_sample/
 
   # An image asset can refer to one or more resolution-specific "variants", see

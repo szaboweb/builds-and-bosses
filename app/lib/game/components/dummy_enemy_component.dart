@@ -44,13 +44,21 @@ class DummyEnemyComponent extends PositionComponent
   double _staggerTimer = 0.0;
   static const double _hitFlashDuration = 0.25;
 
+  double get hitFlashTimer => _hitFlashTimer;
+  double get staggerTimer => _staggerTimer;
+
   DummyEnemyComponent({
     required Vector2 position,
     CharacterStats? stats,
     this.onTapped,
     this.arena,
+    Vector2? size,
   }) : stats = stats ?? CharacterStats.trainingDummy(),
-       super(position: position, size: Vector2(48, 56), anchor: Anchor.center) {
+       super(
+         position: position,
+         size: size ?? Vector2(48, 56),
+         anchor: Anchor.center,
+       ) {
     _initialSpawnY = position.y;
   }
 
@@ -243,11 +251,11 @@ class DummyEnemyComponent extends PositionComponent
     canvas.drawPath(rightPath, spikePaint);
 
     // Health Bar overhead
-    _renderHealthBar(canvas);
+    renderHealthBar(canvas);
     if (_staggerTimer > 0) canvas.restore();
   }
 
-  void _renderHealthBar(Canvas canvas) {
+  void renderHealthBar(Canvas canvas) {
     const barWidth = 44.0;
     const barHeight = 6.0;
     final barLeft = (size.x - barWidth) / 2;

@@ -21,6 +21,10 @@ void main() {
         'planningHud',
         (context, game) => const SizedBox.shrink(),
       );
+      game.overlays.addEntry(
+        'levelSelector',
+        (context, game) => const SizedBox.shrink(),
+      );
       game.onGameResize(Vector2(960, 540));
       await game.onLoad();
     });

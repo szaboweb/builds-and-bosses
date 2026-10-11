@@ -240,7 +240,8 @@ class PlayerCombatController {
   }
 
   /// Resolves physical body contact between moving player and adjacent enemies.
-  /// Strong characters (STR >= 16) push/shove enemies.
+  /// Strong characters (STR >= 16) push/shove enemies; all characters are blocked
+  /// from walking through solid enemy bodies unless in gaseous form.
   void resolveEnemyContactPush({
     required Vector2 playerPosition,
     required Vector2 playerSize,
@@ -248,21 +249,39 @@ class PlayerCombatController {
     required double playerVelocityX,
     required double dt,
     required Iterable<DummyEnemyComponent> enemies,
+    bool isGaseous = false,
   }) {
-    if (playerVelocityX == 0 || !stats.canShoveOnContact) return;
+    if (playerVelocityX == 0 || isGaseous) return;
+
+    final playerFeet = playerPosition.y + playerSize.y / 2;
+    final playerHead = playerPosition.y - playerSize.y / 2;
 
     for (final enemy in enemies) {
       if (enemy.stats.isDead) continue;
+
+      final enemyTop = enemy.position.y - enemy.size.y / 2;
+      final enemyBottom = enemy.position.y + enemy.size.y / 2;
+
+      // Allow landing and standing on top of rideable enemy backs
+      if (enemy.isRideable && playerFeet <= enemyTop + 8.0) continue;
+      // Skip if vertically clear (above head or below feet)
+      if (playerFeet <= enemyTop || playerHead >= enemyBottom) continue;
+
       final dx = enemy.position.x - playerPosition.x;
-      final dy = (enemy.position.y - playerPosition.y).abs();
       final combinedHalfWidth = (playerSize.x + enemy.size.x) / 2 - 4.0;
 
-      if (dy >= 40.0 || dx.abs() >= combinedHalfWidth) continue;
+      if (dx.abs() > combinedHalfWidth) continue;
       if (playerVelocityX * dx <= 0) continue;
 
       final pushDir = dx > 0 ? 1.0 : -1.0;
-      final pushStep = stats.moveSpeed * 0.8 * dt;
-      enemy.pushBy(pushDir * pushStep);
+
+      if (stats.canShoveOnContact && !enemy.isRideable) {
+        final pushStep = stats.moveSpeed * 0.8 * dt;
+        enemy.pushBy(pushDir * pushStep);
+      }
+
+      // Solid collision: prevent player from penetrating through enemy body
+      playerPosition.x = enemy.position.x - pushDir * combinedHalfWidth;
     }
   }
 }

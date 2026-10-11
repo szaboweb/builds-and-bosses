@@ -50,6 +50,7 @@
     - `tooling/check_file_capacity.ps1`: sub-second line count & capacity tracking by zone (`-YellowAndRed`, `-ChangedOnly`, `-Top <N>`, `-Detailed`).
     - `tooling/run_editor_suite.ps1`: 1-command compact batch runner for the level editor test suite (`-IncludeGame`, `-WithQuality`, `-Format`).
     - `tooling/export_level_blueprint.ps1`: validates and exports dungeon layout blueprint JSONs (`-ExportDefault`, `-InputFile <path>`).
+    - `tooling/export_blend_sprites.ps1 -BlendFile <path> -OutDir <path> [-Action <name>] [-ResolutionX <w>] [-ResolutionY <h>]`: 1-command 3D-to-2D sprite pipeline. Runs Blender headless via `tooling/render_blend_to_sprites.py` (ortho side camera, film transparent, 3-point studio lighting), renders action frames, and bundles with Aseprite into `.aseprite`, horizontal spritesheet PNG, JSON, and GIF.
 - Run `tooling\validate_quality.ps1`: it checks AST metrics, size, imports,
   cycles and changed-file formatting. The commit hook uses staged content.
   Restore the pinned checker dependencies first; missing tools fail the gate.

@@ -191,6 +191,24 @@ class CharacterStats {
     );
   }
 
+  /// Preset for the Cerberus / Hellhound Boss.
+  factory CharacterStats.hellhoundBoss({GameRulesConfig? config}) {
+    return CharacterStats(
+      name: 'Hellhound',
+      level: 3,
+      maxHp: 45,
+      armorClass: 13,
+      alignment: CharacterAlignment.chaoticEvil,
+      strength: 16,
+      dexterity: 12,
+      constitution: 14,
+      intelligence: 6,
+      wisdom: 12,
+      charisma: 8,
+      config: config ?? GameRulesConfig.standard,
+    );
+  }
+
   /// Creates a copy of this CharacterStats with updated values.
   CharacterStats copyWith({
     String? name,

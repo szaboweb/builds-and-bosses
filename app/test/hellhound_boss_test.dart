@@ -2,6 +2,7 @@ import 'package:flame/extensions.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:builds_and_bosses_flame/game/components/arena_map_component.dart';
 import 'package:builds_and_bosses_flame/game/components/hellhound_boss_component.dart';
+import 'package:builds_and_bosses_flame/core/config/boss_blueprint.dart';
 
 import 'package:builds_and_bosses_flame/core/dnd/character_stats.dart';
 import 'package:builds_and_bosses_flame/game/components/player_combat_controller.dart';
@@ -18,9 +19,11 @@ void main() {
     setUp(() {
       boss = HellhoundBossComponent(
         position: Vector2(spawnX, spawnY),
-        patrolDistance: 60.0,
-        patrolSpeed: 40.0,
-        strideLength: 40.0,
+        movement: const BossMovementConfig(
+          patrolDistance: 60.0,
+          patrolSpeed: 40.0,
+          strideLength: 40.0,
+        ),
       );
       boss.isOnGround = true;
     });
@@ -253,11 +256,11 @@ void main() {
 
         final bossForWeak = HellhoundBossComponent(
           position: Vector2(spawnX, spawnY),
-          patrolSpeed: 40.0,
+          movement: const BossMovementConfig(patrolSpeed: 40.0),
         );
         final bossForStrong = HellhoundBossComponent(
           position: Vector2(spawnX, spawnY),
-          patrolSpeed: 40.0,
+          movement: const BossMovementConfig(patrolSpeed: 40.0),
         );
 
         bossForWeak.resolvePlayerCollision(player: weakPlayer, dt: 0.1);

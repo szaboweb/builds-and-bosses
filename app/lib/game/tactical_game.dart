@@ -61,7 +61,7 @@ class TacticalModeGame extends FlameGame
 
   late ArenaMapComponent arena;
   late PlayerComponent player;
-  late DummyEnemyComponent enemy;
+  late BaseEnemyComponent enemy;
   late GhostPreviewComponent ghostPreview;
   late CameraFollowController cameraFollowController;
   late LightingController lightingController;

@@ -1,13 +1,13 @@
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
-import 'components/dummy_enemy_component.dart';
+import 'components/base_enemy_component.dart';
 import 'components/player_component.dart';
 import 'developer_mode_controller.dart';
 
 class DeveloperVisualizationComponent extends PositionComponent {
   final PlayerComponent player;
-  final DummyEnemyComponent enemy;
+  final BaseEnemyComponent enemy;
   final DeveloperModeController mode;
 
   DeveloperVisualizationComponent({

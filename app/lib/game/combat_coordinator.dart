@@ -13,7 +13,7 @@ import '../core/dnd/dice.dart';
 import '../core/platform/platform_services.dart';
 import 'combat_completion.dart';
 import 'combat_coordinator_context.dart';
-import 'components/dummy_enemy_component.dart';
+import 'components/base_enemy_component.dart';
 import 'components/player_component.dart';
 import 'game_phase.dart';
 
@@ -30,7 +30,7 @@ class CombatCoordinator {
   final int debugSeed;
 
   PlayerComponent get player => context.player;
-  DummyEnemyComponent get enemy => context.enemy;
+  BaseEnemyComponent get enemy => context.enemy;
   ValueNotifier<GamePhase> get phaseNotifier => context.phaseNotifier;
   CombatTimerController get timerController => context.timerController;
   CombatCompletion get completion => context.completion;

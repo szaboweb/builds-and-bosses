@@ -5,7 +5,7 @@ import '../../core/dnd/character_stats.dart';
 import '../../core/dnd/combat_engine.dart';
 import '../../core/dnd/dice.dart';
 import '../../core/physics/displacement_resolver.dart';
-import 'dummy_enemy_component.dart';
+import 'base_enemy_component.dart';
 import 'floating_combat_text.dart';
 
 /// Owns combat action resolution, melee/spell/ranged damage calculation,
@@ -29,7 +29,7 @@ class PlayerCombatController {
     required Vector2 targetPos,
     required Vector2 playerPosition,
     required CharacterStats stats,
-    required Iterable<DummyEnemyComponent> enemies,
+    required Iterable<BaseEnemyComponent> enemies,
     required void Function(Component) onSpawnComponent,
   }) {
     if (!canReachMelee(
@@ -77,12 +77,12 @@ class PlayerCombatController {
     }
   }
 
-  DummyEnemyComponent? _findClosestEnemy(
-    Iterable<DummyEnemyComponent> enemies,
+  BaseEnemyComponent? _findClosestEnemy(
+    Iterable<BaseEnemyComponent> enemies,
     Vector2 targetPos,
     double maxRange,
   ) {
-    DummyEnemyComponent? closest;
+    BaseEnemyComponent? closest;
     double closestDist = maxRange;
     for (final e in enemies) {
       final d = e.position.distanceTo(targetPos);
@@ -96,7 +96,7 @@ class PlayerCombatController {
 
   void _applyMeleeHit({
     required CharacterStats attacker,
-    required DummyEnemyComponent targetEnemy,
+    required BaseEnemyComponent targetEnemy,
     required Vector2 playerPosition,
     required void Function(Component) onSpawnComponent,
   }) {
@@ -135,7 +135,7 @@ class PlayerCombatController {
     required Vector2 playerPosition,
     required CharacterStats stats,
     required double knockback,
-    required Iterable<DummyEnemyComponent> enemies,
+    required Iterable<BaseEnemyComponent> enemies,
     required void Function(Component) onSpawnComponent,
   }) {
     final spellDistance = playerPosition.distanceTo(targetPos);
@@ -176,7 +176,7 @@ class PlayerCombatController {
     required Vector2 targetPos,
     required Vector2 playerPosition,
     required CharacterStats stats,
-    required Iterable<DummyEnemyComponent> enemies,
+    required Iterable<BaseEnemyComponent> enemies,
     required void Function(Component) onSpawnComponent,
   }) {
     final rangedDistance = playerPosition.distanceTo(targetPos);
@@ -241,7 +241,7 @@ class PlayerCombatController {
   }
 
   bool _canCollideWithEnemy(
-    DummyEnemyComponent enemy,
+    BaseEnemyComponent enemy,
     double playerFeet,
     double playerHead,
   ) {
@@ -261,7 +261,7 @@ class PlayerCombatController {
     required CharacterStats stats,
     required double playerVelocityX,
     required double dt,
-    required Iterable<DummyEnemyComponent> enemies,
+    required Iterable<BaseEnemyComponent> enemies,
     bool isGaseous = false,
   }) {
     if (playerVelocityX == 0 || isGaseous) return;

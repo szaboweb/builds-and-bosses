@@ -270,5 +270,26 @@ void main() {
         expect(bossForStrong.position.x, lessThan(bossForWeak.position.x));
       },
     );
+
+    test('Jumping up from below bumps underbelly and does not catapult horizontally', () {
+      final jumpingPlayer = PlayerComponent(
+        position: Vector2(boss.position.x, boss.position.y + 40),
+        movementBounds: const Rect.fromLTWH(0, 0, 1000, 500),
+      );
+      jumpingPlayer.velocity.y = -350.0; // Upward jump velocity
+
+      final initialX = jumpingPlayer.position.x;
+      boss.resolvePlayerCollision(player: jumpingPlayer, dt: 0.016);
+
+      // Horizontal position must NOT be thrown sideways
+      expect(jumpingPlayer.position.x, equals(initialX));
+      // Upward jump velocity is canceled
+      expect(jumpingPlayer.velocity.y, equals(0.0));
+      // Player is kept below boss bottom
+      expect(
+        jumpingPlayer.position.y,
+        greaterThanOrEqualTo(boss.position.y + boss.size.y / 2),
+      );
+    });
   });
 }

@@ -307,7 +307,7 @@ class PlayerComponent extends PositionComponent with HasGameReference {
       targetPos: targetPos,
       playerPosition: position,
       stats: stats,
-      enemies: game.world.children.whereType<DummyEnemyComponent>(),
+      enemies: game.world.children.whereType<BaseEnemyComponent>(),
       onSpawnComponent: _spawn,
     );
   }
@@ -318,7 +318,7 @@ class PlayerComponent extends PositionComponent with HasGameReference {
       playerPosition: position,
       stats: stats,
       knockback: knockback,
-      enemies: game.world.children.whereType<DummyEnemyComponent>(),
+      enemies: game.world.children.whereType<BaseEnemyComponent>(),
       onSpawnComponent: _spawn,
     );
   }
@@ -328,7 +328,7 @@ class PlayerComponent extends PositionComponent with HasGameReference {
       targetPos: targetPos,
       playerPosition: position,
       stats: stats,
-      enemies: game.world.children.whereType<DummyEnemyComponent>(),
+      enemies: game.world.children.whereType<BaseEnemyComponent>(),
       onSpawnComponent: _spawn,
     );
   }
@@ -367,7 +367,7 @@ class PlayerComponent extends PositionComponent with HasGameReference {
         .firstOrNull;
     _locomotion.characterStrength = stats.strength;
     final activeEnemies = game.world.children
-        .whereType<DummyEnemyComponent>()
+        .whereType<BaseEnemyComponent>()
         .where((e) => !e.stats.isDead);
     _locomotion.solidObstacles = activeEnemies
         .where((e) => !e.isRideable)
@@ -410,7 +410,7 @@ class PlayerComponent extends PositionComponent with HasGameReference {
       stats: stats,
       playerVelocityX: velocity.x,
       dt: dt,
-      enemies: game.world.children.whereType<DummyEnemyComponent>(),
+      enemies: game.world.children.whereType<BaseEnemyComponent>(),
     );
   }
 
@@ -439,7 +439,7 @@ class PlayerComponent extends PositionComponent with HasGameReference {
             stats: stats,
             playerVelocityX: dir.x,
             dt: dt,
-            enemies: game.world.children.whereType<DummyEnemyComponent>(),
+            enemies: game.world.children.whereType<BaseEnemyComponent>(),
           );
         }
       }

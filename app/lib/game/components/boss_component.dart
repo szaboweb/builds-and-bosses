@@ -82,7 +82,21 @@ abstract class BossComponent extends BaseEnemyComponent {
     final houndBottom = position.y + size.y / 2;
     final playerFeet = player.position.y + player.size.y / 2;
     final playerHead = player.position.y - player.size.y / 2;
+
+    // 1. Landing on top of rideable back: handled by rideableBackSurface
     if (playerFeet <= houndTop + 6) return false;
+
+    // 2. Jumping up from below into underbelly: bump head smoothly, cancel upward jump, no horizontal shove
+    if (playerHead < houndBottom && player.position.y > position.y) {
+      if (playerFeet > houndBottom + 4) {
+        player.position.y = houndBottom + player.size.y / 2;
+        if (player.velocity.y < 0) {
+          player.velocity.y = 0.0;
+        }
+        return false;
+      }
+    }
+
     return playerFeet >= houndTop && playerHead <= houndBottom;
   }
 

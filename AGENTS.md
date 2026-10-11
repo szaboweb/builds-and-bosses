@@ -17,6 +17,12 @@
   dispatches intent; platform adapters implement service contracts.
 - Reuse the correct existing owner. A new responsibility needs a focused module,
   even below the line limit. Pass narrow data/contracts, not a whole game/context.
+- **Rubik-Cube Decoupling Principles:** Follow the 5 rules in [Architecture](docs/ARCHITECTURE.md#decoupling--regression-prevention-rubik-cube-protection):
+  (1) depend on interface abstractions (e.g. `BaseEnemyComponent`), never concrete entities,
+  (2) pure immutable calculations in `core/`,
+  (3) event-driven side-effects over cross-system mutations,
+  (4) data-driven blueprints (`BossBlueprint`),
+  (5) golden regression tests for every physical and collision boundary edge case.
 - **Traffic Light File Size & Proactive Refactoring Rules:**
   - 🟢 **Green (0 – 349 physical lines): Safe Expansion & Sweet Spot Zone.** Features belonging
     to the file's cohesive responsibility can be added freely. The targeted size for new/extracted

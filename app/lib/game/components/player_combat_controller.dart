@@ -249,6 +249,7 @@ class PlayerCombatController {
     final enemyTop = enemy.position.y - enemy.size.y / 2;
     final enemyBottom = enemy.position.y + enemy.size.y / 2;
     if (enemy.isRideable && playerFeet <= enemyTop + 8.0) return false;
+    if (playerFeet > enemyBottom + 4.0) return false;
     return playerFeet > enemyTop && playerHead < enemyBottom;
   }
 

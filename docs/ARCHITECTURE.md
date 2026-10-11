@@ -302,6 +302,15 @@ pwsh -NoProfile -File tooling/validate_data.ps1
 - Combat statistics are written to a local cache first. A future Steam adapter may sync the same immutable run record to the community Hall of Fame, but sync failure must never block gameplay.
 - Every new rule or config value requires a headless test.
 
+## Decoupling & Regression Prevention (Rubik-Cube Protection)
+
+To prevent new features or balance changes from rippling across unrelated systems:
+1. **Interface Contracts Over Concrete Types:** Rely on shared abstractions (e.g., `BaseEnemyComponent`, `PlatformServices`) rather than concrete entities (`DummyEnemyComponent`, `HellhoundBossComponent`).
+2. **Pure Functions & Immutability in Core:** Keep core rules and calculations (`DamagePipeline`, `PhysicalContestResolver`) strictly pure, taking immutable inputs and returning immutable results without direct Flame/UI references.
+3. **Event-Driven Decoupling:** Publish domain events or reactive callbacks for secondary side-effects (sound, UI reactions, screen shake, particles) instead of coupling systems via direct mutations.
+4. **Data-Driven Blueprints:** Parameters, timings, hitboxes, and stats live in structured blueprints/JSON (`BossBlueprint`), not hard-coded magic constants inside component logic.
+5. **Golden Regression Tests:** Every boundary edge case (e.g., underbelly jump bumps, shove clamps, platform edges) must have a focused automated test protecting against future regressions.
+
 ## Debug Replay
 
 Combat runs use a configurable Dice seed and can be represented by a JSON
